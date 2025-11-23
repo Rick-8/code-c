@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # WARNING: set DEBUG = False in production
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['cozys-coaches.herokuapp.com', 'localhost']
 
@@ -108,18 +108,11 @@ WSGI_APPLICATION = "cozys.wsgi.application"
 # -------------------------------------------------------------------
 # Database (MSSQL – values from env.py / environment)
 # -------------------------------------------------------------------
+
 DATABASES = {
-    "default": {
-        "ENGINE": "mssql",
-        "NAME": os.environ.get("DB_NAME"),
-        "USER": os.environ.get("DB_USER"),
-        "PASSWORD": os.environ.get("DB_PASSWORD"),
-        "HOST": os.environ.get("DB_HOST"),
-        "PORT": "",
-        "OPTIONS": {
-            "driver": os.environ.get("DB_DRIVER"),
-        },
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
 }
 
 
