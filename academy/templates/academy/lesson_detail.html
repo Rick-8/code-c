@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+{% block nav_academy_active %}active{% endblock %}
+
+{% block title %}{{ lesson.title }} – {{ module.title }} | Academy{% endblock %}
+
+{% block content %}
+
+
+
+<!-- Lesson Header -->
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-10">
+        <div class="cozy-dark-glass p-4 d-flex flex-column gap-3">
+
+            <a href="{% url 'academy_module_detail' course.slug module.slug %}" class="btn btn-sm"
+                style="background:#800020; border:none; color:white; width:140px;">
+                <i class="fa-solid fa-angle-left"></i> Back to Module
+            </a>
+
+            <h1 class="text-light mb-0">{{ lesson.title }}</h1>
+
+            <p class="text-light">
+                Part of <strong>{{ course.title }}</strong> → <strong>{{ module.title }}</strong>
+            </p>
+
+            {% if lesson.order %}
+            <span class="badge rounded-pill" style="background:#800020; color:white; width:150px; text-align:center;">
+                Lesson {{ lesson.order }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if lesson.video_url %}
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-10">
+        <div class="cozy-dark-glass p-4">
+            <div class="video-container my-2">
+                <div id="player"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Lesson Content -->
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="cozy-dark-glass p-4">
+
+            <div class="text-light lesson-body">
+                {{ lesson.content|safe }}
+            </div>
+
+            <!-- Mark as complete button (manual backup) -->
+            <form method="post" action="{% url 'academy_complete_lesson' lesson.id %}" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="btn fw-bold w-100 py-2"
+                    style="background:#800020; border:none; color:white;">
+                    Mark Lesson as Complete
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+{% if lesson.video_url %}
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    var player;
+
+    // Get CSRF token from cookie (Django standard pattern)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Extract YouTube video ID from the full URL
+    function getYouTubeID(url) {
+        const match = url.match(/(?:v=|\.be\/)([^&]+)/);
+        return match ? match[1] : null;
+    }
+
+    function onYouTubeIframeAPIReady() {
+        const videoID = getYouTubeID("{{ lesson.video_url|escapejs }}");
+        if (!videoID) return;
+
+        player = new YT.Player('player', {
+            height: '390',
+            width: '640',
+            videoId: videoID,
+            events: {
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        // 0 = ended
+        if (event.data === YT.PlayerState.ENDED) {
+            // Auto-complete the lesson by calling your Django endpoint
+            fetch("{% url 'academy_complete_lesson' lesson.id %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrftoken,
+                }
+            })
+                .then(() => {
+                    // Reload so the status badges & progress update
+                    location.reload();
+                })
+                .catch(err => console.error("Error completing lesson:", err));
+        }
+    }
+</script>
+{% endif %}
+
+{% endblock %}

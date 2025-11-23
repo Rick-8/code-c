@@ -1,0 +1,210 @@
+/* GLOBAL — keep background image clean */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+.cozy-text-subtitle {
+    display: inline-block;
+    padding: 6px 14px;
+    color: #fff; /* white text */
+    font-weight: 500;
+    background: rgba(128, 0, 32, 0.6); /* semi-transparent burgundy */
+    border-radius: 12px; /* soft rounded edge */
+    backdrop-filter: blur(6px); /* soft glass effect */
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    letter-spacing: 0.3px;
+}
+
+/* FIXED BACKGROUND */
+.cozy-bg-fixed {
+    background-image: url("../css/media/cozys-vanhool-building.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center 50%;
+    background-attachment: fixed;
+}
+
+/* REMOVE FULL-PAGE OVERLAY (important) */
+.cozy-header-blur,
+.cozy-main-blur,
+footer.cozy-footer {
+    background: transparent !important;
+    backdrop-filter: none !important;
+}
+
+/* NAVBAR — glass effect only on navbar */
+.navbar-cozy {
+    background: rgba(50, 0, 0, 0.6); /* burgundy tinted transparent */
+    backdrop-filter: blur(6px);
+}
+
+/* HERO SECTION */
+.cozy-hero-parallax {
+    padding: 140px 0;
+    color: white;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+
+/* Optional: glass panel behind hero text */
+.cozy-hero-content {
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    padding: 25px;
+    border-radius: 12px;
+}
+
+/* BADGE */
+.cozy-hero-badge {
+    background: rgba(0,0,0,0.55);
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.cozy-hero-badge .dot {
+    width: 8px;
+    height: 8px;
+    background: #ff4d4d;
+    border-radius: 50%;
+}
+
+/* FEATURE CARDS (glass) */
+.cozy-feature-card {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+}
+
+/* DIVIDER SECTION (dark glass) */
+.cozy-divider-parallax {
+    padding: 100px 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    text-align: center;
+    border-radius: 16px;
+}
+
+/* FOOTER (glass) */
+.cozy-footer {
+    background: rgba(0,0,0,0.55) !important;
+    backdrop-filter: blur(6px);
+    color: white;
+}
+
+/* DARK GLASS CONTENT PANEL for login/signup */
+.cozy-dark-glass {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 30px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #f1f1f1;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+
+.cozy-dark-glass input,
+.cozy-dark-glass input:focus {
+    background: rgba(255,255,255,0.9);
+    color: black;
+    border-radius: 10px;
+}
+
+.cozy-dark-glass label {
+    font-weight: 600;
+}
+
+.cozy-dark-glass a {
+    color: #ffcccc;
+    text-decoration: underline;
+}
+.cozy-dark-glass a:hover {
+    color: white;
+}
+
+
+.video-container iframe {
+    width: 100%;
+    max-width: 100%;
+}
+
+.cozy-toast-container {
+    z-index: 2000; /* above nav/offcanvas etc */
+}
+
+/* On small screens, stop them going too wide */
+@media (max-width: 576px) {
+    .cozy-toast-container {
+        width: 100%;
+        left: 0;
+        right: 0;
+    }
+    .cozy-toast-container .toast {
+        width: 100%;
+    }
+}
+
+/* Logo container for soft blend */
+.cozy-logo {
+    height: 44px;                      /* adjust to taste */
+    width: auto;
+    border-radius: 10px;               /* soft corners */
+    padding: 4px 6px;                  /* breathing space */
+    
+    background: rgba(255, 255, 255, 0.09);  /* subtle translucent layer */
+    backdrop-filter: blur(6px);             /* smooth glass effect */
+    -webkit-backdrop-filter: blur(6px);
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);  /* soft glow */
+    transition: all 0.25s ease;               /* smooth hover */
+}
+
+/* Optional: slight hover lift */
+.cozy-logo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+
+/* Manager Sidebar Enhancements */
+.nav-link.active {
+    background-color: rgba(128, 0, 32, 0.8) !important;
+    box-shadow: 0 0 8px rgba(128, 0, 32, 0.6);
+}
+
+.nav-link:hover {
+    background-color: rgba(128, 0, 32, 0.6);
+    color: #fff;
+    transform: translateX(2px);
+    transition: all 0.2s ease-in-out;
+}
+.navbar-cozy .dropdown-menu {
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.navbar-cozy .dropdown-item {
+    color: #f8f9fa;
+}
+
+.navbar-cozy .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.card-hover {
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+.card-hover:hover {
+    background-color: rgba(128, 0, 32, 0.7);
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px rgba(128, 0, 32, 0.6);
+}

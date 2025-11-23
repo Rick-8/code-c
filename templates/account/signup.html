@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Staff Sign Up | Cozy Coaches{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+
+        <div class="cozy-dark-glass p-4">
+
+            <h2 class="text-center mb-3 fw-bold text-light">
+                Staff Sign Up
+            </h2>
+
+            <p class="text-center text-light mb-4">
+                Create your staff account to access the Cozy Coaches systems.
+            </p>
+
+            <form method="POST" action="{% url 'account_signup' %}">
+                {% csrf_token %}
+
+                {{ form.non_field_errors }}
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-light" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text small text-light">
+                                {{ field.help_text|safe }}
+                            </div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="text-warning small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit"
+                        class="btn w-100 fw-bold py-2"
+                        style="background:#800020; border:none; color:white;">
+                    Create Account
+                </button>
+
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+
+            <p class="text-center text-light small mt-3">
+                Already have an account?
+                <a href="{% url 'account_login' %}">Log in here</a>.
+            </p>
+
+            <p class="text-center text-light small">
+                If you are not a member of staff, please contact the office – 
+                public registrations are not monitored.
+            </p>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

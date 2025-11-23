@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home | Cozy Coaches{% endblock %}
+{% block nav_home_active %}active{% endblock %}
+
+{% block content %}
+
+<!-- HERO PARALLAX -->
+<section class="cozy-hero-parallax mb-5">
+    <div class="container">
+        <div class="cozy-hero-content">
+            <div class="cozy-hero-badge">
+                <span class="dot"></span>
+                Live operations · School runs · Private hire
+            </div>
+
+            <h1 class="cozy-hero-title">
+                Professional coach travel, built on comfort and safety.
+            </h1>
+
+            <p class="cozy-hero-subtitle">
+                Cozy Coaches keeps pupils, passengers and partners moving — with reliable,
+                well-presented vehicles and drivers who care.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="#" class="btn btn-light btn-lg">Plan a journey</a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'account_login' %}" class="btn btn-outline-light btn-lg">Login</a>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="mb-5">
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card cozy-feature-card">
+                <div class="card-body">
+                    <div class="cozy-feature-icon"><i class="fa-regular fa-square-check"></i></div>
+                    <h3 class="h6">Safety first</h3>
+                    <p class="small mb-0">
+                        Driver training, walk-around checks and clear procedures designed to keep everyone safe.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card cozy-feature-card">
+                <div class="card-body">
+                    <div class="cozy-feature-icon"><i class="fa-solid fa-bus"></i></div>
+                    <h3 class="h6">Comfortable coaches</h3>
+                    <p class="small mb-0">
+                        Clean, well-maintained vehicles with a professional image.
+                        Fit for any journey
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card cozy-feature-card">
+                <div class="card-body">
+                    <div class="cozy-feature-icon"><i class="fa-solid fa-people-group"></i></div>
+                    <h3 class="h6">Customer care</h3>
+                    <p class="small mb-0">
+                        Friendly, reliable service from booking to drop-off.
+                        We go the extra mile.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- SECOND PARALLAX -->
+
+
+{% endblock %}

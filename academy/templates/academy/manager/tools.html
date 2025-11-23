@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manager Tools{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="cozy-dark-glass p-5 rounded-4 shadow-lg">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-light mb-0">
+                <i class="fa-solid fa-wrench me-2 text-danger"></i> Manager Tools
+            </h2>
+            <a href="{% url 'academy_manager_dashboard' %}" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <p class="text-light mb-4">
+            Access administrative tools and database editing panels below. These links will open the Django admin
+            sections for direct management of key training data.
+        </p>
+
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <a href="/admin/academy/question/" class="btn btn-outline-light w-100 py-3">
+                    <i class="fa-solid fa-list-check me-2"></i> Edit Questions
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="/admin/academy/choice/" class="btn btn-outline-light w-100 py-3">
+                    <i class="fa-solid fa-check-square me-2"></i> Edit Choices
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="/admin/academy/module/" class="btn btn-outline-light w-100 py-3">
+                    <i class="fa-solid fa-book-open me-2"></i> Edit Modules
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="/admin/academy/course/" class="btn btn-outline-light w-100 py-3">
+                    <i class="fa-solid fa-graduation-cap me-2"></i> Edit Courses
+                </a>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <div class="p-3 mt-4 rounded-3 border border-danger bg-dark bg-opacity-75">
+            <p class="mb-1 text-danger fw-bold">
+                ⚠️ Only superusers should modify data directly in these sections.
+            </p>
+            <p class="mb-0 text-danger">
+                Changes are applied immediately to the live training platform.
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
