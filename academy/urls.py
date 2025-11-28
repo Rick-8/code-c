@@ -23,6 +23,7 @@ urlpatterns = [
         name="academy_manager_mark_pass"
     ),
     path("managers/users/", views.manager_users, name="academy_manager_users"),
+    path("questions/add/", views.add_question, name="academy_add_question"),
 
 
 ]

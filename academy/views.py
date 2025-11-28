@@ -14,6 +14,8 @@ from django.http import HttpResponse, HttpResponseForbidden
 from .models import Certificate, ModuleProgress, FinalTestSubmission
 from django.conf import settings
 from reportlab.lib.utils import ImageReader
+from .forms import QuestionForm, ChoiceFormSet
+
 import os
 
 
@@ -931,3 +933,35 @@ def manager_users(request):
         return redirect("academy_manager_users")
 
     return render(request, "academy/manager/users.html", {"users": users})
+
+
+@login_required
+def add_question(request):
+    if not request.user.is_superuser:
+        return redirect('academy_dashboard')
+
+    if request.method == "POST":
+        q_form = QuestionForm(request.POST)
+        c_formset = ChoiceFormSet(request.POST)
+
+        if q_form.is_valid() and c_formset.is_valid():
+            question = q_form.save()
+            choices = c_formset.save(commit=False)
+
+            # Save each choice and link it
+            for c in choices:
+                c.question = question
+                c.save()
+
+            messages.success(request, "Question created successfully.")
+            return redirect("academy_manager_tools")
+
+
+    else:
+        q_form = QuestionForm()
+        c_formset = ChoiceFormSet()
+
+    return render(request, "academy/add_question.html", {
+        "q_form": q_form,
+        "c_formset": c_formset,
+    })

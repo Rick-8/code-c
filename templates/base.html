@@ -72,35 +72,48 @@
                         {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                style="z-index: 2000; position: relative;">
                                 <i class="fa-solid fa-user-circle me-2"></i>
                                 <span class="d-none d-sm-inline">Hi, {{ user.username }}</span>
                                 <span class="d-inline d-sm-none">{{ user.username }}</span>
                             </a>
 
-                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                                <li class="dropdown-header small text-muted">
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
+                                aria-labelledby="userDropdown" style="
+                background: rgba(0,0,0,0.88);
+                backdrop-filter: blur(6px);
+                z-index: 9999999 !important;
+                min-width: 220px;">
+
+                                <li class="dropdown-header small text-light">
                                     Signed in as<br>
                                     <strong>{{ user.username }}</strong>
                                 </li>
+
                                 <li>
-                                    <hr class="dropdown-divider">
+                                    <hr class="dropdown-divider border-secondary">
                                 </li>
 
                                 {% if user.is_superuser %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'academy_manager_dashboard' %}">
-                                        <i class="fa-solid fa-gauge-high me-2"></i> Manager Dashboard
+                                    <a class="dropdown-item text-light" href="{% url 'academy_manager_dashboard' %}"
+                                        style="color: #f8f9fa !important;">
+                                        <i class="fa-solid fa-gauge-high me-2 text-warning"></i>
+                                        Manager Dashboard
                                     </a>
                                 </li>
                                 <li>
-                                    <hr class="dropdown-divider">
+                                    <hr class="dropdown-divider border-secondary">
                                 </li>
                                 {% endif %}
 
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'account_logout' %}?next={{ request.path }}">
-                                        <i class="fa-solid fa-right-from-bracket me-2"></i>Logout
+                                    <a class="dropdown-item text-light"
+                                        href="{% url 'account_logout' %}?next={{ request.path }}"
+                                        style="color: #f8f9fa !important;">
+                                        <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i>
+                                        Logout
                                     </a>
                                 </li>
                             </ul>
@@ -114,6 +127,7 @@
                         </li>
                         {% endif %}
                     </ul>
+
                 </div>
             </div>
         </nav>
