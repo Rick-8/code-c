@@ -1,0 +1,297 @@
+/* ============================================================
+   GLOBAL BASE — layout + background
+   ============================================================ */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Fixed background image */
+.cozy-bg-fixed {
+    background-image: url("../css/media/cozys-vanhool-building.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center 50%;
+    background-attachment: fixed;
+}
+
+/* Text badge */
+.cozy-text-subtitle {
+    display: inline-block;
+    padding: 6px 14px;
+    color: #fff;
+    font-weight: 500;
+    background: rgba(128, 0, 32, 0.6);
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    letter-spacing: 0.3px;
+}
+
+/* Main blur layer (below navbar) */
+.cozy-main-blur {
+    background: transparent !important;
+}
+
+
+/* ============================================================
+   NAVBAR — always on top
+   ============================================================ */
+
+.navbar-cozy {
+    background: rgba(50, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Keep navbar above all content, BUT allow dropdowns to float */
+header.cozy-header-blur,
+.navbar-cozy {
+    position: relative;
+    z-index: 1030;  /* Bootstrap navbar default */
+}
+
+
+/* Dropdown: highest layer on page */
+.dropdown-menu {
+    position: absolute !important;
+    z-index: 1040 !important; /* Above navbar, below modals */
+}
+
+
+/* Dropdown style */
+.navbar-cozy .dropdown-menu {
+    background: rgba(0,0,0,0.9) !important;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 6px 0;
+}
+
+.navbar-cozy .dropdown-item {
+    color: #f8f9fa !important;
+}
+
+.navbar-cozy .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+
+/* ============================================================
+   LOGO
+   ============================================================ */
+
+.cozy-logo {
+    height: 44px;
+    padding: 4px 6px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.09);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: all 0.25s ease;
+}
+
+.cozy-logo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+
+
+/* ============================================================
+   DARK GLASS PANELS (Academy cards, login etc)
+   ============================================================ */
+
+.cozy-dark-glass {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 30px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #f1f1f1;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+
+    /* BELOW navbar, ABOVE background */
+    position: relative;
+    z-index: 1;
+}
+
+.cozy-dark-glass input,
+.cozy-dark-glass input:focus {
+    background: rgba(255,255,255,0.9);
+    color: black;
+    border-radius: 10px;
+}
+
+.cozy-dark-glass label {
+    font-weight: 600;
+}
+
+.cozy-dark-glass a {
+    color: #ffcccc;
+    text-decoration: underline;
+}
+
+.cozy-dark-glass a:hover {
+    color: white;
+}
+
+
+/* ============================================================
+   FEATURE CARDS / HERO / DIVIDERS
+   ============================================================ */
+
+.cozy-feature-card {
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+}
+
+.cozy-divider-parallax {
+    padding: 100px 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    border-radius: 16px;
+    text-align: center;
+}
+
+.cozy-hero-parallax {
+    padding: 140px 0;
+    color: white;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+}
+
+.cozy-hero-content {
+    background: rgba(0,0,0,0.45);
+    padding: 25px;
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+}
+
+.cozy-hero-badge {
+    background: rgba(0,0,0,0.55);
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.cozy-hero-badge .dot {
+    width: 8px;
+    height: 8px;
+    background: #ff4d4d;
+    border-radius: 50%;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.cozy-footer {
+    background: rgba(0,0,0,0.55) !important;
+    color: white;
+    backdrop-filter: blur(6px);
+}
+
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+
+.cozy-toast-container {
+    z-index: 2000 !important;
+}
+
+@media (max-width: 576px) {
+    .cozy-toast-container {
+        width: 100%;
+        left: 0;
+        right: 0;
+    }
+    .cozy-toast-container .toast {
+        width: 100%;
+    }
+}
+
+
+/* ============================================================
+   HOVER CARDS
+   ============================================================ */
+
+.card-hover {
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.card-hover:hover {
+    background-color: rgba(128, 0, 32, 0.7);
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px rgba(128,0,32,0.6);
+}
+
+
+/* ============================================================
+   MANAGER SIDEBAR
+   ============================================================ */
+
+.nav-link.active {
+    background-color: rgba(128, 0, 32, 0.8) !important;
+    box-shadow: 0 0 8px rgba(128,0,32,0.6);
+}
+
+.nav-link:hover {
+    background-color: rgba(128, 0, 32, 0.6);
+    color: #fff;
+    transform: translateX(2px);
+    transition: 0.2s ease-in-out;
+}
+
+/* ============================================================
+   POPOVERS
+   ============================================================ */
+/* Small popover thumbnail image */
+.popover .popover-thumb {
+    max-width: 120px !important;
+    max-height: 120px !important;
+    object-fit: contain !important;
+    display: block;
+    border-radius: 6px;
+    margin: 0 auto;
+}
+
+/* Video URL popover */
+.popover-video-url {
+    max-width: 180px !important;
+    font-size: 0.75rem !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+}
+
+/* General popover style */
+.popover {
+    background: rgba(20, 20, 20, 0.95) !important;
+    border: 1px solid #444 !important;
+    max-width: 200px !important;
+    padding: 6px 10px !important;
+}
+
+.popover-body {
+    padding: 8px !important;
+}
+
+/* Ensure popover anchor works */
+.popover-wrapper {
+    position: relative;
+}
+
+
