@@ -15,6 +15,9 @@ from .models import Certificate, ModuleProgress, FinalTestSubmission
 from django.conf import settings
 from reportlab.lib.utils import ImageReader
 from .forms import QuestionForm, ChoiceFormSet
+import json
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import Question, Choice, Module
 
 import os
 
@@ -1153,3 +1156,207 @@ def add_lesson(request, module_id):
 def manager_driver_progress(request):
     return render(request, "academy/manager/driver_progress.html")
 
+
+@login_required
+def edit_question(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+    choices = Choice.objects.filter(question=question).order_by("id")
+
+    if request.method == "POST":
+        question.text = request.POST.get("text")
+        question.save()
+        messages.success(request, "Question updated successfully.")
+        return redirect("academy_edit_question", question_id=question.id)
+
+    return render(request, "academy/manager/edit_question.html", {
+        "question": question,
+        "choices": choices,
+    })
+
+
+@login_required
+def update_choice(request, choice_id):
+    choice = get_object_or_404(Choice, id=choice_id)
+
+    if request.method == "POST":
+        choice.text = request.POST.get("text")
+        choice.is_correct = "is_correct" in request.POST
+        choice.save()
+
+        messages.success(request, "Answer updated.")
+        return redirect("academy_edit_question", question_id=choice.question.id)
+
+    return HttpResponse(status=405)
+
+
+@login_required
+def delete_choice(request, choice_id):
+    choice = get_object_or_404(Choice, id=choice_id)
+    question_id = choice.question.id
+    choice.delete()
+
+    messages.warning(request, "Answer deleted.")
+    return redirect("academy_edit_question", question_id=question_id)
+
+
+@login_required
+def add_choice(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+
+    if request.method == "POST":
+        text = request.POST.get("text")
+        is_correct = "is_correct" in request.POST
+
+        if text.strip():
+            Choice.objects.create(
+                question=question,
+                text=text,
+                is_correct=is_correct
+            )
+            messages.success(request, "Answer added.")
+
+        return redirect("academy_edit_question", question_id=question.id)
+
+    return HttpResponse(status=405)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def manage_questions(request):
+    questions = Question.objects.all().order_by("id")
+    return render(request, "academy/manager/manage_questions.html", {
+        "questions": questions,
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def import_questions(request):
+    if request.method == "POST":
+        module_id = request.POST.get("module_id")
+        delete_existing = request.POST.get("delete_existing") == "on"
+        uploaded_file = request.FILES.get("json_file")
+
+        if not uploaded_file:
+            messages.error(request, "No JSON file uploaded.")
+            return redirect("academy_import_questions")
+
+        # Load raw JSON
+        try:
+            data = json.load(uploaded_file)
+        except json.JSONDecodeError:
+            messages.error(request, "Invalid JSON format.")
+            return redirect("academy_import_questions")
+
+        # Validate module from form
+        try:
+            default_module = Module.objects.get(id=module_id)
+        except Module.DoesNotExist:
+            messages.error(request, "Module not found.")
+            return redirect("academy_import_questions")
+
+        # Delete existing questions if checkbox ticked
+        if delete_existing:
+            Question.objects.filter(module=default_module).delete()
+
+        created_q = 0
+        created_c = 0
+        skipped = 0
+
+        # ------------------------------------------------------------------
+        # DETECT FORMAT TYPE
+        # ------------------------------------------------------------------
+        fixture_format = False
+        if isinstance(data, list) and len(data) > 0:
+            first = data[0]
+            fixture_format = "model" in first and "fields" in first
+
+        # ------------------------------------------------------------------
+        # FORMAT A: Django fixture format
+        # ------------------------------------------------------------------
+        if fixture_format:
+            question_map = {}  # map pk → created Question object
+
+            for obj in data:
+                model = obj.get("model")
+                fields = obj.get("fields", {})
+
+                # Create Question
+                if model == "academy.question":
+                    module = default_module
+
+                    # If fixture specifies module override
+                    mod_id = fields.get("module")
+                    if mod_id:
+                        module = Module.objects.filter(id=mod_id).first() or module
+
+                    q = Question.objects.create(
+                        module=module,
+                        text=fields.get("text", ""),
+                        order=fields.get("order", 1),
+                        explanation=fields.get("explanation", "")
+                    )
+                    question_map[obj["pk"]] = q
+                    created_q += 1
+
+                # Create Choice
+                elif model == "academy.choice":
+                    q_pk = fields.get("question")
+                    question = question_map.get(q_pk)
+
+                    # If question doesn’t exist
+                    if not question:
+                        skipped += 1
+                        continue
+
+                    Choice.objects.create(
+                        question=question,
+                        text=fields.get("text", ""),
+                        is_correct=fields.get("is_correct", False)
+                    )
+                    created_c += 1
+
+        # ------------------------------------------------------------------
+        # FORMAT B: Clean custom JSON format
+        # ------------------------------------------------------------------
+        else:
+            for entry in data:
+                # Must contain text + choices
+                if "text" not in entry or "choices" not in entry:
+                    skipped += 1
+                    continue
+
+                # Module override by slug
+                module = default_module
+                slug = entry.get("module_slug")
+                if slug:
+                    module = Module.objects.filter(slug=slug).first() or default_module
+
+                q = Question.objects.create(
+                    module=module,
+                    text=entry["text"],
+                    order=entry.get("order", 1),
+                    explanation=entry.get("explanation", "")
+                )
+                created_q += 1
+
+                # Add choices
+                for ch in entry["choices"]:
+                    Choice.objects.create(
+                        question=q,
+                        text=ch["text"],
+                        is_correct=ch.get("is_correct", False)
+                    )
+                    created_c += 1
+
+        # ------------------------------------------------------------------
+
+        messages.success(
+            request,
+            f"Imported {created_q} questions and {created_c} choices. "
+            f"Skipped {skipped}."
+        )
+        return redirect("academy_import_questions")
+
+    modules = Module.objects.all()
+    return render(request, "academy/manager/import_questions.html", {"modules": modules})

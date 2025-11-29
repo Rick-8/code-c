@@ -181,5 +181,16 @@ urlpatterns = [
         views.manager_driver_progress,
         name="academy_manager_driver_progress",
     ),
+    # QUESTION MANAGEMENT
+    path("manager/questions/<int:question_id>/edit/", views.edit_question, name="academy_edit_question"),
+
+    path("manager/choices/<int:choice_id>/update/", views.update_choice, name="academy_update_choice"),
+    path("manager/choices/<int:choice_id>/delete/", views.delete_choice, name="academy_delete_choice"),
+
+    path("manager/questions/<int:question_id>/choices/add/", views.add_choice, name="academy_add_choice"),
+    path("managers/questions/", views.manage_questions, name="academy_manage_questions"),
+    path("managers/questions/import/", views.import_questions, name="academy_import_questions"),
+
+
 
 ]

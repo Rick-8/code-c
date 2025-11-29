@@ -14,8 +14,7 @@
                 Academy Management Hub
             </h2>
 
-            <a href="{% url 'academy_manager_dashboard' %}" 
-               class="btn btn-secondary btn-sm fw-bold">
+            <a href="{% url 'academy_manager_dashboard' %}" class="btn btn-secondary btn-sm fw-bold">
                 <i class="fa-solid fa-arrow-left me-2"></i> Back
             </a>
         </div>
@@ -30,14 +29,13 @@
         <!-- MAIN ACTION CARD -->
         <div class="mb-5">
             <div class="p-4 rounded-4 border border-warning bg-dark bg-opacity-50 text-center">
-                <a href="{% url 'academy_manage_courses' %}" 
-                   class="btn btn-primary btn-lg fw-bold w-100 py-3">
+                <a href="{% url 'academy_manage_courses' %}" class="btn btn-primary btn-lg fw-bold w-100 py-3">
                     <i class="fa-solid fa-layer-group me-2"></i>
                     Manage Course Structure
                 </a>
 
                 <p class="text-light opacity-75 small mt-3 mb-0">
-                    Courses → Modules → Lessons  
+                    Courses → Modules → Lessons
                     (All content management is handled inside this workflow.)
                 </p>
             </div>
@@ -47,35 +45,47 @@
         <!-- QUESTIONS SECTION -->
         <div class="mb-4">
             <h4 class="text-light mb-3">
-                <i class="fa-solid fa-circle-question text-primary me-2"></i>
+                <i class="fa-solid fa-circle-question text-warning me-2"></i>
                 Question Bank
             </h4>
 
-            <div class="row g-3">
+            <div class="p-4 rounded-4 cozy-dark-glass border border-secondary">
 
-                <!-- Add Question -->
-                <div class="col-md-6">
-                    <a href="{% url 'academy_add_question' %}" 
-                       class="btn btn-success fw-bold w-100 py-3">
-                        <i class="fa-solid fa-plus me-2"></i>
-                        Add New Question
+                <div class="row g-3">
+
+                    <!-- Add Question -->
+                    <div class="col-md-6">
+                        <a href="{% url 'academy_add_question' %}" class="btn btn-success fw-bold w-100 py-3 shadow-sm">
+                            <i class="fa-solid fa-plus me-2"></i>
+                            Add New Question
+                        </a>
+                    </div>
+
+                    <!-- Manage Questions -->
+                    <div class="col-md-6">
+                        <a href="{% url 'academy_manage_questions' %}" class="btn btn-outline-light fw-bold w-100 py-3">
+                            <i class="fa-solid fa-list me-2"></i>
+                            Manage Questions
+                        </a>
+
+                    </div>
+                    <a href="{% url 'academy_import_questions' %}" class="btn btn-primary fw-bold w-100 py-3">
+                        <i class="fa-solid fa-file-import me-2"></i>
+                        Import Questions from JSON
                     </a>
+
                 </div>
 
-                <!-- Manage Questions -->
-                <div class="col-md-6">
-                    <a href="{% url 'academy_manage_courses' %}" 
-                       class="btn btn-outline-light fw-bold w-100 py-3">
-                        <i class="fa-solid fa-list me-2"></i>
-                        Manage Questions (Select Course/Module)
-                    </a>
-                </div>
+                <p class="text-light opacity-75 small text-center mt-3 mb-0">
+                    Select a course → choose a module → review or edit its questions.
+                </p>
 
             </div>
         </div>
 
 
-       
+
+
 
     </div>
 </div>

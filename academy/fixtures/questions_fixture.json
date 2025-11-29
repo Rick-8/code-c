@@ -1,0 +1,601 @@
+[
+  {
+    "model": "academy.question",
+    "pk": 1,
+    "fields": {
+      "module": 6,
+      "text": "What are Cozy Coaches’ three main priorities as a company?",
+      "order": 1
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 1,
+    "fields": { "question": 1, "text": "Safety, professionalism, and exceptional customer service", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 2,
+    "fields": { "question": 1, "text": "Fast journeys, low cost and minimal breaks", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 3,
+    "fields": { "question": 1, "text": "Long hours, cutting corners and reducing fuel costs", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 4,
+    "fields": { "question": 1, "text": "Following the timetable only", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 2,
+    "fields": {
+      "module": 6,
+      "text": "When must a driver contact the office regarding a timetable or route issue?",
+      "order": 2
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 5,
+    "fields": { "question": 2, "text": "Immediately from a safe, legal place", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 6,
+    "fields": { "question": 2, "text": "Only at the end of the shift", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 7,
+    "fields": { "question": 2, "text": "Only if passengers complain", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 8,
+    "fields": { "question": 2, "text": "Only if running more than 10 minutes late", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 3,
+    "fields": {
+      "module": 6,
+      "text": "Before leaving the depot, what must a driver do?",
+      "order": 3
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 9,
+    "fields": { "question": 3, "text": "Complete a full walk-around check and report defects immediately", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 10,
+    "fields": { "question": 3, "text": "Rely on the previous driver’s sheet", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 11,
+    "fields": { "question": 3, "text": "Check lights only and leave if they work", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 12,
+    "fields": { "question": 3, "text": "Quickly walk around the bus without checking details", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 4,
+    "fields": {
+      "module": 6,
+      "text": "If a stop is missed, there’s a closure, or the timetable becomes impossible to follow, what must a driver do?",
+      "order": 4
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 13,
+    "fields": { "question": 4, "text": "Stop safely and call the office for instructions", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 14,
+    "fields": { "question": 4, "text": "Ask passengers for advice", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 15,
+    "fields": { "question": 4, "text": "Wait until the end of the shift to report it", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 16,
+    "fields": { "question": 4, "text": "Try to catch up and skip quiet stops", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 5,
+    "fields": {
+      "module": 6,
+      "text": "How should drivers behave during a difficult or confrontational passenger situation?",
+      "order": 5
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 17,
+    "fields": { "question": 5, "text": "Remain calm, avoid confrontation, notify office if needed", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 18,
+    "fields": { "question": 5, "text": "Argue back to defend yourself", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 19,
+    "fields": { "question": 5, "text": "Ignore the passenger completely", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 20,
+    "fields": { "question": 5, "text": "Stop the vehicle immediately to confront the issue", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 6,
+    "fields": {
+      "module": 6,
+      "text": "What should a driver do if they discover a safety-critical defect mid-route?",
+      "order": 6
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 21,
+    "fields": { "question": 6, "text": "Stop somewhere safe and call the office/engineering immediately", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 22,
+    "fields": { "question": 6, "text": "Finish the trip then report it", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 23,
+    "fields": { "question": 6, "text": "Ignore it unless passengers complain", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 24,
+    "fields": { "question": 6, "text": "Drive slower so it’s safer", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 7,
+    "fields": {
+      "module": 6,
+      "text": "Who is responsible for ensuring the vehicle is clean, fuelled, and ready for service?",
+      "order": 7
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 25,
+    "fields": { "question": 7, "text": "The driver completing the shift", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 26,
+    "fields": { "question": 7, "text": "The next driver", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 27,
+    "fields": { "question": 7, "text": "The engineering team", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 28,
+    "fields": { "question": 7, "text": "Passengers", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 8,
+    "fields": {
+      "module": 6,
+      "text": "When dealing with vulnerable passengers (elderly, disabled, young), what must drivers always do?",
+      "order": 8
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 29,
+    "fields": { "question": 8, "text": "Offer assistance and ensure they are safely seated before moving", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 30,
+    "fields": { "question": 8, "text": "Drive off quickly to avoid delays", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 31,
+    "fields": { "question": 8, "text": "Let other passengers assist alone", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 32,
+    "fields": { "question": 8, "text": "Tell them to hurry up", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 9,
+    "fields": {
+      "module": 6,
+      "text": "If an accident occurs, what is the driver’s FIRST responsibility?",
+      "order": 9
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 33,
+    "fields": { "question": 9, "text": "Ensure safety, stop, secure the vehicle, and check for injuries", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 34,
+    "fields": { "question": 9, "text": "Call a friend", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 35,
+    "fields": { "question": 9, "text": "Leave the scene", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 36,
+    "fields": { "question": 9, "text": "Argue with the other driver", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 10,
+    "fields": {
+      "module": 6,
+      "text": "What is Cozy Coaches’ policy on using a mobile phone while driving?",
+      "order": 10
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 37,
+    "fields": { "question": 10, "text": "Strictly prohibited unless parked safely with the engine off", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 38,
+    "fields": { "question": 10, "text": "Allowed if on speakerphone", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 39,
+    "fields": { "question": 10, "text": "Allowed if no passengers are present", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 40,
+    "fields": { "question": 10, "text": "Allowed during delays only", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 11,
+    "fields": {
+      "module": 6,
+      "text": "What is the correct action if a passenger becomes unwell?",
+      "order": 11
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 41,
+    "fields": { "question": 11, "text": "Stop safely, offer assistance, and call emergency services if needed", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 42,
+    "fields": { "question": 11, "text": "Ignore them and continue driving", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 43,
+    "fields": { "question": 11, "text": "Ask other passengers to care for them", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 44,
+    "fields": { "question": 11, "text": "Drive faster to reach the destination sooner", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 12,
+    "fields": {
+      "module": 6,
+      "text": "When should a driver report damage caused by passengers?",
+      "order": 12
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 45,
+    "fields": { "question": 12, "text": "Immediately, following company reporting procedures", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 46,
+    "fields": { "question": 12, "text": "Only if the damage is large", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 47,
+    "fields": { "question": 12, "text": "At the end of the week", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 48,
+    "fields": { "question": 12, "text": "Never", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 13,
+    "fields": {
+      "module": 6,
+      "text": "What should a driver do if they become fatigued during a shift?",
+      "order": 13
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 49,
+    "fields": { "question": 13, "text": "Stop somewhere safe and contact the office", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 50,
+    "fields": { "question": 13, "text": "Push through and finish the shift", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 51,
+    "fields": { "question": 13, "text": "Open a window and continue driving", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 52,
+    "fields": { "question": 13, "text": "Ask a passenger to keep talking to you", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 14,
+    "fields": {
+      "module": 6,
+      "text": "When must a driver complete their defect report?",
+      "order": 14
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 53,
+    "fields": { "question": 14, "text": "Before leaving the depot and at end of shift", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 54,
+    "fields": { "question": 14, "text": "Only if defects are found", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 55,
+    "fields": { "question": 14, "text": "Only once per week", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 56,
+    "fields": { "question": 14, "text": "Never", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 15,
+    "fields": {
+      "module": 6,
+      "text": "What is the correct procedure when reversing a vehicle in the yard?",
+      "order": 15
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 57,
+    "fields": { "question": 15, "text": "Use a banksman if available and proceed slowly", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 58,
+    "fields": { "question": 15, "text": "Reverse quickly to save time", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 59,
+    "fields": { "question": 15, "text": "Ask passengers to guide you", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 60,
+    "fields": { "question": 15, "text": "Give up and go forward only", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 16,
+    "fields": {
+      "module": 6,
+      "text": "If a driver witnesses anti-social behaviour on the bus, what is the correct action?",
+      "order": 16
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 61,
+    "fields": { "question": 16, "text": "Remain calm, do not escalate, and notify the office if needed", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 62,
+    "fields": { "question": 16, "text": "Confront passengers aggressively", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 63,
+    "fields": { "question": 16, "text": "Ignore the behaviour completely", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 64,
+    "fields": { "question": 16, "text": "Tell all passengers to get off the bus", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 17,
+    "fields": {
+      "module": 6,
+      "text": "What should a driver do if they spill fuel while refuelling?",
+      "order": 17
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 65,
+    "fields": { "question": 17, "text": "Report it immediately and ensure area is safe", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 66,
+    "fields": { "question": 17, "text": "Ignore it", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 67,
+    "fields": { "question": 17, "text": "Drive away quickly", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 68,
+    "fields": { "question": 17, "text": "Wait for another driver to deal with it", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 18,
+    "fields": {
+      "module": 6,
+      "text": "What must drivers do before leaving the yard at the start of a shift?",
+      "order": 18
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 69,
+    "fields": { "question": 18, "text": "Check for children or obstructions around the vehicle", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 70,
+    "fields": { "question": 18, "text": "Drive off immediately", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 71,
+    "fields": { "question": 18, "text": "Sound the horn loudly", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 72,
+    "fields": { "question": 18, "text": "Ask passengers to help look", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 19,
+    "fields": {
+      "module": 6,
+      "text": "What must a driver check before operating a school or contracted service?",
+      "order": 19
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 73,
+    "fields": { "question": 19, "text": "They have the correct vehicle, route, and timetable", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 74,
+    "fields": { "question": 19, "text": "Passengers bring the right money", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 75,
+    "fields": { "question": 19, "text": "The weather is sunny", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 76,
+    "fields": { "question": 19, "text": "They have snacks and drinks", "is_correct": false }
+  },
+
+  {
+    "model": "academy.question",
+    "pk": 20,
+    "fields": {
+      "module": 6,
+      "text": "When must adblue be topped up?",
+      "order": 20
+    }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 77,
+    "fields": { "question": 20, "text": "Before leaving depot if low or warning light is active", "is_correct": true }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 78,
+    "fields": { "question": 20, "text": "Only during servicing", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 79,
+    "fields": { "question": 20, "text": "When another driver asks you", "is_correct": false }
+  },
+  {
+    "model": "academy.choice",
+    "pk": 80,
+    "fields": { "question": 20, "text": "Only if you feel like it", "is_correct": false }
+  }
+]
