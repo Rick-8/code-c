@@ -13,4 +13,6 @@ urlpatterns = [
 
     path("academy/", include("academy.urls")),
     path("accounts/", include("allauth.urls")),
+    path("shop/", include("shop.urls")),
+
 ]

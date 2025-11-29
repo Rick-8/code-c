@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block sub_navbar %}
+    {% include "shop/_shop_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="cozy-dark-glass p-5 rounded-4 shadow-lg">
+        {% block shop_content %}{% endblock %}
+    </div>
+</div>
+
+{% endblock %}

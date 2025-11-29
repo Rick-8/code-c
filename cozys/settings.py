@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     # Project apps
     "home",
     "academy",
+    "shop",
     # add other apps here, e.g. "home", "core", etc.
 ]
 
@@ -96,6 +97,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",  # required by allauth
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'shop.context_processors.shop_settings',
+
             ],
         },
     },

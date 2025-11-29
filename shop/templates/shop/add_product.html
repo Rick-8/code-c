@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Add Product{% endblock %}
+
+
+{% block content %}
+<div class="container my-5">
+    {% include "shop/_shop_nav.html" %}
+
+    <div class="cozy-dark-glass p-5 rounded-4 shadow-lg">
+
+        <h2 class="text-light mb-4">
+            <i class="fa-solid fa-plus text-warning me-2"></i> Add Product
+        </h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <button class="btn btn-warning w-100 mt-3">
+                <i class="fa-solid fa-save me-2"></i> Save
+            </button>
+        </form>
+
+        <a href="{% url 'shop_manage_products' %}"
+           class="btn btn-outline-light w-100 mt-3">Back</a>
+
+    </div>
+</div>
+{% endblock %}

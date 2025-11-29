@@ -105,17 +105,16 @@ header.cozy-header-blur,
    DARK GLASS PANELS (Academy cards, login etc)
    ============================================================ */
 
+/* Glass appearance only — NO forced z-index */
 .cozy-dark-glass {
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 30px;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #f1f1f1;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    background: rgba(20, 20, 20, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+}
 
-    /* BELOW navbar, ABOVE background */
+/* If you NEED the original stacking for specific components */
+.glass-layer {
     position: relative;
     z-index: 1;
 }
@@ -295,3 +294,59 @@ header.cozy-header-blur,
 }
 
 
+#shopManagerPanel {
+    width: 300px !important;
+    backdrop-filter: blur(12px);
+    background: rgba(15, 15, 15, 0.90) !important;
+
+    position: fixed !important;
+    top: 0;
+    right: 0;
+    height: 100%;
+
+    pointer-events: auto !important;
+    z-index: 3000 !important; /* fixed */
+}
+
+
+.offcanvas-backdrop {
+    display: none !important;
+    z-index: 1600 !important;
+}
+
+/* ============================= */
+/* UNIVERSAL Z-INDEX NORMALISER  */
+/* ============================= */
+
+/* Main navbar */
+.navbar-cozy {
+    z-index: 3000 !important;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+    z-index: 4000 !important;
+}
+
+/* Shop navbar (sub-navbar) */
+.cozy-shop-navbar {
+    z-index: 2500 !important;
+}
+
+/* Any offcanvas override */
+.offcanvas {
+    z-index: 5000 !important;
+}
+
+/* Remove interference from .cozy-dark-glass */
+.cozy-dark-glass {
+    position: static !important;
+    z-index: auto !important;
+}
+.dropdown-menu.glass-menu {
+    background: rgba(0,0,0,0.88) !important;
+    backdrop-filter: blur(6px);
+    position: relative;
+    min-width: 220px;
+    z-index: 4000 !important;
+}

@@ -1,0 +1,52 @@
+{% extends "shop/base_shop.html" %}
+{% load static %}
+
+{% block title %}{{ product.title }}{% endblock %}
+{% block nav_shop_active %}active{% endblock %}
+
+{% block shop_content %}
+
+<div class="row g-4">
+
+    <div class="col-md-5">
+        <div class="bg-dark rounded shadow p-3">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="img-fluid rounded">
+            {% else %}
+            <img src="{% static 'img/no-image.png' %}" class="img-fluid rounded">
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-7 text-light">
+        <h2 class="mb-3">{{ product.title }}</h2>
+
+        {% if product.is_staff_only %}
+        <span class="badge bg-danger mb-3">Staff Only Product</span>
+        {% endif %}
+
+        <p class="mb-3">{{ product.description }}</p>
+
+        <h3 class="text-warning">£{{ product.price }}</h3>
+
+        {% if ordering_enabled %}
+        <button class="btn btn-warning btn-lg w-100 mt-4">
+            <i class="fa-solid fa-cart-plus me-2"></i>
+            Add to Basket
+        </button>
+        {% else %}
+        <div class="alert alert-warning text-dark mt-4">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>
+            Ordering temporarily suspended.
+        </div>
+        {% endif %}
+
+        <a href="{% url 'shop_home' %}"
+           class="btn btn-outline-light w-100 mt-3">
+           <i class="fa-solid fa-arrow-left me-2"></i> Back to Shop
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

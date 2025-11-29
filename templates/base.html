@@ -51,7 +51,7 @@
                     <ul class="navbar-nav me-auto align-items-lg-center">
                         <li class="nav-item">
                             <a class="nav-link {% block nav_home_active %}{% endblock %}" href="{% url 'home' %}">
-                                Home
+                                <i class="fa-solid fa-house me-1 text-warning"></i> Home
                             </a>
                         </li>
 
@@ -60,9 +60,15 @@
                         <li class="nav-item">
                             <a class="nav-link {% block nav_academy_active %}{% endblock %}"
                                 href="{% url 'academy_dashboard' %}">
-                                Academy
+                                <i class="fa-solid fa-graduation-cap me-1 text-warning"></i>Academy
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% block nav_shop_active %}{% endblock %}" href="{% url 'shop_home' %}">
+                                <i class="fa-solid fa-cart-shopping me-1 text-warning"></i> Shop
+                            </a>
+                        </li>
+
                         {% endif %}
                         {% endif %}
                     </ul>
@@ -79,13 +85,8 @@
                                 <span class="d-inline d-sm-none">{{ user.username }}</span>
                             </a>
 
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
-                                aria-labelledby="userDropdown" style="
-        background: rgba(0,0,0,0.88);
-        backdrop-filter: blur(6px);
-        z-index: 1000 !important;
-        min-width: 220px;">
-
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 glass-menu"
+                                aria-labelledby="userDropdown">
 
                                 <li class="dropdown-header small text-light">
                                     Signed in as<br>
@@ -145,6 +146,7 @@
                 </div>
             </div>
         </nav>
+        {% block sub_navbar %}{% endblock %}
     </header>
 
 
