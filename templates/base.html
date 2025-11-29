@@ -81,10 +81,11 @@
 
                             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0"
                                 aria-labelledby="userDropdown" style="
-                background: rgba(0,0,0,0.88);
-                backdrop-filter: blur(6px);
-                z-index: 9999999 !important;
-                min-width: 220px;">
+        background: rgba(0,0,0,0.88);
+        backdrop-filter: blur(6px);
+        z-index: 1000 !important;
+        min-width: 220px;">
+
 
                                 <li class="dropdown-header small text-light">
                                     Signed in as<br>
@@ -181,7 +182,7 @@
             const toastElList = document.querySelectorAll('.toast');
             toastElList.forEach(function (toastEl) {
                 const toast = new bootstrap.Toast(toastEl, {
-                    delay: 4000  // 4 seconds; tweak to taste
+                    delay: 2000  // 2 seconds; tweak to taste
                 });
                 toast.show();
             });

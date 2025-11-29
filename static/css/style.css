@@ -33,8 +33,6 @@ body, html {
 /* Main blur layer (below navbar) */
 .cozy-main-blur {
     background: transparent !important;
-    position: relative;
-    z-index: 1;  /* stays below navbar */
 }
 
 
@@ -52,14 +50,16 @@ body, html {
 header.cozy-header-blur,
 .navbar-cozy {
     position: relative;
-    z-index: 9000;
+    z-index: 1030;  /* Bootstrap navbar default */
 }
+
 
 /* Dropdown: highest layer on page */
 .dropdown-menu {
-    position: absolute !important; 
-    z-index: 99999 !important;
+    position: absolute !important;
+    z-index: 1040 !important; /* Above navbar, below modals */
 }
+
 
 /* Dropdown style */
 .navbar-cozy .dropdown-menu {
@@ -255,3 +255,43 @@ header.cozy-header-blur,
     transform: translateX(2px);
     transition: 0.2s ease-in-out;
 }
+
+/* ============================================================
+   POPOVERS
+   ============================================================ */
+/* Small popover thumbnail image */
+.popover .popover-thumb {
+    max-width: 120px !important;
+    max-height: 120px !important;
+    object-fit: contain !important;
+    display: block;
+    border-radius: 6px;
+    margin: 0 auto;
+}
+
+/* Video URL popover */
+.popover-video-url {
+    max-width: 180px !important;
+    font-size: 0.75rem !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+}
+
+/* General popover style */
+.popover {
+    background: rgba(20, 20, 20, 0.95) !important;
+    border: 1px solid #444 !important;
+    max-width: 200px !important;
+    padding: 6px 10px !important;
+}
+
+.popover-body {
+    padding: 8px !important;
+}
+
+/* Ensure popover anchor works */
+.popover-wrapper {
+    position: relative;
+}
+
+

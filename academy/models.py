@@ -40,12 +40,14 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField(default=1)
     content = models.TextField(help_text="HTML or markdown content for this lesson.")
     video_url = models.URLField(blank=True, help_text="Optional YouTube / Vimeo link")
+    image_url = models.URLField(blank=True, help_text="Optional image link")   # NEW FIELD ✔
 
     class Meta:
         ordering = ["order"]
 
     def __str__(self):
         return self.title
+
 
 
 class Question(models.Model):

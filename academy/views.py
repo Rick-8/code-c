@@ -965,3 +965,191 @@ def add_question(request):
         "q_form": q_form,
         "c_formset": c_formset,
     })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def create_course(request):
+    from .forms import CourseForm
+
+    if request.method == "POST":
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Course created successfully.")
+            return redirect("academy_manager_tools")
+    else:
+        form = CourseForm()
+
+    return render(request, "academy/manager/add_course.html", {"form": form})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def manage_courses(request):
+    courses = Course.objects.all().order_by('title')
+    return render(request, "academy/manager/manage_courses.html", {"courses": courses})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def delete_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    course.delete()
+    messages.success(request, "Course deleted successfully.")
+    return redirect("academy_manage_courses")
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def manage_modules(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    modules = Module.objects.filter(course=course).order_by('order')
+
+    return render(request, "academy/manager/manage_modules.html", {
+        "course": course,
+        "modules": modules
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def delete_module(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+    course_id = module.course.id
+    module.delete()
+
+    messages.success(request, "Module deleted successfully.")
+    return redirect("academy_manage_modules", course_id)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def manage_lessons(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+    lessons = Lesson.objects.filter(module=module).order_by("order")
+
+    return render(request, "academy/manager/manage_lessons.html", {
+        "module": module,
+        "lessons": lessons
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def delete_lesson(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    module_id = lesson.module.id
+    lesson.delete()
+
+    messages.success(request, "Lesson deleted successfully.")
+    return redirect("academy_manage_lessons", module_id)
+
+
+def edit_lesson_content(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+
+    # Extract YouTube ID safely
+    video_id = ""
+    url = lesson.video_url or ""
+
+    if "youtu.be/" in url:
+        video_id = url.split("youtu.be/")[1].split("?")[0]
+    elif "watch?v=" in url:
+        video_id = url.split("watch?v=")[1].split("&")[0]
+    elif "youtube.com/watch?v=" in url:
+        video_id = url.split("watch?v=")[1].split("&")[0]
+
+    if request.method == "POST":
+        lesson.title = request.POST.get("title")
+        lesson.order = request.POST.get("order")
+        lesson.image_url = request.POST.get("image_url")
+        lesson.video_url = request.POST.get("video_url")
+        lesson.content = request.POST.get("content")
+        lesson.save()
+        messages.success(request, "Lesson updated.")
+        return redirect("academy_manage_lessons", lesson.module.id)
+
+    return render(request, "academy/manager/edit_lesson_content.html", {
+        "lesson": lesson,
+        "video_id": video_id,
+    })
+
+
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def add_module(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        description = request.POST.get("description", "")
+        order = request.POST.get("order") or 1
+
+        if not title:
+            messages.error(request, "Module title is required.")
+            return redirect("academy_add_module", course_id=course.id)
+
+        Module.objects.create(
+            course=course,
+            title=title,
+            description=description,
+            order=order,
+            slug=title.lower().strip().replace(" ", "-")
+        )
+
+        messages.success(request, f"Module '{title}' created successfully.")
+        return redirect("academy_manage_modules", course_id=course.id)
+
+    return render(request, "academy/manager/add_module.html", {
+        "course": course
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def add_lesson(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+
+    # Suggest next order number
+    suggested_order = module.lessons.count() + 1
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        order = request.POST.get("order") or suggested_order
+        video_url = request.POST.get("video_url") or ""
+        image_url = request.POST.get("image_url") or ""   # NEW FIELD
+
+        if not title:
+            messages.error(request, "Lesson title is required.")
+            return redirect("academy_add_lesson", module_id=module.id)
+
+        Lesson.objects.create(
+            module=module,
+            title=title,
+            order=order,
+            content="",      # content edited later via the content editor
+            video_url=video_url,
+            image_url=image_url,   # NEW FIELD SAVED
+        )
+
+        messages.success(request, f"Lesson '{title}' created successfully.")
+        return redirect("academy_manage_lessons", module_id=module.id)
+
+    return render(
+        request,
+        "academy/manager/add_lesson.html",
+        {
+            "module": module,
+            "suggested_order": suggested_order,
+        },
+    )
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def manager_driver_progress(request):
+    return render(request, "academy/manager/driver_progress.html")
+
