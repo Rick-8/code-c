@@ -206,3 +206,26 @@ class ManagerDocument(models.Model):
 
     def __str__(self):
         return self.file.name
+
+
+class CourseAssignment(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="academy_assignments",
+        null=True,
+        blank=True
+    )
+    group = models.ForeignKey(
+        "auth.Group",
+        on_delete=models.CASCADE,
+        related_name="academy_assignments",
+        null=True,
+        blank=True
+    )
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        owner = self.user or self.group
+        return f"{owner} → {self.course}"

@@ -190,6 +190,11 @@ urlpatterns = [
     path("manager/questions/<int:question_id>/choices/add/", views.add_choice, name="academy_add_choice"),
     path("managers/questions/", views.manage_questions, name="academy_manage_questions"),
     path("managers/questions/import/", views.import_questions, name="academy_import_questions"),
+    path(
+        "managers/assign/",
+        views.manager_assign,
+        name="academy_manager_assign",
+    ),
 
 
 

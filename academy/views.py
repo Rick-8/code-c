@@ -18,7 +18,8 @@ from .forms import QuestionForm, ChoiceFormSet
 import json
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import Question, Choice, Module
-
+from django.db.models import Q
+from .models import Course, CourseAssignment
 import os
 
 
@@ -164,37 +165,50 @@ def _issue_certificate_if_needed(request, module_progress):
 @login_required
 def dashboard(request):
     """
-    Show all active courses and user progress for each course.
+    Show only assigned courses (user or group) and the user's progress in each.
     """
-    courses = Course.objects.filter(is_active=True).prefetch_related("modules")
+
+    # 1. Get course IDs assigned to this user OR their groups
+    assigned_course_ids = CourseAssignment.objects.filter(
+        Q(user=request.user) |
+        Q(group__in=request.user.groups.all())
+    ).values_list("course_id", flat=True)
+
+    # 2. Load the assigned courses, still respecting is_active
+    courses = Course.objects.filter(
+        id__in=assigned_course_ids,
+        is_active=True
+    ).prefetch_related("modules").order_by("order")
 
     course_data = []
 
+    # 3. Progress calculation remains EXACTLY the same
     for course in courses:
         modules = course.modules.all()
-        total_modules = modules.count() or 1  # avoid division by zero
+        total_modules = modules.count() or 1
         completed_modules = 0
 
         for module in modules:
-            mp = ModuleProgress.objects.filter(user=request.user, module=module).first()
+            mp = ModuleProgress.objects.filter(
+                user=request.user,
+                module=module
+            ).first()
+
             if mp and mp.passed:
                 completed_modules += 1
 
         progress_percent = int((completed_modules / total_modules) * 100)
 
-        course_data.append(
-            {
-                "course": course,
-                "progress_percent": progress_percent,
-                "completed_modules": completed_modules,
-                "total_modules": total_modules,
-            }
-        )
+        course_data.append({
+            "course": course,
+            "progress_percent": progress_percent,
+            "completed_modules": completed_modules,
+            "total_modules": total_modules,
+        })
 
-    context = {
+    return render(request, "academy/dashboard.html", {
         "course_data": course_data,
-    }
-    return render(request, "academy/dashboard.html", context)
+    })
 
 
 @login_required
@@ -857,9 +871,12 @@ User = get_user_model()
 
 @superuser_required
 def manager_users(request):
-    """Full CRUD management for users by superusers, including username editing."""
+    """Full CRUD management for users by superusers, including username editing + course assignment."""
+    from .models import Course, CourseAssignment
+
     User = get_user_model()
     users = User.objects.all().order_by("username")
+    courses = Course.objects.all().order_by("title")
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -883,7 +900,7 @@ def manager_users(request):
                 User.objects.create_user(username=username, email=email, password=password)
                 messages.success(request, f"User '{username}' created successfully.")
 
-        # Update existing user (with username edit)
+        # Update existing user
         elif action == "update" and target_user:
             new_username = request.POST.get("username") or target_user.username
             if new_username != target_user.username:
@@ -933,9 +950,23 @@ def manager_users(request):
                 target_user.save()
                 messages.success(request, f"{target_user.username} promoted to Superuser.")
 
+        # ⭐ Assign a course to a user
+        elif action == "assign_course" and target_user:
+            course_id = request.POST.get("course_id")
+            if course_id:
+                course = get_object_or_404(Course, id=course_id)
+                CourseAssignment.objects.get_or_create(user=target_user, course=course)
+                messages.success(request, f"{target_user.username} assigned to {course.title}.")
+            else:
+                messages.error(request, "Please select a course before assigning.")
+
         return redirect("academy_manager_users")
 
-    return render(request, "academy/manager/users.html", {"users": users})
+    # Context now includes courses for the assignment UI
+    return render(request, "academy/manager/users.html", {
+        "users": users,
+        "courses": courses,
+    })
 
 
 @login_required
@@ -1151,27 +1182,41 @@ def add_lesson(request, module_id):
     )
 
 
-@login_required
-@user_passes_test(lambda u: u.is_superuser)
+@superuser_required
 def manager_driver_progress(request):
-    return render(request, "academy/manager/driver_progress.html")
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
 
+    users = User.objects.filter(is_superuser=False).order_by("username")
+    modules = Module.objects.all().order_by("course__order", "order")
 
-@login_required
-def edit_question(request, question_id):
-    question = get_object_or_404(Question, id=question_id)
-    choices = Choice.objects.filter(question=question).order_by("id")
+    display_rows = []
 
-    if request.method == "POST":
-        question.text = request.POST.get("text")
-        question.save()
-        messages.success(request, "Question updated successfully.")
-        return redirect("academy_edit_question", question_id=question.id)
+    for user in users:
+        for module in modules:
+            mp = ModuleProgress.objects.filter(user=user, module=module).first()
 
-    return render(request, "academy/manager/edit_question.html", {
-        "question": question,
-        "choices": choices,
+            if mp:
+                status = mp.status
+                score = mp.score
+                completed_at = mp.completed_at
+            else:
+                status = "not_started"
+                score = None
+                completed_at = None
+
+            display_rows.append({
+                "user": user,
+                "module": module,
+                "score": score,
+                "status": status,
+                "completed_at": completed_at,
+            })
+
+    return render(request, "academy/manager/driver_progress_all.html", {
+        "rows": display_rows
     })
+
 
 
 @login_required
@@ -1360,3 +1405,70 @@ def import_questions(request):
 
     modules = Module.objects.all()
     return render(request, "academy/manager/import_questions.html", {"modules": modules})
+
+
+@superuser_required
+def manager_assign(request):
+    from django.contrib.auth.models import Group
+
+    users = User.objects.all().order_by("username")
+    groups = Group.objects.all().order_by("name")
+    courses = Course.objects.all().order_by("title")
+
+    if request.method == "POST":
+        course_id = request.POST.get("course")
+        user_id = request.POST.get("user")
+        group_id = request.POST.get("group")
+
+        course = get_object_or_404(Course, id=course_id)
+
+        # Assign user
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+            CourseAssignment.objects.get_or_create(user=user, course=course)
+            messages.success(request, f"{user} assigned to {course}")
+
+        # Assign group
+        elif group_id:
+            group = get_object_or_404(Group, id=group_id)
+            CourseAssignment.objects.get_or_create(group=group, course=course)
+            messages.success(request, f"Group '{group.name}' assigned to {course}")
+
+        return redirect("academy_manager_assign")
+
+    assignments = CourseAssignment.objects.select_related("user", "group", "course")
+
+    return render(request, "academy/manager/assign.html", {
+        "users": users,
+        "groups": groups,
+        "courses": courses,
+        "assignments": assignments,
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def edit_question(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+
+    if request.method == "POST":
+        # Update question fields
+        question.text = request.POST.get("text")
+        question.order = request.POST.get("order") or question.order
+        module_id = request.POST.get("module")
+
+        if module_id:
+            question.module = Module.objects.filter(id=module_id).first()
+
+        question.save()
+        messages.success(request, "Question updated successfully.")
+        return redirect("academy_edit_question", question_id=question.id)
+
+    modules = Module.objects.all().order_by("course__order", "order")
+    choices = question.choices.all().order_by("id")
+
+    return render(request, "academy/manager/edit_question.html", {
+        "question": question,
+        "modules": modules,
+        "choices": choices,
+    })

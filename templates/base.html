@@ -104,6 +104,19 @@
                                         Manager Dashboard
                                     </a>
                                 </li>
+                                {% if user.is_superuser %}
+                                <li>
+                                    <a class="dropdown-item text-light" href="{% url 'academy_manager_users' %}"
+                                        style="color: #f8f9fa !important;">
+                                        <i class="fa-solid fa-users-gear me-2 text-warning"></i>
+                                        User Management
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider border-secondary">
+                                </li>
+                                {% endif %}
+
                                 <li>
                                     <hr class="dropdown-divider border-secondary">
                                 </li>
