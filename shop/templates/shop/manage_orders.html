@@ -1,20 +1,167 @@
 {% extends "shop/base_shop.html" %}
+{% load static %}
 {% block shop_content %}
 
-<h2 class="text-light mb-4">
-    <i class="fa-solid fa-clipboard-list text-warning"></i> Order Manager
-</h2>
+<!-- PAGE HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-light mb-0">
+        <i class="fa-solid fa-clipboard-list text-warning me-2"></i>
+        Order Manager
+    </h2>
+</div>
 
-{% for order in orders %}
-    <a href="{% url 'manage_order_detail' order.id %}" class="text-decoration-none">
-        <div class="cozy-dark-glass p-3 mb-3 rounded-3 text-light d-flex justify-content-between">
-            <div>
-                <strong>#{{ order.id }}</strong> — {{ order.user }}<br>
-                Status: <span class="text-warning">{{ order.get_status_display }}</span>
-            </div>
-            <div class="text-warning fs-5">£{{ order.total_amount }}</div>
+<!-- STAFF NAVIGATION BAR -->
+<div class="cozy-dark-glass p-3 rounded-3 mb-4 shadow-sm border border-secondary">
+
+    <div class="d-flex flex-wrap gap-2">
+
+        <a href="{% url 'shop_home' %}" class="btn btn-dark btn-sm">
+            <i class="fa-solid fa-shop me-1"></i> Shop Home
+        </a>
+
+        <a href="{% url 'shop_manage_products' %}" class="btn btn-dark btn-sm">
+            <i class="fa-solid fa-boxes-stacked me-1"></i> Manage Products
+        </a>
+
+        <a href="{% url 'shop_add_product' %}" class="btn btn-dark btn-sm">
+            <i class="fa-solid fa-plus me-1"></i> Add Product
+        </a>
+
+        <a href="{% url 'manage_orders' %}" class="btn btn-warning btn-sm text-dark fw-bold">
+            <i class="fa-solid fa-clipboard-list me-1"></i> Orders
+        </a>
+
+        <a href="{% url 'shop_settings_page' %}" class="btn btn-dark btn-sm">
+            <i class="fa-solid fa-gear me-1"></i> Shop Settings
+        </a>
+
+        <a href="{% url 'shop_basket' %}" class="btn btn-dark btn-sm">
+            <i class="fa-solid fa-basket-shopping me-1"></i> Basket
+        </a>
+
+    </div>
+
+</div>
+
+<!-- SEARCH + FILTER BAR -->
+<div class="cozy-dark-glass p-3 rounded-3 mb-4">
+
+    <div class="row g-3 align-items-end">
+
+        <!-- SEARCH BAR -->
+        <div class="col-md-6">
+            <form method="GET" class="d-flex">
+                <input type="text" name="q" value="{{ request.GET.q }}"
+                       class="form-control bg-dark text-light border-secondary"
+                       placeholder="Search by user, order ID, product…">
+                <button class="btn btn-warning ms-2">
+                    <i class="fa-solid fa-search"></i>
+                </button>
+            </form>
         </div>
-    </a>
+
+        <!-- STATUS FILTERS -->
+        <div class="col-md-6 text-md-end">
+            <div class="btn-group">
+                <a href="?status=all" class="btn btn-sm {% if status == 'all' or not status %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+                    All
+                </a>
+                <a href="?status=PAID" class="btn btn-sm {% if status == 'PAID' %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+                    Outstanding
+                </a>
+                <a href="?status=DISPATCHED" class="btn btn-sm {% if status == 'DISPATCHED' %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+                    Sent
+                </a>
+                <a href="?status=COLLECTED" class="btn btn-sm {% if status == 'COLLECTED' %}btn-warning{% else %}btn-outline-secondary{% endif %}">
+                    Collected
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ORDERS LIST -->
+{% if orders %}
+{% for order in orders %}
+<div class="cozy-dark-glass p-3 mb-3 rounded-3 text-light shadow-sm border border-secondary">
+
+    <div class="row align-items-center">
+        
+        <!-- LEFT INFO -->
+        <div class="col-md-7">
+            <h5 class="mb-1">
+                <strong>#{{ order.id }}</strong> — {{ order.user }}
+            </h5>
+
+            <small class="text-secondary">
+                {{ order.created_at|date:"d M Y, H:i" }}
+            </small>
+
+            <div class="mt-2">
+                {% if order.status == "PAID" %}
+                <span class="badge bg-warning text-dark px-3 py-2">OUTSTANDING</span>
+                {% elif order.status == "DISPATCHED" %}
+                <span class="badge bg-info text-dark px-3 py-2">SENT</span>
+                {% elif order.status == "COLLECTED" %}
+                <span class="badge bg-success px-3 py-2">COLLECTED</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+
+            <div class="fs-5 text-warning fw-bold mb-2">
+                £{{ order.total_amount }}
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="d-flex flex-wrap justify-content-md-end gap-2">
+
+                {% if order.status == "PAID" %}
+                <a href="{% url 'order_mark_dispatched' order.id %}"
+                   class="btn btn-sm btn-info text-dark">
+                    Mark Sent
+                </a>
+                {% endif %}
+
+                {% if order.status == "DISPATCHED" %}
+                <a href="{% url 'order_mark_collected' order.id %}"
+                   class="btn btn-sm btn-success text-dark">
+                    Mark Collected
+                </a>
+                {% endif %}
+
+                {% if order.payment_method == "payroll" %}
+                <a href="{% url 'payroll_pdf' order.id %}"
+                   class="btn btn-sm btn-warning text-dark">
+                    <i class="fa-solid fa-file-pdf me-1"></i>
+                    PDF
+                </a>
+
+                {% if order.status != "COMPLETED" %}
+                <a href="{% url 'order_mark_payroll_complete' order.id %}"
+                   class="btn btn-sm btn-danger text-dark">
+                    Mark Payroll Complete
+                </a>
+                {% endif %}
+                {% endif %}
+
+                <a href="{% url 'manage_order_detail' order.id %}"
+                   class="btn btn-sm btn-secondary text-dark">
+                    View
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endfor %}
+{% else %}
+<div class="alert alert-dark text-light">
+    No orders found.
+</div>
+{% endif %}
 
 {% endblock %}

@@ -1,0 +1,20 @@
+[
+  {
+    "title": "High-Vis Vest",
+    "price": 7.99,
+    "description": "EN20471 certified high-visibility vest.",
+    "is_active": true,
+    "is_staff_only": false,
+    "allow_payroll_purchase": true,
+    "image": "hi-vis/vest1.webp"
+  },
+  {
+    "title": "Cozy Coaches Mug",
+    "price": 4.99,
+    "description": "White ceramic mug with Cozy Coaches logo.",
+    "is_active": true,
+    "is_staff_only": false,
+    "allow_payroll_purchase": true,
+    "image": "mugs/mug1.webp"
+  }
+]

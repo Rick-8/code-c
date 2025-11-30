@@ -1,29 +1,95 @@
-{% extends "base.html" %}
+{% extends "shop/base_shop.html" %}
+{% load static %}
 {% block title %}Add Product{% endblock %}
-
 
 {% block content %}
 <div class="container my-5">
-    {% include "shop/_shop_nav.html" %}
 
-    <div class="cozy-dark-glass p-5 rounded-4 shadow-lg">
 
-        <h2 class="text-light mb-4">
-            <i class="fa-solid fa-plus text-warning me-2"></i> Add Product
-        </h2>
+    <!-- PAGE WRAPPER -->
+    <div class="cozy-dark-glass p-5 rounded-4 shadow-lg border border-secondary">
 
-        <form method="POST" enctype="multipart/form-data">
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-light mb-0">
+                <i class="fa-solid fa-plus text-warning me-2"></i>
+                Add New Product
+            </h2>
+
+            <!-- BACK BUTTON (previous page) -->
+            <button onclick="history.back()" class="btn btn-outline-light btn-sm">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </button>
+        </div>
+
+        <hr class="border-secondary mb-4">
+
+        <!-- FORM -->
+        <form method="POST" enctype="multipart/form-data" class="text-light">
             {% csrf_token %}
-            {{ form.as_p }}
 
-            <button class="btn btn-warning w-100 mt-3">
-                <i class="fa-solid fa-save me-2"></i> Save
+            <!-- TITLE -->
+            <div class="mb-3">
+                <label class="form-label fw-bold text-warning">Product Title</label>
+                {{ form.title.errors }}
+                <input type="text" name="title" class="form-control bg-dark text-light border-secondary"
+                       value="{{ form.title.value|default:'' }}" required>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="mb-3">
+                <label class="form-label fw-bold text-warning">Description</label>
+                {{ form.description.errors }}
+                <textarea name="description" rows="4"
+                          class="form-control bg-dark text-light border-secondary">{{ form.description.value|default:'' }}</textarea>
+            </div>
+
+            <!-- PRICE -->
+            <div class="mb-3">
+                <label class="form-label fw-bold text-warning">Price (£)</label>
+                {{ form.price.errors }}
+                <input type="number" step="0.01" name="price"
+                       class="form-control bg-dark text-light border-secondary"
+                       value="{{ form.price.value|default:'' }}" required>
+            </div>
+
+            <!-- IMAGE UPLOAD -->
+            <!-- <div class="mb-3">
+                <label class="form-label fw-bold text-warning">Product Image</label>
+                {{ form.image.errors }}
+                <input type="file" name="image"
+                       class="form-control bg-dark text-light border-secondary">
+                <small class="text-secondary">Upload a clear product image</small>
+            </div> -->
+
+            <!-- STAFF ONLY -->
+            <div class="form-check mb-3">
+                {{ form.is_staff_only.errors }}
+                <input type="checkbox" name="is_staff_only" class="form-check-input"
+                       {% if form.is_staff_only.value %}checked{% endif %}>
+                <label class="form-check-label text-light">
+                    Staff Only Item
+                </label>
+            </div>
+
+            <!-- ALLOW PAYROLL PURCHASE -->
+            <div class="form-check mb-4">
+                {{ form.allow_payroll_purchase.errors }}
+                <input type="checkbox" name="allow_payroll_purchase" class="form-check-input"
+                       {% if form.allow_payroll_purchase.value %}checked{% endif %}>
+                <label class="form-check-label text-light">
+                    Allow Payroll Deduction
+                </label>
+            </div>
+
+            <!-- SAVE BUTTON -->
+            <button class="btn btn-warning w-100 py-2 fw-bold">
+                <i class="fa-solid fa-save me-1"></i>
+                Save Product
             </button>
         </form>
 
-        <a href="{% url 'shop_manage_products' %}"
-           class="btn btn-outline-light w-100 mt-3">Back</a>
-
     </div>
+
 </div>
 {% endblock %}

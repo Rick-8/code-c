@@ -1,29 +1,133 @@
-{% extends "base.html" %}
+{% extends "shop/base_shop.html" %}
+{% load static %}
+
 {% block title %}Edit {{ product.title }}{% endblock %}
 
-{% block content %}
-<div class="container my-5">
-    {% include "shop/_shop_nav.html" %}
+{% block shop_content %}
 
-    <div class="cozy-dark-glass p-5 rounded-4 shadow-lg">
+<div class="container-fluid px-0">
 
-        <h2 class="text-light mb-4">
-            <i class="fa-solid fa-pen-to-square text-info me-2"></i>
+    <!-- PAGE HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+        <h2 class="text-light mb-0">
+            <i class="fa-solid fa-pen-to-square text-warning me-2"></i>
             Edit Product
         </h2>
 
+        <a onclick="history.back()" class="btn btn-outline-light btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="cozy-dark-glass p-4 rounded-4 shadow-lg text-light">
+
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ form.as_p }}
 
-            <button class="btn btn-info w-100 mt-3">
-                <i class="fa-solid fa-save me-2"></i> Update
+            <div class="row g-4">
+
+                <!-- LEFT COLUMN -->
+                <div class="col-lg-8">
+
+                    <!-- PRODUCT NAME -->
+                    <div class="mb-3">
+                        <label class="form-label text-warning fw-bold">Product Name</label>
+                        {{ form.title }}
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div class="mb-3">
+                        <label class="form-label text-warning fw-bold">Description</label>
+                        {{ form.description }}
+                    </div>
+
+                    <!-- PRICE -->
+                    <div class="mb-3">
+                        <label class="form-label text-warning fw-bold">Price (£)</label>
+                        {{ form.price }}
+                    </div>
+
+                    <!-- SWITCHES -->
+                    <div class="row g-3">
+
+                        <!-- ACTIVE -->
+                        <div class="col-md-4">
+                            <label class="form-label text-warning fw-bold d-block">Active</label>
+                            <div class="form-check form-switch switch-align">
+                                {{ form.is_active }}
+                                <label class="form-check-label ms-2">Product Active</label>
+                            </div>
+                        </div>
+
+                        <!-- STAFF ONLY -->
+                        <div class="col-md-4">
+                            <label class="form-label text-warning fw-bold d-block">Staff Only</label>
+                            <div class="form-check form-switch switch-align">
+                                {{ form.is_staff_only }}
+                                <label class="form-check-label ms-2">Restrict to Staff</label>
+                            </div>
+                        </div>
+
+                        <!-- PAYROLL -->
+                        <div class="col-md-4">
+                            <label class="form-label text-warning fw-bold d-block">Payroll Allowed</label>
+                            <div class="form-check form-switch switch-align">
+                                {{ form.allow_payroll_purchase }}
+                                <label class="form-check-label ms-2">Payroll Purchase</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <button class="btn btn-warning w-100 fw-bold mt-4 py-2 text-dark">
+                <i class="fa-solid fa-save me-2"></i>
+                Update Product
             </button>
-        </form>
 
-        <a href="{% url 'shop_manage_products' %}"
-           class="btn btn-outline-light w-100 mt-3">Back</a>
+        </form>
 
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+input, textarea, select {
+    background: rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+
+textarea { min-height: 120px; }
+
+/* PERFECT SWITCH ALIGNMENT */
+.switch-align {
+    display: flex;
+    align-items: center;
+    padding-top: 6px; /* ensures same top alignment for all */
+}
+
+.form-check-input {
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+/* Glass styling */
+.cozy-dark-glass {
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+</style>
 {% endblock %}

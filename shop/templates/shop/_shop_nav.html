@@ -1,30 +1,18 @@
 {% load static %}
 
 <style>
-    /* NAVBAR ABOVE EVERYTHING */
+    /* Navbar always on top */
     .cozy-shop-navbar {
         position: relative;
+        z-index: 2000;
     }
 
-    /* Remove Bootstrap's backdrop completely */
-    .offcanvas-backdrop,
-    .offcanvas-backdrop.show {
-        display: none !important;
-        opacity: 0 !important;
-    }
-
-    /* Fix offcanvas so it always stays above nav + content */
+    /* Offcanvas panel look */
     #shopManagerPanel {
         width: 300px !important;
+        background: rgba(15, 15, 15, 0.95) !important;
         backdrop-filter: blur(12px);
-        background: rgba(15, 15, 15, 0.90) !important;
-
-        position: fixed !important;
-        top: 0;
-        right: 0;
-        height: 100%;
-
-        pointer-events: auto !important;
+        z-index: 4000 !important;
     }
 
     #shopManagerPanel .offcanvas-body {
@@ -33,54 +21,45 @@
 </style>
 
 
-
 <!-- ========================= -->
 <!--        SHOP NAVBAR        -->
 <!-- ========================= -->
-<div class="cozy-dark-glass p-2 shadow-lg cozy-shop-navbar"
-     style="border-radius:0;width:100%;margin:0;">
+<div class="cozy-dark-glass p-2 shadow-lg cozy-shop-navbar" style="border-radius:0;width:100%;margin:0;">
 
     <div class="container d-flex flex-wrap justify-content-between align-items-center">
-
+        {% if shop_open %}
         <!-- Search -->
-        <form method="GET"
-              action="{% url 'shop_home' %}"
-              class="d-flex mb-2 mb-md-0"
-              style="flex:1;max-width:360px;">
-
-            <input type="text"
-                   name="q"
-                   value="{{ request.GET.q }}"
-                   class="form-control form-control-sm bg-dark text-light border-secondary"
-                   placeholder="Search products...">
-
+        <form method="GET" action="{% url 'shop_home' %}" class="d-flex mb-2 mb-md-0" style="flex:1;max-width:360px;">
+            <input type="text" name="q" value="{{ request.GET.q }}"
+                class="form-control form-control-sm bg-dark text-light border-secondary"
+                placeholder="Search products...">
             <button class="btn btn-warning btn-sm ms-2">
                 <i class="fa-solid fa-search"></i>
             </button>
         </form>
+        {% endif %}
 
-        <!-- Icons -->
+        <!-- Right Side Icons -->
         <div class="d-flex align-items-center gap-3">
-
-            <a href="{% url 'shop_basket' %}" class="text-light position-relative">
+            {% if shop_open %}
+            <!-- Basket Icon -->
+            <a href="{% url 'shop_basket' %}" class="text-light position-relative" title="Basket">
                 <i class="fa-solid fa-basket-shopping fs-5"></i>
                 {% if cart_count and cart_count > 0 %}
                 <span class="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle"
-                      style="font-size:0.65rem;">
-                    {{ cart_count }}
-                </span>
+                    style="font-size:0.65rem;">{{ cart_count }}</span>
                 {% endif %}
             </a>
 
-            <a href="{% url 'shop_orders' %}" class="text-light">
+            <!-- My Orders -->
+            <a href="{% url 'my_orders' %}" class="text-light" title="My Orders">
                 <i class="fa-solid fa-box fs-5"></i>
             </a>
+            {% endif %}
 
+            <!-- SUPERUSER MANAGER ICON (OPENS OFFCANVAS) -->
             {% if request.user.is_superuser %}
-            <a class="text-warning"
-               data-bs-toggle="offcanvas"
-               href="#shopManagerPanel"
-               title="Shop Manager">
+            <a class="text-warning" title="Manager Panel" data-bs-toggle="offcanvas" href="#shopManagerPanel">
                 <i class="fa-solid fa-user-gear fs-4"></i>
             </a>
             {% endif %}
@@ -91,26 +70,18 @@
 
 
 
+<!-- ================================================= -->
+<!--   FULL MANAGER OFFCANVAS PANEL (SUPERUSER ONLY)   -->
+<!-- ================================================= -->
 {% if request.user.is_superuser %}
-<!-- ========================================== -->
-<!--  OFFCANVAS ADMIN PANEL — FIXED RIGHT PANEL -->
-<!-- ========================================== -->
-
-</style>
-
-
-<div class="offcanvas offcanvas-end"
-     tabindex="-1"
-     id="shopManagerPanel"
-     aria-labelledby="shopManagerPanelLabel"
-     data-bs-backdrop="false">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="shopManagerPanel" aria-labelledby="shopManagerPanelLabel"
+    data-bs-backdrop="false">
 
     <div class="offcanvas-header py-2">
         <h5 class="offcanvas-title text-warning" id="shopManagerPanelLabel">
-            <i class="fa-solid fa-toolbox me-2"></i> Manager
+            <i class="fa-solid fa-toolbox me-2"></i> Manager Panel
         </h5>
-        <button type="button" class="btn-close btn-close-white"
-                data-bs-dismiss="offcanvas"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
 
     <div class="offcanvas-body">
@@ -122,34 +93,35 @@
             </h6>
 
             {% if ordering_enabled %}
-                <p class="small mb-2">
-                    Ordering is: <span class="text-success fw-bold">ENABLED</span>
-                </p>
-                <a href="{% url 'shop_disable' %}"
-                   class="btn btn-sm btn-danger w-100">Disable</a>
+            <p class="small mb-2">
+                Ordering is: <span class="text-success fw-bold">OPEN</span>
+            </p>
+            <a href="{% url 'shop_disable' %}" class="btn btn-sm btn-danger w-100">Close Shop</a>
             {% else %}
-                <p class="small mb-2">
-                    Ordering is: <span class="text-danger fw-bold">DISABLED</span>
-                </p>
-                <a href="{% url 'shop_enable' %}"
-                   class="btn btn-sm btn-success w-100">Enable</a>
+            <p class="small mb-2">
+                Ordering is: <span class="text-danger fw-bold">CLOSED</span>
+            </p>
+            <a href="{% url 'shop_enable' %}" class="btn btn-sm btn-success w-100">Open Shop</a>
             {% endif %}
         </div>
 
-        <!-- QUICK LINKS -->
+        <!-- QUICK ACTIONS -->
         <div class="mb-3">
             <h6 class="text-warning mb-2">
                 <i class="fa-solid fa-list-check me-1"></i> Quick Actions
             </h6>
 
-            <a href="{% url 'shop_manage_products' %}"
-               class="btn btn-outline-warning btn-sm w-100 mb-2">Manage Products</a>
+            <a href="{% url 'manage_orders' %}" class="btn btn-outline-warning btn-sm w-100 mb-2">
+                Manage Orders
+            </a>
 
-            <a href="{% url 'shop_add_product' %}"
-               class="btn btn-outline-warning btn-sm w-100 mb-2">Add Product</a>
+            <a href="{% url 'shop_manage_products' %}" class="btn btn-outline-warning btn-sm w-100 mb-2">
+                Manage Products
+            </a>
 
-            <a href="{% url 'shop_orders' %}"
-               class="btn btn-outline-warning btn-sm w-100 mb-2">Orders</a>
+            <a href="{% url 'shop_add_product' %}" class="btn btn-outline-warning btn-sm w-100 mb-2">
+                Add Product
+            </a>
         </div>
 
         <div class="mt-3 pt-2 border-top border-secondary">
@@ -159,5 +131,3 @@
     </div>
 </div>
 {% endif %}
-
-
