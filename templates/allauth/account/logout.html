@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Logout | Cozy Coaches{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding: 60px 0; max-width: 600px;">
+
+    <div class="p-4 p-md-5 rounded-4 shadow-lg"
+         style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+
+        <h2 class="text-center fw-bold text-light mb-4">Log Out</h2>
+
+        <p class="text-center text-light mb-4">
+            Are you sure you want to log out?
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit"
+                    class="btn w-100 fw-bold py-2"
+                    style="background:#800020; color:white; border-radius:8px;">
+                Yes, log me out
+            </button>
+        </form>
+
+        <p class="text-center text-light small mt-3">
+            <a href="/" class="text-warning fw-bold">Cancel and return home</a>
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

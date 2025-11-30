@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "home",
     "academy",
     "shop",
-    # add other apps here, e.g. "home", "core", etc.
+    "accounts",
 ]
 
 SITE_ID = 1
@@ -88,17 +88,18 @@ ROOT_URLCONF = "cozys.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        # Global templates directory: BASE_DIR / "templates"
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [
+            BASE_DIR / "templates",
+            BASE_DIR / "templates" / "allauth",  # <---- ADD THIS
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
-                "django.template.context_processors.request",  # required by allauth
+                "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 'shop.context_processors.shop_settings',
-
             ],
         },
     },
@@ -131,10 +132,17 @@ LOGIN_REDIRECT_URL = "/"          # after login – change later if you want Aca
 LOGOUT_REDIRECT_URL = "/"         # after logout
 
 # Allauth configuration
-ACCOUNT_AUTHENTICATION_METHOD = "username"  # or "username_email"
-ACCOUNT_EMAIL_REQUIRED = False              # easier for now; set True later if needed
-ACCOUNT_EMAIL_VERIFICATION = "none"        # change to "mandatory" in production
-ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+LOGIN_REDIRECT_URL = '/'
+
+ACCOUNT_FORMS = {
+    "signup": "accounts.forms.CustomSignupForm",
+}
+
 
 # Email backend for dev – prints emails to console
 

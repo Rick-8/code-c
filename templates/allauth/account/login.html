@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Login | Cozy Coaches{% endblock %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-12 col-md-8 col-lg-5">
+
+        <div class="card shadow-lg border-0" style="background: rgba(0,0,0,0.75);">
+            <div class="card-body p-4 p-md-5">
+
+                <h2 class="text-center fw-bold text-light mb-4">Log In</h2>
+
+                <form method="POST" action="{% url 'account_login' %}">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    <!-- LOGIN -->
+                    <div class="mb-3">
+                        <label class="form-label text-light">Username or Email</label>
+                        <input type="text" name="{{ form.login.html_name }}"
+                               class="form-control"
+                               value="{{ form.login.value|default:'' }}"
+                               required>
+                        {% for error in form.login.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="mb-4">
+                        <label class="form-label text-light">Password</label>
+                        <input type="password" name="{{ form.password.html_name }}"
+                               class="form-control"
+                               required>
+                        {% for error in form.password.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- SUBMIT -->
+                    <button type="submit"
+                            class="btn w-100 py-2 fw-bold"
+                            style="background:#800020; color:white;">
+                        Log In
+                    </button>
+                </form>
+
+                <p class="text-center text-light small mt-4">
+                    Don't have an account?
+                    <a href="{% url 'account_signup' %}" class="text-warning fw-bold">Sign up</a>
+                </p>
+
+                <p class="text-center text-light small">
+                    <a href="{% url 'account_reset_password' %}" class="text-warning fw-bold">
+                        Forgot password?
+                    </a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

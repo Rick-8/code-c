@@ -56,21 +56,20 @@
                         </li>
 
                         {% if user.is_authenticated %}
-                        {% if user.is_staff or user.is_superuser %}
+
                         <li class="nav-item">
                             <a class="nav-link {% block nav_academy_active %}{% endblock %}"
                                 href="{% url 'academy_dashboard' %}">
                                 <i class="fa-solid fa-graduation-cap me-1 text-warning"></i>Academy
                             </a>
                         </li>
-                        <li class="nav-item">
+                        {% endif %}
+                                                <li class="nav-item">
                             <a class="nav-link {% block nav_shop_active %}{% endblock %}" href="{% url 'shop_home' %}">
                                 <i class="fa-solid fa-cart-shopping me-1 text-warning"></i> Shop
                             </a>
                         </li>
 
-                        {% endif %}
-                        {% endif %}
                     </ul>
 
                     <!-- Right/user dropdown -->

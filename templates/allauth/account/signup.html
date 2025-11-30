@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Account | Cozy Coaches{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding: 60px 0; max-width: 800px;">
+
+    <div class="p-4 p-md-5 rounded-4 shadow-lg"
+         style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+
+        <h2 class="text-center fw-bold text-light mb-4">Create Your Account</h2>
+
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <!-- ACCOUNT DETAILS -->
+            <h4 class="fw-bold mb-3" style="color:#FFC107;">Account Details</h4>
+
+            <div class="row mb-4">
+
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-light">Username</label>
+                    {{ form.username }}
+                    <div class="text-danger small">{{ form.username.errors }}</div>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-light">Email Address</label>
+                    {{ form.email }}
+                    <div class="text-danger small">{{ form.email.errors }}</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-light">Password</label>
+                    {{ form.password1 }}
+                    <div class="text-danger small">{{ form.password1.errors }}</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-light">Confirm Password</label>
+                    {{ form.password2 }}
+                    <div class="text-danger small">{{ form.password2.errors }}</div>
+                </div>
+            </div>
+
+            <!-- CONTACT SECTION -->
+            <h4 class="fw-bold mb-3" style="color:#FFC107;">Contact & Address Details</h4>
+
+            <div class="row mb-4">
+
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-light">Phone Number</label>
+                    {{ form.phone }}
+                    <div class="text-danger small">{{ form.phone.errors }}</div>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-light">Address Line 1</label>
+                    {{ form.address_1 }}
+                    <div class="text-danger small">{{ form.address_1.errors }}</div>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-light">Address Line 2</label>
+                    {{ form.address_2 }}
+                    <div class="text-danger small">{{ form.address_2.errors }}</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-light">Town / City</label>
+                    {{ form.town }}
+                    <div class="text-danger small">{{ form.town.errors }}</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-light">Postcode</label>
+                    {{ form.postcode }}
+                    <div class="text-danger small">{{ form.postcode.errors }}</div>
+                </div>
+            </div>
+
+            <!-- DOCUMENTS -->
+            <h4 class="fw-bold mb-3" style="color:#FFC107;">Additional Documents</h4>
+
+            <div class="mb-4">
+                <label class="form-label text-light">Upload CV (optional)</label>
+                {{ form.cv }}
+                <div class="text-danger small">{{ form.cv.errors }}</div>
+            </div>
+
+            <button type="submit"
+                    class="btn w-100 fw-bold py-2"
+                    style="background:#800020; color:white; border-radius:8px;">
+                Create Account
+            </button>
+        </form>
+
+        <p class="text-center text-light small mt-4">
+            Already have an account?
+            <a href="{% url 'account_login' %}" class="text-warning fw-bold">Log in here</a>
+        </p>
+
+    </div>
+</div>
+
+{% endblock %}
