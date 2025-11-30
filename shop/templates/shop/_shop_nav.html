@@ -92,17 +92,22 @@
                 <i class="fa-solid fa-power-off me-1"></i> Shop Status
             </h6>
 
-            {% if ordering_enabled %}
+            {% if shop_open %}
             <p class="small mb-2">
-                Ordering is: <span class="text-success fw-bold">OPEN</span>
+                Shop is: <span class="text-success fw-bold">OPEN</span>
             </p>
-            <a href="{% url 'shop_disable' %}" class="btn btn-sm btn-danger w-100">Close Shop</a>
+            <a href="{% url 'shop_disable' %}" class="btn btn-sm btn-danger w-100">
+                Close Shop
+            </a>
             {% else %}
             <p class="small mb-2">
-                Ordering is: <span class="text-danger fw-bold">CLOSED</span>
+                Shop is: <span class="text-danger fw-bold">CLOSED</span>
             </p>
-            <a href="{% url 'shop_enable' %}" class="btn btn-sm btn-success w-100">Open Shop</a>
+            <a href="{% url 'shop_enable' %}" class="btn btn-sm btn-success w-100">
+                Open Shop
+            </a>
             {% endif %}
+
         </div>
 
         <!-- QUICK ACTIONS -->
