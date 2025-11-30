@@ -38,10 +38,16 @@
 
                 <p class="fw-bold text-warning">£{{ p.price }}</p>
 
-                <a href="{% url 'shop_product_detail' p.id %}"
-                   class="btn btn-outline-warning mt-auto">
+                <a href="{% url 'shop_product_detail' p.id %}" class="btn btn-outline-warning mt-auto">
                     View Product
                 </a>
+                <form action="{% url 'basket_add' p.id %}" method="POST" class="mt-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning w-100">
+                        <i class="fa-solid fa-cart-plus me-1"></i> Add to Basket
+                    </button>
+                </form>
+
 
                 {% if p.is_staff_only %}
                 <span class="badge bg-danger mt-2">Staff Only</span>

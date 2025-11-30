@@ -1,0 +1,20 @@
+{% extends "shop/base_shop.html" %}
+{% block shop_content %}
+
+<h2 class="text-light mb-4">
+    <i class="fa-solid fa-clipboard-list text-warning"></i> Order Manager
+</h2>
+
+{% for order in orders %}
+    <a href="{% url 'manage_order_detail' order.id %}" class="text-decoration-none">
+        <div class="cozy-dark-glass p-3 mb-3 rounded-3 text-light d-flex justify-content-between">
+            <div>
+                <strong>#{{ order.id }}</strong> — {{ order.user }}<br>
+                Status: <span class="text-warning">{{ order.get_status_display }}</span>
+            </div>
+            <div class="text-warning fs-5">£{{ order.total_amount }}</div>
+        </div>
+    </a>
+{% endfor %}
+
+{% endblock %}

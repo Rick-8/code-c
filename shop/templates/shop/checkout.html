@@ -1,0 +1,177 @@
+{% extends "shop/base_shop.html" %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block shop_content %}
+
+<h2 class="text-light mb-4">
+    <i class="fa-solid fa-credit-card text-warning me-2"></i>
+    Checkout
+</h2>
+
+<!-- ORDER SUMMARY -->
+<div class="mb-4">
+    <div class="table-responsive">
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th width="80">Qty</th>
+                    <th width="120">Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.title }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>£{{ item.line_total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-warning text-end mt-3">
+        Total: £{{ total }}
+    </h3>
+</div>
+
+<hr class="border-secondary mb-4">
+
+<!-- SELECT PAYMENT METHOD -->
+<div class="mb-4">
+    <h4 class="text-light mb-3">
+        <i class="fa-solid fa-hand-holding-dollar me-2 text-success"></i>
+        Choose Payment Method
+    </h4>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input"
+               type="radio"
+               name="payment_method"
+               id="pay_card"
+               value="card"
+               checked>
+        <label class="form-check-label text-light" for="pay_card">
+            Credit / Debit Card (Stripe)
+        </label>
+    </div>
+
+    {% if payroll_allowed %}
+    <div class="form-check">
+        <input class="form-check-input"
+               type="radio"
+               name="payment_method"
+               id="pay_payroll"
+               value="payroll">
+        <label class="form-check-label text-light" for="pay_payroll">
+            Deduct from Next Pay (Staff Only)
+        </label>
+    </div>
+    {% endif %}
+</div>
+
+<!-- STRIPE CARD ELEMENT -->
+<div id="card_section" class="mb-4">
+    <label class="form-label text-light">Card Details</label>
+    <div id="card-element" class="form-control bg-dark text-light p-3"></div>
+    <div id="card-errors" class="text-danger mt-2"></div>
+</div>
+
+<!-- PAYROLL NOTE -->
+<div id="payroll_note" class="mb-4 text-warning" style="display:none;">
+    <i class="fa-solid fa-info-circle me-2"></i>
+    This purchase will be deducted from your next salary payment.
+</div>
+
+<button id="payButton"
+        class="btn btn-success btn-lg w-100">
+    <i class="fa-solid fa-lock me-2"></i> Pay Securely
+</button>
+
+<form id="finalForm"
+      action="{% url 'shop_confirm_order' %}"
+      method="POST"
+      style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="payment_method" id="final_method">
+    <input type="hidden" name="payment_intent" id="final_intent">
+</form>
+
+<!-- Stripe JS -->
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+const stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+
+// UI toggles
+const cardSection = document.getElementById("card_section");
+const payrollNote = document.getElementById("payroll_note");
+const finalForm = document.getElementById("finalForm");
+
+document.querySelectorAll("input[name='payment_method']").forEach(radio => {
+    radio.addEventListener("change", () => {
+        if (radio.value === "card") {
+            cardSection.style.display = "block";
+            payrollNote.style.display = "none";
+        } else {
+            cardSection.style.display = "none";
+            payrollNote.style.display = "block";
+        }
+    });
+});
+
+// Create Stripe Elements
+const elements = stripe.elements();
+const card = elements.create("card", {
+    hidePostalCode: true,
+    style: {
+        base: {
+            color: "#ffffff",
+            fontSize: "16px",
+        }
+    }
+});
+card.mount("#card-element");
+
+// Pay button behavior
+const payBtn = document.getElementById("payButton");
+
+payBtn.addEventListener("click", async () => {
+    const method = document.querySelector("input[name='payment_method']:checked").value;
+
+    if (method === "payroll") {
+        document.getElementById("final_method").value = "payroll";
+        finalForm.submit();
+        return;
+    }
+
+    // CARD PAYMENT FLOW
+    const res = await fetch("{% url 'shop_create_intent' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+        }
+    });
+
+    const data = await res.json();
+    const clientSecret = data.clientSecret;
+
+    const {paymentIntent, error} = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: card }
+    });
+
+    if (error) {
+        document.getElementById("card-errors").innerText = error.message;
+        return;
+    }
+
+    document.getElementById("final_method").value = "card";
+    document.getElementById("final_intent").value = paymentIntent.id;
+    finalForm.submit();
+});
+</script>
+
+{% endblock %}

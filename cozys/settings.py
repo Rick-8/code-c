@@ -158,6 +158,16 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 SERVER_EMAIL = DEFAULT_FROM_EMAIL  # For error emails if you use ADMINS
 
+# =======================
+# STRIPE CONFIGURATION
+# =======================
+STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
+
+if not STRIPE_PUBLIC_KEY or not STRIPE_SECRET_KEY:
+    raise ValueError("STRIPE KEYS NOT FOUND — check env.py")
+
+
 
 # -------------------------------------------------------------------
 # Password validation

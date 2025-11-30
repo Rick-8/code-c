@@ -1,0 +1,46 @@
+{% extends "shop/base_shop.html" %}
+{% block shop_content %}
+
+<h2 class="text-light mb-4">
+    <i class="fa-solid fa-box text-warning"></i> Manage Order #{{ order.id }}
+</h2>
+
+<div class="cozy-dark-glass p-4 rounded-3 text-light">
+
+    <p><strong>Customer:</strong> {{ order.user }}</p>
+    <p><strong>Status:</strong> <span class="text-warning">{{ order.get_status_display }}</span></p>
+    <p><strong>Payment:</strong> {{ order.get_payment_method_display }}</p>
+
+    <hr>
+
+    <h4 class="text-warning mb-3">Items</h4>
+    {% for item in order.items.all %}
+        <div class="d-flex justify-content-between border-bottom py-2">
+            <div>{{ item.product.title }} (x{{ item.quantity }})</div>
+            <div>£{{ item.line_total }}</div>
+        </div>
+    {% endfor %}
+
+    <hr>
+
+    <h4 class="text-warning">Total: £{{ order.total_amount }}</h4>
+
+    <div class="mt-4 d-flex gap-3">
+
+        {% if order.status == "PAID" %}
+        <a href="{% url 'order_mark_dispatched' order.id %}" class="btn btn-warning">
+            <i class="fa-solid fa-truck"></i> Mark as Dispatched
+        </a>
+        {% endif %}
+
+        {% if order.status == "DISPATCHED" %}
+        <a href="{% url 'order_mark_collected' order.id %}" class="btn btn-success">
+            <i class="fa-solid fa-handshake"></i> Mark as Collected
+        </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,11 +1,25 @@
 {% extends "shop/base_shop.html" %}
 {% block shop_content %}
 
-<h2 class="text-light mb-3">
-    <i class="fa-solid fa-box text-warning me-2"></i>
-    Your Orders
-</h2>
+<h2 class="text-light mb-4"><i class="fa-solid fa-receipt text-warning"></i> My Orders</h2>
 
-<p class="text-light">Orders page coming soon.</p>
+{% if orders %}
+    {% for order in orders %}
+        <a href="{% url 'order_detail' order.id %}" class="text-decoration-none">
+            <div class="cozy-dark-glass p-3 mb-3 rounded-3">
+                <div class="d-flex justify-content-between text-light">
+                    <div>
+                        <strong>Order #{{ order.id }}</strong><br>
+                        Status: <span class="text-warning">{{ order.get_status_display }}</span><br>
+                        {{ order.created_at|date:"j M Y, H:i" }}
+                    </div>
+                    <div class="text-warning fs-5">£{{ order.total_amount }}</div>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+{% else %}
+    <p class="text-light">You have no orders yet.</p>
+{% endif %}
 
 {% endblock %}

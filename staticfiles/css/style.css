@@ -46,35 +46,31 @@ body, html {
     -webkit-backdrop-filter: blur(8px);
 }
 
-/* Keep navbar above all content, BUT allow dropdowns to float */
+/* Ensure navbar sits above page elements */
 header.cozy-header-blur,
 .navbar-cozy {
     position: relative;
-    z-index: 1030;  /* Bootstrap navbar default */
+    z-index: 1030;
 }
 
 
-/* Dropdown: highest layer on page */
+/* Dropdown: highest layer */
 .dropdown-menu {
     position: absolute !important;
-    z-index: 1040 !important; /* Above navbar, below modals */
+    z-index: 1040 !important;
 }
 
-
-/* Dropdown style */
 .navbar-cozy .dropdown-menu {
     background: rgba(0,0,0,0.9) !important;
     border-radius: 0.75rem;
     border: 1px solid rgba(255,255,255,0.08);
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     padding: 6px 0;
 }
 
 .navbar-cozy .dropdown-item {
     color: #f8f9fa !important;
 }
-
 .navbar-cozy .dropdown-item:hover {
     background-color: rgba(255, 255, 255, 0.12);
 }
@@ -90,11 +86,9 @@ header.cozy-header-blur,
     border-radius: 10px;
     background: rgba(255,255,255,0.09);
     backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     transition: all 0.25s ease;
 }
-
 .cozy-logo:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.35);
@@ -102,28 +96,18 @@ header.cozy-header-blur,
 
 
 /* ============================================================
-   DARK GLASS PANELS (Academy cards, login etc)
+   DARK GLASS PANELS
    ============================================================ */
 
-/* Glass appearance only — NO forced z-index */
 .cozy-dark-glass {
     background: rgba(20, 20, 20, 0.75);
     backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border-radius: 12px;
 }
 
-/* If you NEED the original stacking for specific components */
 .glass-layer {
     position: relative;
     z-index: 1;
-}
-
-.cozy-dark-glass input,
-.cozy-dark-glass input:focus {
-    background: rgba(255,255,255,0.9);
-    color: black;
-    border-radius: 10px;
 }
 
 .cozy-dark-glass label {
@@ -134,14 +118,13 @@ header.cozy-header-blur,
     color: #ffcccc;
     text-decoration: underline;
 }
-
 .cozy-dark-glass a:hover {
     color: white;
 }
 
 
 /* ============================================================
-   FEATURE CARDS / HERO / DIVIDERS
+   FEATURE SECTIONS
    ============================================================ */
 
 .cozy-feature-card {
@@ -155,7 +138,6 @@ header.cozy-header-blur,
 .cozy-divider-parallax {
     padding: 100px 0;
     background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(6px);
     border-radius: 16px;
     text-align: center;
 }
@@ -217,9 +199,6 @@ header.cozy-header-blur,
         left: 0;
         right: 0;
     }
-    .cozy-toast-container .toast {
-        width: 100%;
-    }
 }
 
 
@@ -231,7 +210,6 @@ header.cozy-header-blur,
     transition: all 0.25s ease;
     cursor: pointer;
 }
-
 .card-hover:hover {
     background-color: rgba(128, 0, 32, 0.7);
     transform: translateY(-5px);
@@ -240,43 +218,39 @@ header.cozy-header-blur,
 
 
 /* ============================================================
-   MANAGER SIDEBAR
+   SIDEBAR LINKS
    ============================================================ */
 
 .nav-link.active {
     background-color: rgba(128, 0, 32, 0.8) !important;
     box-shadow: 0 0 8px rgba(128,0,32,0.6);
 }
-
 .nav-link:hover {
     background-color: rgba(128, 0, 32, 0.6);
     color: #fff;
     transform: translateX(2px);
-    transition: 0.2s ease-in-out;
 }
+
 
 /* ============================================================
    POPOVERS
    ============================================================ */
-/* Small popover thumbnail image */
+
 .popover .popover-thumb {
     max-width: 120px !important;
     max-height: 120px !important;
-    object-fit: contain !important;
+    object-fit: contain;
     display: block;
     border-radius: 6px;
     margin: 0 auto;
 }
 
-/* Video URL popover */
 .popover-video-url {
     max-width: 180px !important;
     font-size: 0.75rem !important;
-    white-space: normal !important;
     word-break: break-word !important;
 }
 
-/* General popover style */
 .popover {
     background: rgba(20, 20, 20, 0.95) !important;
     border: 1px solid #444 !important;
@@ -284,69 +258,90 @@ header.cozy-header-blur,
     padding: 6px 10px !important;
 }
 
-.popover-body {
-    padding: 8px !important;
-}
 
-/* Ensure popover anchor works */
-.popover-wrapper {
-    position: relative;
-}
-
+/* ============================================================
+   SHOP MANAGER PANEL
+   ============================================================ */
 
 #shopManagerPanel {
     width: 300px !important;
     backdrop-filter: blur(12px);
     background: rgba(15, 15, 15, 0.90) !important;
-
     position: fixed !important;
     top: 0;
     right: 0;
     height: 100%;
-
-    pointer-events: auto !important;
-    z-index: 3000 !important; /* fixed */
-}
-
-
-.offcanvas-backdrop {
-    display: none !important;
-    z-index: 1600 !important;
-}
-
-/* ============================= */
-/* UNIVERSAL Z-INDEX NORMALISER  */
-/* ============================= */
-
-/* Main navbar */
-.navbar-cozy {
     z-index: 3000 !important;
 }
 
-/* Dropdown menus */
-.dropdown-menu {
-    z-index: 4000 !important;
+.offcanvas-backdrop {
+    display: none !important;
 }
 
-/* Shop navbar (sub-navbar) */
-.cozy-shop-navbar {
-    z-index: 2500 !important;
+
+/* ============================================================
+   GLOBAL Z-INDEX NORMALISATION
+   ============================================================ */
+
+.navbar-cozy { z-index: 3000 !important; }
+.dropdown-menu { z-index: 4000 !important; }
+.cozy-shop-navbar { z-index: 2500 !important; }
+.offcanvas { z-index: 5000 !important; }
+
+
+/* ============================================================
+   SIGNUP FORM FIX (LOCAL OVERRIDE)
+   ============================================================ */
+
+.signup-page .signup-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
 }
 
-/* Any offcanvas override */
-.offcanvas {
-    z-index: 5000 !important;
+.signup-page .signup-field input,
+.signup-page .signup-field select,
+.signup-page .signup-field textarea {
+    width: 100% !important;
+    height: 42px !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255,255,255,0.25) !important;
+    background: rgba(255,255,255,0.12) !important;
+    color: #fff !important;
 }
 
-/* Remove interference from .cozy-dark-glass */
-.cozy-dark-glass {
-    position: static !important;
-    z-index: auto !important;
+.signup-page input[type="file"] {
+    height: auto !important;
+    padding: 10px !important;
 }
-.dropdown-menu.glass-menu {
-    background: rgba(0,0,0,0.88) !important;
-    backdrop-filter: blur(6px);
-    position: relative;
-    min-width: 220px;
-    z-index: 4000 !important;
+
+/* Force 2-column layout */
+.signup-page .col-md-6 {
+    width: 50% !important;
 }
+
+.signup-page .col-12 {
+    width: 100% !important;
+}
+
+/* Ensure row behaves as grid */
+.signup-page .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+/* Override parent flex on signup page only */
+.signup-page .cozy-dark-glass {
+    display: block !important;
+}
+
+.signup-page form {
+    display: block !important;
+}
+
+.signup-page .col-md-6 {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+}
+

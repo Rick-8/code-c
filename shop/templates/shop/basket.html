@@ -1,11 +1,79 @@
 {% extends "shop/base_shop.html" %}
+{% load static %}
+
 {% block shop_content %}
 
-<h2 class="text-light mb-3">
+<h2 class="text-light mb-4">
     <i class="fa-solid fa-basket-shopping text-warning me-2"></i>
     Your Basket
 </h2>
 
-<p class="text-light">Basket system coming soon.</p>
+{% if items %}
+<table class="table table-dark table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th width="120">Price</th>
+            <th width="120">Qty</th>
+            <th width="120">Total</th>
+            <th width="80"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>
+                <strong>{{ item.product.title }}</strong><br>
+                <span class="text-secondary small">{{ item.product.description|truncatewords:12 }}</span>
+            </td>
+
+            <td>£{{ item.product.price }}</td>
+
+            <td>
+                <form action="{% url 'basket_update' item.product.id %}" method="POST" class="d-flex">
+                    {% csrf_token %}
+                    <input type="number"
+                           name="quantity"
+                           value="{{ item.quantity }}"
+                           min="1"
+                           class="form-control form-control-sm bg-dark text-light">
+                    <button class="btn btn-sm btn-warning ms-2">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                </form>
+            </td>
+
+            <td>£{{ item.line_total }}</td>
+
+            <td>
+                <form action="{% url 'basket_remove' item.product.id %}" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-danger"
+                            onclick="return confirm('Remove this item?');">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="text-end mt-4">
+    <h3 class="text-warning">Grand Total: £{{ total }}</h3>
+
+    <a href="{% url 'shop_checkout' %}"
+       class="btn btn-success btn-lg mt-3">
+       <i class="fa-solid fa-credit-card me-2"></i> Proceed to Checkout
+    </a>
+</div>
+
+{% else %}
+<div class="alert alert-secondary text-dark">
+    <i class="fa-solid fa-basket-shopping me-2"></i>
+    Your basket is empty.
+</div>
+{% endif %}
 
 {% endblock %}
