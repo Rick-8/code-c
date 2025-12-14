@@ -10,7 +10,7 @@ body, html {
 
 /* Fixed background image */
 .cozy-bg-fixed {
-    background-image: url("../css/media/cozys-vanhool-building.png");
+    background-image: url("/static/media/cozys-vanhool-building.png");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center 50%;

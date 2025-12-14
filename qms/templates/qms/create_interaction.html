@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+    <div class="cozy-main-blur py-5">
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-xl-9">
+
+                    <div class="cozy-dark-glass p-4 p-md-5 text-light">
+
+                        <!-- Header -->
+                        <div class="mb-4">
+                            <span class="cozy-text-subtitle">
+                                Quality Management System
+                            </span>
+                            <h2 class="mt-2">
+                                <i class="fa-solid fa-clipboard-check me-2 text-warning"></i>
+                                Log Issue or Feedback
+                            </h2>
+                            <p class=" mb-0 text-light">
+                                Record incidents, complaints, defects, praise, or general feedback.
+                            </p>
+                        </div>
+
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+
+                            <!-- Section: Classification -->
+                            <div class="mb-4">
+                                <h5 class="text-warning mb-3">Classification</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        {{ form.interaction_type.label_tag }}
+                                        {{ form.interaction_type }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{ form.source.label_tag }}
+                                        {{ form.source }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{ form.service_line.label_tag }}
+                                        {{ form.service_line }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section: Details -->
+                            <div class="mb-4">
+                                <h5 class="text-warning mb-3">Details</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        {{ form.occurred_at.label_tag }}
+                                        {{ form.occurred_at }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form.severity.label_tag }}
+                                        {{ form.severity }}
+                                    </div>
+                                    <div class="col-12">
+                                        {{ form.summary.label_tag }}
+                                        {{ form.summary }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section: Assignment -->
+                            <div class="mb-4">
+                                <h5 class="text-warning mb-3">Assignment (if applicable)</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        {{ form.driver_name.label_tag }}
+                                        {{ form.driver_name }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{ form.vehicle_reference.label_tag }}
+                                        {{ form.vehicle_reference }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{ form.route_reference.label_tag }}
+                                        {{ form.route_reference }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-warning btn-lg px-5">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                                    Save Entry
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

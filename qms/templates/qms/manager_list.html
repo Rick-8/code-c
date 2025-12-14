@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+    <div class="cozy-main-blur py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-xl-11">
+
+                    <div class="cozy-dark-glass p-4 p-md-5 text-light">
+
+                        <!-- Filters -->
+                        <form method="get" class="mb-4">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-3">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select bg-dark text-light border-secondary">
+                                        <option value="">All</option>
+                                        {% for value, label in status_choices %}
+                                            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">Type</label>
+                                    <select name="type" class="form-select bg-dark text-light border-secondary">
+                                        <option value="">All</option>
+                                        {% for value, label in type_choices %}
+                                            <option value="{{ value }}" {% if current_type == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">Service</label>
+                                    <select name="service" class="form-select bg-dark text-light border-secondary">
+                                        <option value="">All</option>
+                                        {% for value, label in service_choices %}
+                                            <option value="{{ value }}" {% if current_service == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <button class="btn btn-warning w-100">Apply Filters</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Header -->
+                        <div class="row align-items-center mb-4">
+                            <div class="col">
+                                <span class="cozy-text-subtitle">Quality Management System</span>
+                                <h2 class="mt-2 mb-1">
+                                    <i class="fa-solid fa-chart-line me-2 text-warning"></i>
+                                    Manager View
+                                </h2>
+                                <p class="text-light opacity-75 mb-0">
+                                    View and manage all logged issues, incidents, praise, and defects.
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <a href="/qms/new/" class="btn btn-warning text-dark">
+                                    <i class="fa-solid fa-plus me-2"></i>
+                                    Log New Entry
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Service</th>
+                                        <th>Severity</th>
+                                        <th>Status</th>
+                                        <th>Assigned</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in interactions %}
+                                    <tr>
+                                        <td>{{ item.logged_at|date:"d M Y H:i" }}</td>
+                                        <td>{{ item.get_interaction_type_display }}</td>
+                                        <td>{{ item.get_service_line_display }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                {{ item.get_severity_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge
+                                                {% if item.status == 'open' %}bg-danger
+                                                {% elif item.status == 'in_progress' %}bg-warning text-dark
+                                                {% else %}bg-success{% endif %}">
+                                                {{ item.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if item.assigned_to %}
+                                                {{ item.assigned_to.get_full_name|default:item.assigned_to.username }}
+                                            {% else %}
+                                                <span class="fst-italic opacity-75">Unassigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-outline-warning"
+                                                    onclick="openQmsPanel({{ item.id }})">
+                                                Review
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center opacity-75 py-4">
+                                            No entries logged yet.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "qms/_interaction_panel.html" %}
+
+<script>
+function initQmsPanelAssignmentLogic() {
+    const select = document.getElementById("assignedToSelect");
+    const box = document.getElementById("reassignReasonBox");
+    const reason = document.getElementById("reassignmentReason");
+    const saveBtn = document.getElementById("saveBtn");
+
+    // If the panel content doesn't include these (safety), bail out
+    if (!select || !box || !reason || !saveBtn) return;
+
+    const originalValue = (select.dataset.original || "").toString();
+
+    function checkReassignment() {
+        const currentValue = (select.value || "").toString();
+
+        const changed = originalValue !== "" && currentValue !== originalValue;
+
+        if (changed) {
+            box.classList.remove("d-none");
+            saveBtn.disabled = reason.value.trim() === "";
+        } else {
+            box.classList.add("d-none");
+            saveBtn.disabled = false;
+            reason.value = "";
+        }
+    }
+
+    // Ensure no double-binding if panel opened multiple times
+    select.onchange = checkReassignment;
+    reason.oninput = checkReassignment;
+
+    // Run once on load
+    checkReassignment();
+}
+
+function openQmsPanel(id) {
+    const panel = document.getElementById("qmsPanel");
+    panel.classList.add("active");
+
+    fetch(`/qms/manage/${id}/`)
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById("qmsPanelContent").innerHTML = html;
+
+            // IMPORTANT: scripts inside innerHTML won't run, so we init here:
+            initQmsPanelAssignmentLogic();
+        });
+}
+
+function closeQmsPanel() {
+    document.getElementById("qmsPanel").classList.remove("active");
+}
+</script>
+
+{% endblock %}

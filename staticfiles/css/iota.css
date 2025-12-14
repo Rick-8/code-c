@@ -1,0 +1,257 @@
+/* ========================================== */
+/* IOTA MAIN THEME                            */
+/* ========================================== */
+
+.iota-body {
+    background: linear-gradient(180deg, #dbe9f2, #ffffff);
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ========================================== */
+/* NAVBAR                                     */
+/* ========================================== */
+
+.iota-navbar {
+    background: rgba(110, 167, 204, 0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.iota-logo {
+    height: 60px;
+}
+
+.iota-brand-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0c2333;
+}
+
+.iota-toggler {
+    border: none;
+    color: #0c2333;
+    font-size: 1.4rem;
+}
+
+.iota-nav-link {
+    font-weight: 600;
+    padding: 10px 15px;
+    color: #0c2333 !important;
+}
+
+.iota-nav-link:hover {
+    color: #ffffff !important;
+}
+
+/* ========================================== */
+/* PAGE LAYOUT                                */
+/* ========================================== */
+
+.iota-wrapper {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.iota-glass-card {
+    background: rgba(30, 49, 61, 0.75);
+    backdrop-filter: blur(14px);
+    border-radius: 18px;
+    padding: 40px;
+    color: #ffffff;
+}
+
+/* Ensure text is visible globally */
+.iota-glass-card h1,
+.iota-glass-card h2,
+.iota-glass-card h3,
+.iota-glass-card p,
+.iota-glass-card li {
+    color: #ffffff !important;
+}
+
+/* ========================================== */
+/* OFFCANVAS (Manager Menu)                   */
+/* ========================================== */
+/* ================================================================
+   IOTA OFFCANVAS – HIGH CONTRAST FIX
+================================================================ */
+
+.iota-offcanvas {
+    background: rgba(10, 24, 35, 0.95) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Override Bootstrap list-group defaults */
+.iota-offcanvas .list-group-item {
+    background: transparent !important;
+    border: none !important;
+    padding: 14px 12px;
+    font-size: 1.05rem;
+    color: #cfeaff !important;   /* Much brighter */
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+/* Hover state – bright + lifted */
+.iota-offcanvas .list-group-item:hover {
+    background: rgba(255,255,255,0.08) !important;
+    color: #ffffff !important;
+    transform: translateX(4px);
+}
+
+/* Icons in the menu */
+.iota-offcanvas .list-group-item i {
+    color: #8fd5ff !important;
+    margin-right: 10px;
+    width: 22px;
+    text-align: center;
+    transition: 0.2s ease;
+}
+
+/* Icon hover glow */
+.iota-offcanvas .list-group-item:hover i {
+    color: #ffffff !important;
+}
+
+
+/* =======================================================
+   IOTA Professional Primary Button
+   ======================================================= */
+
+.iota-btn-primary {
+    background: linear-gradient(135deg, #103d5e, #1b72b3);
+    border: none;
+    color: #ffffff !important;
+    padding: 12px 28px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(16, 61, 94, 0.3);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover effect: Lift + Glow */
+.iota-btn-primary:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(16, 61, 94, 0.4),
+                0 0 10px rgba(27, 114, 179, 0.6);
+    background: linear-gradient(135deg, #1b72b3, #2490db);
+}
+
+/* Active click effect */
+.iota-btn-primary:active {
+    transform: scale(0.97);
+    box-shadow: 0 3px 6px rgba(16, 61, 94, 0.2);
+}
+
+/* Ripple animation */
+.iota-btn-primary::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    transform: scale(1);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.6s, opacity 0.8s;
+}
+
+.iota-btn-primary:active::after {
+    transform: scale(25);
+    opacity: 0;
+    transition: 0s;
+}
+
+
+/* =============================== */
+/*       IOTA BUTTON STYLES        */
+/* =============================== */
+
+.iota-btn {
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease-in-out;
+    padding: 10px 18px;
+}
+
+/* Main gold brand button */
+.iota-btn-primary {
+    background: linear-gradient(135deg, #c59d38, #e3c15c);
+    color: #000;
+    border: none;
+    box-shadow: 0 0 10px rgba(227, 193, 92, 0.5);
+}
+
+.iota-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px rgba(227, 193, 92, 0.9);
+}
+
+/* OUTLINE BUTTONS — BRAND COLOURS */
+.iota-btn-outline-info,
+.iota-btn-outline-warning,
+.iota-btn-outline-danger {
+    background: transparent !important;
+    border-width: 2px !important;
+    font-weight: 500;
+}
+
+/* Info = Blue accent */
+.iota-btn-outline-info {
+    border-color: #4ea3ff !important;
+    color: #4ea3ff !important;
+}
+.iota-btn-outline-info:hover {
+    background: #4ea3ff !important;
+    color: #000 !important;
+}
+
+/* Warning = Gold accent */
+.iota-btn-outline-warning {
+    border-color: #e3c15c !important;
+    color: #e3c15c !important;
+}
+.iota-btn-outline-warning:hover {
+    background: #e3c15c !important;
+    color: #000 !important;
+}
+
+/* Danger = Red accent */
+.iota-btn-outline-danger {
+    border-color: #ff5b5b !important;
+    color: #ff5b5b !important;
+}
+.iota-btn-outline-danger:hover {
+    background: #ff5b5b !important;
+    color: #000 !important;
+}
+
+/* popover styles */
+
+.popover {
+    background: rgba(30, 30, 30, 0.95);
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 10px;
+}
+
+.popover-header {
+    background: rgba(50, 50, 50, 0.95);
+    color: #e3c15c;
+    border-bottom: 1px solid #444;
+    font-weight: 600;
+}
+
+.popover .btn-danger {
+    background: #ff5b5b !important;
+    border: none !important;
+}

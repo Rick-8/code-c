@@ -10,7 +10,7 @@ body, html {
 
 /* Fixed background image */
 .cozy-bg-fixed {
-    background-image: url("../css/media/cozys-vanhool-building.png");
+    background-image: url("/static/media/cozys-vanhool-building.png");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center 50%;
@@ -345,3 +345,46 @@ header.cozy-header-blur,
     max-width: 50% !important;
 }
 
+
+
+/* ============================================================
+   QMS SLIDE-IN PANEL (RIGHT SIDE)
+   ============================================================ */
+
+   .qms-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 420px;
+    height: 100vh;
+    background: #121212;
+    transform: translateX(100%);
+    transition: transform .25s ease;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+}
+
+.qms-panel.active {
+    transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .qms-panel {
+        width: 100%;
+    }
+}
+
+.qms-panel-header {
+    padding: 1rem;
+    border-bottom: 1px solid white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.qms-panel-body {
+    padding: 1rem;
+    overflow-y: auto;
+    flex: 1;
+}

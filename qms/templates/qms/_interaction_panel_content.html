@@ -1,0 +1,174 @@
+<form method="post" action="{% url 'qms_update' interaction.id %}">
+    {% csrf_token %}
+
+    <!-- HEADER -->
+    <h5 class="text-light mb-2">
+        {{ interaction.get_interaction_type_display }}
+    </h5>
+
+    <p class="text-light mb-4">
+        {{ interaction.summary }}
+    </p>
+
+    <hr class="border-secondary">
+
+    <!-- DETAILS GRID -->
+    <div class="row g-3 text-light mb-3">
+        <div class="col-12 col-md-6">
+            <strong>Status:</strong><br>
+            {{ interaction.get_status_display }}
+        </div>
+        <div class="col-12 col-md-6">
+            <strong>Severity:</strong><br>
+            {{ interaction.get_severity_display }}
+        </div>
+        <div class="col-12 col-md-6">
+            <strong>Service:</strong><br>
+            {{ interaction.get_service_line_display }}
+        </div>
+        <div class="col-12 col-md-6">
+            <strong>Source:</strong><br>
+            {{ interaction.get_source_display }}
+        </div>
+    </div>
+
+    <hr class="border-secondary">
+
+    <!-- ASSIGNMENT -->
+    <div class="mb-3">
+        <label class="fw-bold text-light mb-1 d-block">
+            Assign to staff
+        </label>
+
+        <select name="assigned_to"
+                id="assignedToSelect"
+                class="form-select bg-dark text-light border-secondary"
+                data-original="{{ interaction.assigned_to_id|default:'' }}">
+            <option value="">Unassigned</option>
+            {% for user in staff_users %}
+                <option value="{{ user.id }}"
+                    {% if interaction.assigned_to_id == user.id %}selected{% endif %}>
+                    {{ user.first_name|default:user.username }} {{ user.last_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- REASSIGNMENT REASON -->
+    <div id="reassignReasonBox" class="mb-3 d-none">
+        <label class="fw-bold text-warning mb-1 d-block">
+            Reason for reassignment (required)
+        </label>
+        <textarea name="reassignment_reason"
+                  id="reassignmentReason"
+                  class="form-control bg-dark text-light border-secondary"
+                  rows="3"
+                  placeholder="Explain why this case is being reassigned"></textarea>
+    </div>
+
+    <!-- MANAGER NOTES -->
+    <div class="mb-3">
+        <label class="fw-bold text-light mb-1 d-block">
+            Manager Notes
+        </label>
+        <textarea name="manager_notes"
+                  class="form-control bg-dark text-light border-secondary"
+                  rows="4"
+                  placeholder="Actions taken, findings, decisions">{{ interaction.manager_notes }}</textarea>
+    </div>
+
+    <!-- STATUS -->
+    <div class="mb-4">
+        <label class="fw-bold text-light mb-1 d-block">
+            Status
+        </label>
+        <select name="status"
+                class="form-select bg-dark text-light border-secondary">
+            {% for value, label in interaction.STATUS_CHOICES %}
+                <option value="{{ value }}"
+                    {% if interaction.status == value %}selected{% endif %}>
+                    {{ label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- SAVE -->
+    <button class="btn btn-success w-100" id="saveBtn">
+        Save Changes
+    </button>
+
+    <!-- ASSIGNMENT HISTORY -->
+    {% if interaction.assignment_logs.exists %}
+        <hr class="border-secondary mt-4">
+
+        <h6 class="text-light mb-3">
+            Assignment Change Log
+        </h6>
+
+        <div class="small text-light">
+            {% for log in interaction.assignment_logs.all %}
+                <div class="border border-secondary rounded p-2 mb-2">
+
+                    <div class="row g-2">
+                        <div class="col-12 col-md-6">
+                            <strong>Date:</strong><br>
+                            {{ log.changed_at|date:"d M Y H:i" }}
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <strong>Changed by:</strong><br>
+                            {{ log.changed_by.get_full_name|default:log.changed_by.username }}
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <strong>Previous assignee:</strong><br>
+                            {{ log.previous_assignee|default:"Unassigned" }}
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <strong>New assignee:</strong><br>
+                            {{ log.new_assignee|default:"Unassigned" }}
+                        </div>
+
+                        {% if log.reason %}
+                            <div class="col-12 mt-2 text-warning">
+                                <strong>Reason:</strong><br>
+                                <em>{{ log.reason }}</em>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</form>
+
+<script>
+(function () {
+    const select = document.getElementById("assignedToSelect");
+    const box = document.getElementById("reassignReasonBox");
+    const reason = document.getElementById("reassignmentReason");
+    const saveBtn = document.getElementById("saveBtn");
+
+    const originalValue = String(select.dataset.original || "");
+
+    function checkReassignment() {
+        const currentValue = String(select.value || "");
+        const reassigned = originalValue !== "" && originalValue !== currentValue;
+
+        if (reassigned) {
+            box.classList.remove("d-none");
+            saveBtn.disabled = reason.value.trim() === "";
+        } else {
+            box.classList.add("d-none");
+            saveBtn.disabled = false;
+            reason.value = "";
+        }
+    }
+
+    select.addEventListener("change", checkReassignment);
+    reason.addEventListener("input", checkReassignment);
+})();
+</script>
