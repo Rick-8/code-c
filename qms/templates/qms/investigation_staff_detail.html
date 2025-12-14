@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="cozy-dark-glass p-4 p-md-5 text-light">
+
+  <span class="cozy-text-subtitle">Staff Investigation</span>
+  <h3 class="mb-3">{{ investigation.case_number }}</h3>
+
+  <div class="alert alert-warning">
+    This is an investigation, not a disciplinary.
+    Please read the details carefully and provide your account below.
+  </div>
+
+  <p><strong>Reason:</strong></p>
+  <p class="opacity-75">{{ investigation.reason }}</p>
+
+  <hr class="border-secondary">
+
+  <form method="post">
+    {% csrf_token %}
+
+    <label class="fw-bold mb-2">
+      Your response
+    </label>
+
+    <textarea name="response"
+              class="form-control bg-dark text-light border-secondary mb-3"
+              rows="6"
+              required
+              placeholder="Please explain what happened from your perspective"></textarea>
+
+    <button class="btn btn-success w-100">
+      Submit Response
+    </button>
+  </form>
+
+</div>
+
+{% endblock %}

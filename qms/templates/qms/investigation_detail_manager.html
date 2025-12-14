@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-4 py-md-5">
+    <div class="container">
+      <div class="cozy-dark-glass p-4 p-md-5 text-light">
+
+        <!-- HEADER -->
+        <div class="mb-4">
+          <span class="cozy-text-subtitle">Formal Staff Investigation</span>
+
+          <h2 class="mt-2 mb-1">
+            <i class="fa-solid fa-file-lines me-2 text-warning"></i>
+            Investigation Case
+          </h2>
+
+          <div class="fw-bold fs-5 text-warning">
+            {{ investigation.case_number }}
+          </div>
+        </div>
+
+        <hr class="border-secondary">
+
+        <!-- CASE SUMMARY -->
+        <div class="row g-4 mb-4">
+
+          <!-- STAFF -->
+          <div class="col-12 col-md-6">
+            <div class="bg-dark rounded p-3 h-100">
+              <h6 class="text-uppercase small opacity-75 mb-2">
+                Staff Member
+              </h6>
+
+              {% if investigation.staff_member %}
+                <div class="fw-bold">
+                  {{ investigation.staff_member.get_full_name|default:investigation.staff_member.username }}
+                </div>
+              {% else %}
+                <div class="fst-italic opacity-75">
+                  Unassigned
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- STATUS -->
+          <div class="col-12 col-md-6">
+            <div class="bg-dark rounded p-3 h-100">
+              <h6 class="text-uppercase small opacity-75 mb-2">
+                Status
+              </h6>
+
+              <span class="badge
+                {% if investigation.status == 'awaiting_response' %}
+                  bg-warning text-dark
+                {% elif investigation.status == 'disciplinary' %}
+                  bg-danger
+                {% elif investigation.status == 'training' %}
+                  bg-info text-dark
+                {% elif investigation.status == 'closed' %}
+                  bg-success
+                {% else %}
+                  bg-secondary
+                {% endif %}
+              ">
+                {{ investigation.get_status_display }}
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- REASON -->
+        <div class="mb-4">
+          <h6 class="text-uppercase small opacity-75 mb-2">
+            Investigation Reason
+          </h6>
+
+          <div class="bg-dark rounded p-3">
+            <p class="mb-0" style="white-space: pre-line;">
+              {{ investigation.reason }}
+            </p>
+          </div>
+        </div>
+
+        <!-- ADD EVIDENCE -->
+        <hr class="border-secondary mt-4">
+
+        <h5 class="mb-3">
+          <i class="fa-solid fa-file-circle-plus me-2 text-warning"></i>
+          Add Investigation Evidence
+        </h5>
+
+        <form method="post"
+              action="{% url 'investigation_add_log' investigation.id %}">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-bold text-light">
+              Evidence / Investigation Notes
+            </label>
+
+            <textarea name="notes"
+                      class="form-control bg-dark text-light border-secondary"
+                      rows="4"
+                      placeholder="Record evidence gathered, discussions held, CCTV reviewed, findings, or decisions made."
+                      required></textarea>
+          </div>
+
+          <button class="btn btn-outline-warning">
+            <i class="fa-solid fa-plus me-2"></i>
+            Add to Audit Log
+          </button>
+        </form>
+
+        <!-- AUDIT LOG -->
+        <hr class="border-secondary mt-5">
+
+        <h5 class="mb-3">
+          <i class="fa-solid fa-clock-rotate-left me-2 text-warning"></i>
+          Audit Log
+        </h5>
+
+        <div class="bg-dark rounded p-3">
+          {% if investigation.logs.exists %}
+            <ul class="list-unstyled mb-0">
+
+              {% for log in investigation.logs.all %}
+              <li class="mb-3 pb-3 border-bottom border-secondary">
+
+                <div class="small text-secondary">
+                  {{ log.created_at|date:"d M Y H:i" }}
+                </div>
+
+                <div class="fw-bold text-light">
+                  {{ log.get_event_type_display }}
+                </div>
+
+                {% if log.performed_by %}
+                <div class="small opacity-75">
+                  By {{ log.performed_by.get_full_name|default:log.performed_by.username }}
+                </div>
+                {% endif %}
+
+                {% if log.notes %}
+                <div class="mt-2 p-2 bg-black rounded border border-secondary text-light">
+                  {{ log.notes|linebreaks }}
+                </div>
+                {% endif %}
+
+              </li>
+              {% endfor %}
+
+            </ul>
+          {% else %}
+            <div class="text-center opacity-75">
+              No audit events recorded yet.
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- ACTION BAR -->
+        <hr class="border-secondary mt-4">
+
+        <div class="d-flex flex-wrap gap-2 justify-content-end">
+
+          <a href="{% url 'investigation_dashboard' %}"
+             class="btn btn-outline-light">
+            Back to Dashboard
+          </a>
+
+          {% if investigation.status == 'open' %}
+          <button class="btn btn-warning text-dark">
+            <i class="fa-solid fa-paper-plane me-2"></i>
+            Send Investigation Notice
+          </button>
+          {% endif %}
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,8 +1,17 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+import random
+from django.db import IntegrityError
+
+
 
 User = get_user_model()
 
+
+# =========================================================
+# QMS INTERACTIONS
+# =========================================================
 
 class Interaction(models.Model):
 
@@ -43,64 +52,30 @@ class Interaction(models.Model):
         ('closed', 'Closed'),
     ]
 
-    # ── Classification ─────────────────────────────────────
-    interaction_type = models.CharField(
-        max_length=20,
-        choices=INTERACTION_TYPE_CHOICES
-    )
-    source = models.CharField(
-        max_length=20,
-        choices=SOURCE_CHOICES
-    )
-    service_line = models.CharField(
-        max_length=20,
-        choices=SERVICE_LINE_CHOICES
-    )
+    # ── Classification ────────────────────────────────────
+    interaction_type = models.CharField(max_length=20, choices=INTERACTION_TYPE_CHOICES)
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES)
+    service_line = models.CharField(max_length=20, choices=SERVICE_LINE_CHOICES)
 
-    # ── Timing ─────────────────────────────────────────────
-    occurred_at = models.DateTimeField(
-        help_text="When the issue occurred"
-    )
-    logged_at = models.DateTimeField(
-        auto_now_add=True
-    )
-    closed_at = models.DateTimeField(
-        null=True,
-        blank=True
-    )
+    # ── Timing ────────────────────────────────────────────
+    occurred_at = models.DateTimeField(help_text="When the issue occurred")
+    logged_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
 
-    # ── Content ────────────────────────────────────────────
+    # ── Content ───────────────────────────────────────────
     summary = models.TextField()
-    severity = models.PositiveSmallIntegerField(
-        choices=SEVERITY_CHOICES,
-        default=1
-    )
+    severity = models.PositiveSmallIntegerField(choices=SEVERITY_CHOICES, default=1)
 
-    # ── Traceability ───────────────────────────────────────
-    driver_name = models.CharField(
-        max_length=255,
-        blank=True
-    )
-    vehicle_reference = models.CharField(
-        max_length=50,
-        blank=True
-    )
-    route_reference = models.CharField(
-        max_length=100,
-        blank=True
-    )
+    # ── Traceability ──────────────────────────────────────
+    driver_name = models.CharField(max_length=255, blank=True)
+    vehicle_reference = models.CharField(max_length=50, blank=True)
+    route_reference = models.CharField(max_length=100, blank=True)
 
-    # ── Management ─────────────────────────────────────────
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='open'
-    )
-    manager_notes = models.TextField(
-        blank=True
-    )
+    # ── Management ────────────────────────────────────────
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    manager_notes = models.TextField(blank=True)
 
-    # ── Assignment ─────────────────────────────────────────
+    # ── Assignment ────────────────────────────────────────
     assigned_to = models.ForeignKey(
         User,
         null=True,
@@ -109,7 +84,7 @@ class Interaction(models.Model):
         related_name='assigned_qms_interactions'
     )
 
-    # ── Ownership ──────────────────────────────────────────
+    # ── Ownership ─────────────────────────────────────────
     logged_by = models.ForeignKey(
         User,
         null=True,
@@ -122,11 +97,12 @@ class Interaction(models.Model):
         return f"{self.get_interaction_type_display()} | {self.get_status_display()}"
 
 
-# ──────────────────────────────────────────────────────────
-# Assignment / Reassignment Audit Log (ISO 9001 Evidence)
-# ──────────────────────────────────────────────────────────
+# =========================================================
+# INTERACTION ASSIGNMENT AUDIT LOG (ISO 9001)
+# =========================================================
 
 class InteractionAssignmentLog(models.Model):
+
     interaction = models.ForeignKey(
         Interaction,
         on_delete=models.CASCADE,
@@ -161,9 +137,7 @@ class InteractionAssignmentLog(models.Model):
         help_text="Required when an interaction is reassigned"
     )
 
-    changed_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    changed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-changed_at"]
@@ -173,3 +147,124 @@ class InteractionAssignmentLog(models.Model):
             f"Assignment change on Interaction {self.interaction.id} "
             f"at {self.changed_at:%d %b %Y %H:%M}"
         )
+
+
+# =========================================================
+# FORMAL STAFF INVESTIGATIONS
+# =========================================================
+
+class Investigation(models.Model):
+
+    STATUS_CHOICES = [
+        ("open", "Open"),
+        ("awaiting_response", "Awaiting Staff Response"),
+        ("no_further_action", "No Further Action"),
+        ("training", "Training Required"),
+        ("disciplinary", "Escalated to Disciplinary"),
+        ("closed", "Closed"),
+    ]
+
+    case_number = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True,
+        help_text="Unique investigation reference number"
+    )
+
+    staff_member = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="investigations"
+    )
+
+    reason = models.TextField(
+        help_text="Reason for investigation"
+    )
+
+    status = models.CharField(
+        max_length=30,
+        choices=STATUS_CHOICES,
+        default="open"
+    )
+
+    created_by = models.ForeignKey(
+        User,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_investigations"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+
+    # ─────────────────────────────────────────────
+    # AUTO CASE NUMBER GENERATION (ROBUST)
+    # Format: CTI-YY-XXXXXX
+    # ─────────────────────────────────────────────
+    def save(self, *args, **kwargs):
+        if not self.case_number:
+            year_suffix = timezone.now().strftime("%y")
+
+            for _ in range(10):  # hard stop safety
+                random_part = random.randint(100000, 999999)
+                candidate = f"CTI-{year_suffix}-{random_part}"
+
+                if not Investigation.objects.filter(case_number=candidate).exists():
+                    self.case_number = candidate
+                    break
+            else:
+                # This should realistically never happen
+                raise ValueError("Unable to generate unique Investigation case number")
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.case_number
+
+# =========================================================
+# INVESTIGATION AUDIT LOG (ISO 9001 / HR SAFE)
+# =========================================================
+
+
+class InvestigationLog(models.Model):
+
+    EVENT_CHOICES = [
+        ("created", "Investigation Created"),
+        ("notice_sent", "Investigation Notice Sent"),
+        ("notice_viewed", "Employee Viewed Notice"),
+        ("response_submitted", "Employee Response Submitted"),
+        ("evidence_submitted", "Evidence Submitted"),
+        ("decision_made", "Manager Decision Recorded"),
+        ("closed", "Investigation Closed"),
+        ("escalated", "Escalated to Disciplinary"),
+    ]
+
+    investigation = models.ForeignKey(
+        Investigation,
+        on_delete=models.CASCADE,
+        related_name="logs"
+    )
+
+    event_type = models.CharField(
+        max_length=30,
+        choices=EVENT_CHOICES
+    )
+
+    performed_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.get_event_type_display()} – {self.created_at:%d %b %Y %H:%M}"

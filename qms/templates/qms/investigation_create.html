@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+
+          <div class="cozy-dark-glass p-4 p-md-5 text-light">
+
+            <span class="cozy-text-subtitle">Quality Management System</span>
+            <h2 class="mt-2 mb-4">
+              <i class="fa-solid fa-user-shield me-2 text-warning"></i>
+              Create Investigation
+            </h2>
+
+            <form method="post">
+              {% csrf_token %}
+
+              <!-- STAFF MEMBER -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">
+                  Staff Member
+                </label>
+                <select name="staff_member"
+                        class="form-select bg-dark text-light border-secondary">
+                  <option value="">— Select staff member —</option>
+                  {% for user in staff_users %}
+                    <option value="{{ user.id }}">
+                      {{ user.get_full_name|default:user.username }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- REASON -->
+              <div class="mb-4">
+                <label class="form-label fw-bold">
+                  Reason for Investigation
+                </label>
+                <textarea name="reason"
+                          class="form-control bg-dark text-light border-secondary"
+                          rows="5"
+                          placeholder="Clearly state the reason for the investigation. Be factual and neutral."
+                          required></textarea>
+              </div>
+
+              <!-- ACTIONS -->
+              <div class="d-flex gap-3">
+                <button type="submit"
+                        class="btn btn-warning text-dark">
+                  <i class="fa-solid fa-plus me-2"></i>
+                  Create Investigation
+                </button>
+
+                <a href="{% url 'investigation_dashboard' %}"
+                   class="btn btn-outline-light">
+                  Cancel
+                </a>
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
