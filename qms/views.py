@@ -14,6 +14,10 @@ from django.http import HttpResponseForbidden
 from .models import Interaction, InteractionAssignmentLog
 from .forms import InteractionForm
 
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+
+
 User = get_user_model()
 
 
@@ -95,8 +99,12 @@ def qms_interaction_panel(request, pk):
 
 
 # ─────────────────────────────────────────────────────
-# UPDATE INTERACTION (ASSIGN / REASSIGN / CLOSE)
+# UPDATE INTERACTION (ASSIGN / REASSIGN / LOG / CLOSE)
 # ─────────────────────────────────────────────────────
+def staff_member_required(view_func):
+    return user_passes_test(lambda u: u.is_staff)(view_func)
+
+
 @staff_member_required
 def update_interaction(request, pk):
     interaction = get_object_or_404(Interaction, pk=pk)
@@ -108,109 +116,124 @@ def update_interaction(request, pk):
         reassignment_reason = request.POST.get("reassignment_reason", "").strip()
 
         previous_assignee = interaction.assigned_to
-        new_assignee = None
+        previous_status = interaction.status
 
+        new_assignee = None
         if new_assigned_to_id:
             new_assignee = get_object_or_404(User, pk=new_assigned_to_id)
 
-        # ─────────────────────────────────────────────
-        # GUARD RAILS (ISO CONTROL)
-        # ─────────────────────────────────────────────
+        email_required = False
 
-        # Prevent reassignment once closed
+        # ─────────────────────────────
+        # GUARD RAILS (ISO CONTROL)
+        # ─────────────────────────────
         if interaction.status == "closed" and previous_assignee != new_assignee:
+            messages.error(request, "Closed interactions cannot be reassigned.")
+            return redirect("qms_manager_list")
+
+        if new_status == "closed" and not manager_notes:
             messages.error(
                 request,
-                "Closed interactions cannot be reassigned."
+                "Manager notes are required before closing an interaction."
             )
             return redirect("qms_manager_list")
 
-        # Prevent closing unless assigned + notes exist
-        if new_status == "closed":
-            if not new_assignee and not previous_assignee:
-                messages.error(
-                    request,
-                    "You must assign this interaction before closing it."
-                )
-                return redirect("qms_manager_list")
-
-            if not manager_notes:
-                messages.error(
-                    request,
-                    "Manager notes are required before closing an interaction."
-                )
-                return redirect("qms_manager_list")
-
-        # ─────────────────────────────────────────────
-        # ASSIGNMENT / REASSIGNMENT LOGGING
-        # ─────────────────────────────────────────────
+        # ─────────────────────────────
+        # ASSIGNMENT / REASSIGNMENT LOG
+        # ─────────────────────────────
         if previous_assignee != new_assignee:
             InteractionAssignmentLog.objects.create(
                 interaction=interaction,
                 previous_assignee=previous_assignee,
                 new_assignee=new_assignee,
                 changed_by=request.user,
-                reason=reassignment_reason if previous_assignee else ""
+                reason=(
+                    reassignment_reason
+                    if previous_assignee
+                    else "Initial assignment"
+                ),
             )
-
             interaction.assigned_to = new_assignee
+            email_required = True
 
-            # ─────────────────────────────────────────
-            # EMAIL NOTIFICATION
-            # ─────────────────────────────────────────
-            if new_assignee and new_assignee.email:
-                subject = "QMS Interaction Assigned"
-                if previous_assignee:
-                    subject = "QMS Interaction Reassigned"
+        # ─────────────────────────────
+        # MANAGER NOTES → AUDIT LOG
+        # ─────────────────────────────
+        if manager_notes:
+            InteractionAssignmentLog.objects.create(
+                interaction=interaction,
+                previous_assignee=interaction.assigned_to,
+                new_assignee=interaction.assigned_to,
+                changed_by=request.user,
+                reason=manager_notes,
+            )
+            interaction.manager_notes = ""
+            email_required = True
 
-                message = f"""
-Hello {new_assignee.get_full_name() or new_assignee.username},
+        # ─────────────────────────────
+        # STATUS CHANGE LOG
+        # ─────────────────────────────
+        if previous_status != new_status:
+            InteractionAssignmentLog.objects.create(
+                interaction=interaction,
+                previous_assignee=interaction.assigned_to,
+                new_assignee=interaction.assigned_to,
+                changed_by=request.user,
+                reason=(
+                    f"Status changed from "
+                    f"{interaction.get_status_display()} "
+                    f"to {dict(Interaction.STATUS_CHOICES).get(new_status)}"
+                ),
+            )
+            email_required = True
 
-A Quality Management System interaction has been assigned to you.
-
-Type: {interaction.get_interaction_type_display()}
-Service: {interaction.get_service_line_display()}
-Severity: {interaction.get_severity_display()}
-
-Assigned by: {request.user.get_full_name() or request.user.username}
-Logged: {interaction.logged_at:%d %b %Y %H:%M}
-"""
-
-                if previous_assignee:
-                    message += f"""
-
-Previously assigned to:
-{previous_assignee.get_full_name() or previous_assignee.username}
-
-Reason for reassignment:
-{reassignment_reason}
-"""
-
-                message += """
-
-Please log in to the system to review and action this item.
-
-— Cozy Coaches QMS
-"""
-
-                send_mail(
-                    subject=subject,
-                    message=message,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[new_assignee.email],
-                    fail_silently=True,
-                )
-
-        # ─────────────────────────────────────────────
-        # STATUS & NOTES
-        # ─────────────────────────────────────────────
+        # ─────────────────────────────
+        # FINAL SAVE
+        # ─────────────────────────────
         interaction.status = new_status
-        interaction.manager_notes = manager_notes
 
         if new_status == "closed" and interaction.closed_at is None:
             interaction.closed_at = timezone.now()
 
         interaction.save()
+
+        # ─────────────────────────────
+        # EMAIL NOTIFICATION (TEMPLATE)
+        # ─────────────────────────────
+        if email_required and interaction.assigned_to and interaction.assigned_to.email:
+
+            context = {
+                "interaction": interaction,
+                "interaction_type": interaction.get_interaction_type_display(),
+                "service": interaction.get_service_line_display(),
+                "severity": interaction.get_severity_display(),
+                "status": interaction.get_status_display(),
+                "assigned_by": request.user.get_full_name() or request.user.username,
+                "site_url": request.build_absolute_uri("/"),
+            }
+
+            subject = "QMS Interaction Update"
+
+            text_body = render_to_string(
+                "qms/emails/interaction_assigned.txt",
+                context
+            )
+
+            html_body = render_to_string(
+                "qms/emails/interaction_assigned.html",
+                context
+            )
+
+            email = EmailMultiAlternatives(
+                subject=subject,
+                body=text_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[interaction.assigned_to.email],
+            )
+
+            email.attach_alternative(html_body, "text/html")
+            email.send(fail_silently=True)
+
         messages.success(request, "Interaction updated successfully.")
 
     return redirect("qms_manager_list")

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>QMS Interaction Update</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="right" style="padding-bottom:20px;">
+                <img src="{{ site_url }}/static/media/LOGO-Cozys.webp" alt="Cozy Coaches"
+                    style="height:40px; width:auto;">
+            </td>
+        </tr>
+    </table>
+
+    <div style="background:#ffffff; padding:20px; border-radius:6px;">
+        <h2 style="margin-top:0;">Quality Management System</h2>
+
+        <p>
+            An interaction has been updated and assigned to you.
+        </p>
+
+        <table cellpadding="6">
+            <tr>
+                <td><strong>Type:</strong></td>
+                <td>{{ interaction_type }}</td>
+            </tr>
+            <tr>
+                <td><strong>Service:</strong></td>
+                <td>{{ service }}</td>
+            </tr>
+            <tr>
+                <td><strong>Severity:</strong></td>
+                <td>{{ severity }}</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong></td>
+                <td>{{ status }}</td>
+            </tr>
+            <tr>
+                <td><strong>Assigned by:</strong></td>
+                <td>{{ assigned_by }}</td>
+            </tr>
+        </table>
+
+        {% if notes %}
+        <p style="margin-top:15px;">
+            <strong>Manager Notes:</strong><br>
+            {{ notes }}
+        </p>
+        {% endif %}
+
+        <p style="margin-top:20px;">
+            Please log in to review and action this item.
+        </p>
+
+        <p style="font-size:12px; color:#666;">
+            Cozy Coaches Quality Management System
+        </p>
+    </div>
+
+</body>
+
+</html>

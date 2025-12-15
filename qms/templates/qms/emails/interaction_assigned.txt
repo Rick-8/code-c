@@ -1,0 +1,46 @@
+{{ company_name }}
+
+Quality Management System Notification
+──────────────────────────────────────
+
+Hello {{ recipient_name }},
+
+You have been {% if reassigned %}reassigned{% else %}assigned{% endif %} a Quality Management System interaction.
+
+Reference:
+{{ interaction.reference }}
+
+Type:
+{{ interaction.type }}
+
+Service Area:
+{{ interaction.service }}
+
+Severity:
+{{ interaction.severity }}
+
+Current Status:
+{{ interaction.status }}
+
+──────────────────────────────────────
+Assigned by:
+{{ assigned_by }}
+
+Logged:
+{{ logged_at }}
+
+{% if reassigned %}
+Previously assigned to:
+{{ previous_assignee }}
+
+Reason for reassignment:
+{{ reassignment_reason }}
+{% endif %}
+
+Please log in to the system to review and action this item.
+
+{{ system_url }}
+
+──────────────────────────────────────
+This is an automated message.
+Do not reply to this email.
