@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="max-width: 720px;">
+
+  <!-- Single dark wrapper -->
+  <div class="qms-card p-4">
+
+    <h2 class="text-light mb-3">
+      Create Controlled Document
+    </h2>
+
+    <div class="qms-alert mb-4">
+      This step creates the document record only.
+      You will add the content as version 1.0 next.
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label text-light">Reference</label>
+        {{ form.reference }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-light">Title</label>
+        {{ form.title }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-light">Category</label>
+        {{ form.category }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-light">Status</label>
+        {{ form.status }}
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-success">
+          Create document
+        </button>
+        <a href="{% url 'document_list' %}" class="btn btn-outline-light">
+          Cancel
+        </a>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+{% endblock %}

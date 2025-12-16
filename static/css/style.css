@@ -388,3 +388,63 @@ header.cozy-header-blur,
     overflow-y: auto;
     flex: 1;
 }
+
+
+/* ================================
+   QMS DOCUMENT STYLING
+   ================================ */
+
+.qms-card {
+    background: rgba(15, 17, 21, 0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 14px;
+    color: #f1f1f1;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65);
+}
+
+.qms-card h1,
+.qms-card h2,
+.qms-card h3,
+.qms-card h4,
+.qms-card h5,
+.qms-card h6 {
+    color: #ffffff;
+}
+
+.qms-muted {
+    color: #9aa0a6;
+}
+
+/* Tables */
+.qms-card .table {
+    color: #f1f1f1;
+    margin-bottom: 0;
+}
+
+.qms-card .table thead {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.qms-card .table-hover tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* Alerts inside QMS */
+.qms-alert {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.4);
+    color: #ffc107;
+}
+
+/* Badges */
+.qms-badge-approved {
+    background-color: #198754;
+}
+
+.qms-badge-draft {
+    background-color: #6c757d;
+}
+
+.qms-badge-obsolete {
+    background-color: #dc3545;
+}

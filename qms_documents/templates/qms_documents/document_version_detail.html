@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+  <div class="qms-card p-4">
+
+    <a href="{% url 'document_detail' document.reference %}"
+       class="btn btn-sm btn-outline-light mb-3">
+      ← Back to current version
+    </a>
+
+    <div class="qms-alert mb-4">
+      <strong>Obsolete version.</strong>
+      This document version is for reference only and must not be used operationally.
+    </div>
+
+    <h2 class="text-light mb-1">
+      {{ document.reference }} – {{ document.title }}
+    </h2>
+
+    <div class="qms-muted mb-3">
+      Version <strong>v{{ version.version_string }}</strong> |
+      Created {{ version.created_at|date:"d M Y H:i" }} |
+      By {{ version.created_by|default:"—" }}
+    </div>
+
+    {{ version.content|linebreaks }}
+
+  </div>
+
+</div>
+{% endblock %}

@@ -16,4 +16,5 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("shop/", include("shop.urls")),
     path("qms/", include("qms.urls")),
+    path("qms-documents/", include("qms_documents.urls")),
 ]

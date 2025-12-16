@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+  <div class="qms-card p-4">
+
+    <h2 class="text-light mb-1">
+      Edit Document: {{ document.reference }} – {{ document.title }}
+    </h2>
+
+    <div class="qms-muted mb-4">
+      {% if current %}
+        Current version: <strong>v{{ current.version_string }}</strong>
+      {% else %}
+        Creating initial version (v1.0)
+      {% endif %}
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label text-light">
+          Change Summary
+        </label>
+        {{ form.change_summary }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-light">
+          Document Content
+        </label>
+        {{ form.content }}
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-success">
+          Save new version
+        </button>
+        <a href="{% url 'document_detail' document.reference %}"
+           class="btn btn-outline-light">
+          Cancel
+        </a>
+      </div>
+    </form>
+
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+
+  <div class="qms-card p-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="text-light mb-0">
+        QMS Documents
+      </h2>
+
+      {% if request.user.is_staff %}
+        <a href="{% url 'document_create' %}" class="btn btn-primary">
+          + New Document
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th class="text-end"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for doc in documents %}
+          <tr>
+            <td><strong>{{ doc.reference }}</strong></td>
+            <td>{{ doc.title }}</td>
+            <td>{{ doc.category }}</td>
+            <td>
+              <span class="badge
+                {% if doc.status == 'APPROVED' %}qms-badge-approved
+                {% elif doc.status == 'DRAFT' %}qms-badge-draft
+                {% else %}qms-badge-obsolete{% endif %}">
+                {{ doc.get_status_display }}
+              </span>
+            </td>
+            <td class="text-end">
+              <a href="{% url 'document_detail' doc.reference %}"
+                 class="btn btn-sm btn-outline-light">
+                Open
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center qms-muted py-4">
+              No documents have been added yet.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

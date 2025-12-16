@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="max-width: 480px;">
+
+  <div class="qms-card p-4">
+
+    <h3 class="text-light mb-2">
+      Confirm Edit
+    </h3>
+
+    <p class="qms-muted mb-4">
+      Please confirm your password to edit
+      <strong>{{ document.reference }}</strong>.
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label text-light">Password</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn btn-warning w-100">
+        Continue to edit
+      </button>
+    </form>
+
+  </div>
+
+</div>
+{% endblock %}
+
