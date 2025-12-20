@@ -2,51 +2,109 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
+<div class="container" style="max-width: 900px;">
 
-  <div class="qms-card p-4">
+  <!-- Navigation -->
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="{% url 'document_detail' document.reference %}"
+       class="btn btn-sm btn-outline-light">
+      ← Back to document
+    </a>
+    <a href="{% url 'document_list' %}"
+       class="btn btn-sm btn-outline-secondary">
+      Documents list
+    </a>
+  </div>
 
-    <h2 class="text-light mb-1">
-      Edit Document: {{ document.reference }} – {{ document.title }}
-    </h2>
+  <!-- Edit Card -->
+  <div class="qms-card p-4 p-md-5">
 
-    <div class="qms-muted mb-4">
-      {% if current %}
-        Current version: <strong>v{{ current.version_string }}</strong>
-      {% else %}
-        Creating initial version (v1.0)
-      {% endif %}
+    <!-- Header -->
+    <div class="mb-4">
+      <h2 class="mb-1 text-light">Edit Controlled Document</h2>
+      <p class="qms-muted mb-0">
+        Editing <strong>{{ document.reference }}</strong> will create a new controlled version.
+      </p>
+    </div>
+
+    <!-- ISO alert -->
+    <div class="qms-alert mb-4">
+      <i class="fa-solid fa-triangle-exclamation me-2"></i>
+      Ensure all updates reflect current operational practice and are authorised before saving.
     </div>
 
     <form method="post">
       {% csrf_token %}
 
-      <div class="mb-3">
-        <label class="form-label text-light">
-          Change Summary
-        </label>
-        {{ form.change_summary }}
+      <!-- Metadata -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label text-light">Reference</label>
+          <input type="text" class="form-control qms-input"
+                 value="{{ document.reference }}" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-light">Category</label>
+          <input type="text" class="form-control qms-input"
+                 value="{{ document.category }}" readonly>
+        </div>
       </div>
 
       <div class="mb-3">
-        <label class="form-label text-light">
-          Document Content
-        </label>
+        <label class="form-label text-light">Title</label>
+        <input type="text" class="form-control qms-input"
+               value="{{ document.title }}" readonly>
+      </div>
+
+      <!-- Status -->
+      {% if request.user.is_superuser %}
+        <div class="mb-3">
+          <label class="form-label text-light">Status</label>
+          <select name="status" class="form-select qms-input">
+            <option value="DRAFT" {% if document.status == "DRAFT" %}selected{% endif %}>Draft</option>
+            <option value="APPROVED" {% if document.status == "APPROVED" %}selected{% endif %}>Approved</option>
+            <option value="OBSOLETE" {% if document.status == "OBSOLETE" %}selected{% endif %}>Obsolete</option>
+          </select>
+          <div class="form-text qms-muted mt-1">
+            Managers may update status here. Changes are logged.
+          </div>
+        </div>
+      {% else %}
+        <div class="mb-3">
+          <label class="form-label text-light">Status</label>
+          <input type="text" class="form-control qms-input"
+                 value="{{ document.get_status_display }}" readonly>
+        </div>
+      {% endif %}
+
+      <hr class="border-secondary my-4">
+
+      <!-- Editable content -->
+      <div class="mb-4">
+        <label class="form-label text-light">Document Content</label>
         {{ form.content }}
       </div>
 
-      <div class="d-flex gap-2 mt-4">
-        <button type="submit" class="btn btn-success">
-          Save new version
+      <div class="mb-4">
+        <label class="form-label text-light">Change Summary</label>
+        {{ form.change_summary }}
+        <div class="form-text qms-muted mt-1">
+          Describe what changed and why. This note will appear in version history.
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <button type="submit" class="btn btn-warning fw-semibold px-4">
+          <i class="fa-solid fa-save me-2"></i>Save & Create New Version
         </button>
+
         <a href="{% url 'document_detail' document.reference %}"
-           class="btn btn-outline-light">
+           class="btn btn-outline-light px-4">
           Cancel
         </a>
       </div>
     </form>
-
   </div>
-
 </div>
 {% endblock %}

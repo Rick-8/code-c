@@ -19,4 +19,6 @@ urlpatterns = [
     # LIST + DETAIL (LAST)
     path("", views.document_list, name="document_list"),
     path("<str:reference>/", views.document_detail, name="document_detail"),
+    path("<str:reference>/status/", views.document_change_status, name="document_change_status"),
+
 ]

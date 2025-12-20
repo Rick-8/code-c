@@ -4,7 +4,12 @@
 {% block content %}
 <div class="container" style="max-width: 720px;">
 
-  <!-- Single dark wrapper -->
+  <!-- Back -->
+  <a href="{% url 'document_list' %}"
+     class="btn btn-sm btn-outline-light mb-3">
+    ← Back to documents
+  </a>
+
   <div class="qms-card p-4">
 
     <h2 class="text-light mb-3">
@@ -49,8 +54,6 @@
       </div>
 
     </form>
-
   </div>
-
 </div>
 {% endblock %}

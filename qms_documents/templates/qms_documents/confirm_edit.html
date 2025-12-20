@@ -4,6 +4,12 @@
 {% block content %}
 <div class="container" style="max-width: 480px;">
 
+  <!-- Back -->
+  <a href="{% url 'document_detail' document.reference %}"
+     class="btn btn-sm btn-outline-light mb-3">
+    ← Back to document
+  </a>
+
   <div class="qms-card p-4">
 
     <h3 class="text-light mb-2">
@@ -12,7 +18,7 @@
 
     <p class="qms-muted mb-4">
       Please confirm your password to edit
-      <strong>{{ document.reference }}</strong>.
+      <strong class="text-light">{{ document.reference }}</strong>.
     </p>
 
     <form method="post">
@@ -29,7 +35,5 @@
     </form>
 
   </div>
-
 </div>
 {% endblock %}
-

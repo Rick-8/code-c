@@ -3,14 +3,11 @@
 
 {% block content %}
 <div class="container">
-
   <div class="qms-card p-4">
 
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="text-light mb-0">
-        QMS Documents
-      </h2>
-
+      <h2 class="mb-0">QMS Documents</h2>
       {% if request.user.is_staff %}
         <a href="{% url 'document_create' %}" class="btn btn-primary">
           + New Document
@@ -18,18 +15,29 @@
       {% endif %}
     </div>
 
+    <!-- Search -->
+    <div class="mb-4 qms-filters">
+      <input
+        type="search"
+        id="qms-search-input"
+        class="form-control qms-input"
+        placeholder="Start typing to search documents..."
+        autocomplete="off">
+    </div>
+
+    <!-- Documents Table -->
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table table-hover align-middle mb-0 qms-table">
         <thead>
           <tr>
             <th>Reference</th>
             <th>Title</th>
             <th>Category</th>
             <th>Status</th>
-            <th class="text-end"></th>
+            <th class="text-end">Action</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="qms-results">
           {% for doc in documents %}
           <tr>
             <td><strong>{{ doc.reference }}</strong></td>
@@ -45,7 +53,7 @@
             </td>
             <td class="text-end">
               <a href="{% url 'document_detail' doc.reference %}"
-                 class="btn btn-sm btn-outline-light">
+                 class="btn btn-sm btn-qms-open">
                 Open
               </a>
             </td>
@@ -53,15 +61,15 @@
           {% empty %}
           <tr>
             <td colspan="5" class="text-center qms-muted py-4">
-              No documents have been added yet.
+              No documents found.
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-
   </div>
-
 </div>
+
+<script src="{% static 'js/search.js' %}"></script>
 {% endblock %}

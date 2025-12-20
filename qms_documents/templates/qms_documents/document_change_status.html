@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container" style="max-width: 700px;">
+  <div class="qms-card p-4">
+    <h2 class="mb-3 text-light">Change Document Status</h2>
+    <p class="qms-muted mb-4">
+      You are changing the status of <strong>{{ document.reference }}</strong> – {{ document.title }}.
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label text-light">Status</label>
+        {{ form.status }}
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-warning fw-semibold" type="submit">
+          Update Status
+        </button>
+        <a href="{% url 'document_detail' document.reference %}" class="btn btn-outline-light">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

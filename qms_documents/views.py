@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-
+from django.db.models import Q
 from .models import ControlledDocument, DocumentVersion
 from .forms import PasswordConfirmForm, DocumentEditForm, ControlledDocumentCreateForm
+from django.template.loader import render_to_string
+from django.http import JsonResponse
 
 
 def _user_can_edit(user):
@@ -14,7 +16,42 @@ def _user_can_edit(user):
 
 
 def document_list(request):
+    q = request.GET.get("q", "").strip()
+
     documents = ControlledDocument.objects.all().order_by("category", "reference")
+
+    if q:
+        documents = documents.filter(
+            Q(reference__icontains=q) |
+            Q(title__icontains=q) |
+            Q(category__icontains=q)
+        )
+
+    # If it's an AJAX call, just return the table rows as HTML
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        html = ""
+        if documents.exists():
+            for doc in documents:
+                html += f"""
+                <tr>
+                    <td><strong>{doc.reference}</strong></td>
+                    <td>{doc.title}</td>
+                    <td>{doc.category}</td>
+                    <td><span class='badge {"qms-badge-approved" if doc.status=="APPROVED" else "qms-badge-draft" if doc.status=="DRAFT" else "qms-badge-obsolete"}'>
+                        {doc.get_status_display()}</span></td>
+                    <td class='text-end'>
+                        <a href='/qms-documents/{doc.reference}/' class='btn btn-sm btn-qms-open'>Open</a>
+                    </td>
+                </tr>
+                """
+        else:
+            html = """
+            <tr>
+                <td colspan='5' class='text-center qms-muted py-4'>No documents found.</td>
+            </tr>
+            """
+        return JsonResponse({"html": html})
+
     return render(request, "qms_documents/document_list.html", {
         "documents": documents,
     })
@@ -84,13 +121,16 @@ def confirm_edit(request, reference):
 def document_edit(request, reference):
     document = get_object_or_404(ControlledDocument, reference=reference)
 
+    # Check permissions
     if not _user_can_edit(request.user):
         messages.error(request, "You do not have permission to edit documents.")
         return redirect("document_detail", reference=reference)
 
+    # Must have passed password confirmation
     if not request.session.get(f"doc_edit_ok_{document.pk}"):
         return redirect("confirm_edit", reference=reference)
 
+    # Get the current version if one exists
     current = document.current_version
     initial_content = current.content if current else ""
 
@@ -100,6 +140,18 @@ def document_edit(request, reference):
             change_summary = form.cleaned_data["change_summary"]
             content = form.cleaned_data["content"]
 
+            # --- Superuser-only: allow status update ---
+            if request.user.is_superuser and "status" in request.POST:
+                new_status = request.POST.get("status")
+                if new_status and new_status != document.status:
+                    document.status = new_status
+                    document.save(update_fields=["status"])
+                    messages.info(
+                        request,
+                        f"Document status updated to {document.get_status_display()}."
+                    )
+
+            # --- Create new version ---
             if current:
                 current.is_current = False
                 current.save(update_fields=["is_current"])
@@ -118,6 +170,7 @@ def document_edit(request, reference):
                 is_current=True,
             )
 
+            # Clear edit session flag
             request.session.pop(f"doc_edit_ok_{document.pk}", None)
 
             messages.success(request, f"Saved new version v{major}.{minor}")
@@ -130,6 +183,7 @@ def document_edit(request, reference):
         "form": form,
         "current": current,
     })
+
 
 
 @login_required
@@ -154,5 +208,28 @@ def document_create(request):
         form = ControlledDocumentCreateForm()
 
     return render(request, "qms_documents/document_create.html", {
+        "form": form,
+    })
+
+
+@login_required
+def document_change_status(request, reference):
+    document = get_object_or_404(ControlledDocument, reference=reference)
+
+    if not _user_can_edit(request.user):
+        messages.error(request, "You do not have permission to change document status.")
+        return redirect("document_detail", reference=reference)
+
+    if request.method == "POST":
+        form = DocumentStatusForm(request.POST, instance=document)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Status updated to {document.get_status_display()}.")
+            return redirect("document_detail", reference=reference)
+    else:
+        form = DocumentStatusForm(instance=document)
+
+    return render(request, "qms_documents/document_change_status.html", {
+        "document": document,
         "form": form,
     })

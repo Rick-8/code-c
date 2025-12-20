@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # WARNING: set DEBUG = False in production
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     # Sites framework (required by allauth)
     "django.contrib.sites",
+    "widget_tweaks",
 
     # Allauth
     "allauth",

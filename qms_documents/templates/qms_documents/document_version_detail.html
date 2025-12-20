@@ -4,29 +4,45 @@
 {% block content %}
 <div class="container">
 
-  <div class="qms-card p-4">
-
+  <!-- Navigation actions -->
+  <div class="d-flex flex-wrap gap-2 mb-3">
     <a href="{% url 'document_detail' document.reference %}"
-       class="btn btn-sm btn-outline-light mb-3">
+       class="btn btn-sm btn-outline-light">
       ← Back to current version
     </a>
 
+    <a href="{% url 'document_list' %}"
+       class="btn btn-sm btn-outline-secondary">
+      Documents list
+    </a>
+  </div>
+
+  <div class="qms-card p-4">
+
+    <!-- Status warning -->
     <div class="qms-alert mb-4">
       <strong>Obsolete version.</strong>
       This document version is for reference only and must not be used operationally.
     </div>
 
+    <!-- Document header -->
     <h2 class="text-light mb-1">
       {{ document.reference }} – {{ document.title }}
     </h2>
 
-    <div class="qms-muted mb-3">
-      Version <strong>v{{ version.version_string }}</strong> |
-      Created {{ version.created_at|date:"d M Y H:i" }} |
+    <!-- Metadata -->
+    <div class="qms-muted mb-4">
+      Version <strong class="text-light">v{{ version.version_string }}</strong>
+      <span class="mx-1">|</span>
+      Created {{ version.created_at|date:"d M Y H:i" }}
+      <span class="mx-1">|</span>
       By {{ version.created_by|default:"—" }}
     </div>
 
-    {{ version.content|linebreaks }}
+    <!-- Content -->
+    <div class="qms-document-content text-light">
+      {{ version.content|linebreaks }}
+    </div>
 
   </div>
 
