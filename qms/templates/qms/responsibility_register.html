@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Depot Responsibility Register{% endblock %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-5">
+
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+
+          <div class="qms-card p-4 p-md-5">
+
+            <!-- Header -->
+            <div class="mb-4">
+              <span class="cozy-text-subtitle">
+                QMS Governance
+              </span>
+
+              <h2 class="mt-2 mb-1">
+                <i class="fa-solid fa-building-shield me-2 text-warning"></i>
+                Depot Responsibility Register
+              </h2>
+
+              <p class="qms-muted mb-0">
+                Defines accountability and governance responsibility across depots,
+                locations, and operational domains.
+              </p>
+            </div>
+
+            <!-- Info -->
+            <div class="alert alert-secondary">
+              <i class="fa-solid fa-circle-info me-2"></i>
+              This register forms part of ISO 9001 leadership and responsibility
+              requirements. Records are retained for audit purposes.
+            </div>
+
+            <!-- Placeholder table (ready for model later) -->
+            <div class="table-responsive mt-4">
+              <table class="table table-dark table-bordered table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Depot / Area</th>
+                    <th>Responsible Person</th>
+                    <th>Role</th>
+                    <th>Assigned By</th>
+                    <th>Effective From</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <!-- Placeholder row -->
+                  <tr class="text-muted">
+                    <td colspan="6" class="text-center py-4">
+                      <i class="fa-solid fa-folder-open me-2"></i>
+                      No responsibility records have been defined yet.
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer note -->
+            <p class="qms-muted small mt-3 mb-0">
+              Responsibility assignments should align with organisational structure,
+              competence, and authority levels.
+            </p>
+
+            <!-- Back -->
+            <div class="mt-4">
+              <a href="{% url 'qms_dashboard' %}" class="btn btn-outline-light">
+                <i class="fa-solid fa-arrow-left me-2"></i>
+                Back to QMS Dashboard
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

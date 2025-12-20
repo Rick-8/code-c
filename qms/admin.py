@@ -5,6 +5,7 @@ from .models import (
     Investigation,
     InvestigationLog,
 )
+from .models import QMSAuthority
 
 
 # =========================================================
@@ -227,3 +228,16 @@ class InvestigationLogAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(QMSAuthority)
+class QMSAuthorityAdmin(admin.ModelAdmin):
+    list_display = ("user", "is_primary", "appointed_at", "appointed_by")
+    list_filter = ("is_primary",)
+    search_fields = ("user__username", "user__email", "user__first_name", "user__last_name")
+
+    def save_model(self, request, obj, form, change):
+        # auto-capture who appointed them
+        if not change and not obj.appointed_by:
+            obj.appointed_by = request.user
+        super().save_model(request, obj, form, change)

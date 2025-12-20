@@ -10,6 +10,11 @@ from datetime import timedelta
 from django.db.models import Count
 from .models import Investigation, InvestigationLog
 from django.http import HttpResponseForbidden
+from django.contrib.auth import authenticate
+
+from .models import QMSAuthority
+
+from .permissions import is_primary_qms_authority
 
 from .models import Interaction, InteractionAssignmentLog
 from .forms import InteractionForm
@@ -482,3 +487,112 @@ def investigation_add_log(request, pk):
         "investigation_detail_manager",
         pk=investigation.pk
     )
+
+
+@login_required
+def confirm_primary_authority(request):
+    if request.method == "POST":
+        password = request.POST.get("password")
+
+        user = authenticate(
+            request,
+            username=request.user.username,
+            password=password,
+        )
+
+        if user is None:
+            messages.error(request, "Password confirmation failed.")
+            return redirect("qms_confirm_primary")
+
+        # ✅ SINGLE SOURCE OF TRUTH
+        request.session["primary_qms_confirmed"] = True
+        request.session.set_expiry(0)  # expires on browser close
+
+        messages.success(
+            request,
+            "Primary QMS Authority confirmed for this session."
+        )
+
+        return redirect("qms_dashboard")
+
+    return render(request, "qms/confirm_primary.html")
+
+
+@login_required
+def primary_authority_list(request):
+    if not request.session.get("qms_primary_confirmed"):
+        return redirect("qms_confirm_primary")
+
+    authorities = QMSAuthority.objects.select_related("user").order_by(
+        "-is_primary",
+        "-created_at"
+    )
+
+    return render(
+        request,
+        "qms/primary_authority_list.html",
+        {"authorities": authorities}
+    )
+
+
+@login_required
+def revoke_primary_authority(request, authority_id):
+    if not request.session.get("qms_primary_confirmed"):
+        return redirect("qms_confirm_primary")
+
+    authority = get_object_or_404(QMSAuthority, pk=authority_id)
+
+    if authority.user == request.user:
+        messages.error(request, "You cannot revoke your own authority.")
+        return redirect("qms_primary_list")
+
+    if request.method == "POST":
+        reason = request.POST.get("reason")
+        authority.revoke(reason=reason, revoked_by=request.user)
+        messages.success(request, "Authority revoked.")
+        return redirect("qms_primary_list")
+
+    return render(
+        request,
+        "qms/revoke_primary_confirm.html",
+        {"authority": authority}
+    )
+
+
+@login_required
+def qms_dashboard(request):
+    return render(request, "qms/dashboard.html")
+
+
+@login_required
+def qms_primary_list(request):
+    """
+    View the Primary QMS Authority register.
+    Requires primary authority to be confirmed.
+    """
+
+    if not request.session.get("primary_qms_confirmed"):
+        messages.error(request, "Primary QMS Authority confirmation required.")
+        return redirect("qms_confirm_primary")
+
+    authorities = QMSAuthority.objects.select_related(
+        "user", "appointed_by"
+    ).order_by("-appointed_at")
+
+    return render(
+        request,
+        "qms/primary_authority_list.html",
+        {"authorities": authorities},
+    )
+
+
+@login_required
+def responsibility_register(request):
+    """
+    Placeholder for responsibility / depot ownership register.
+    """
+    if not request.session.get("primary_qms_confirmed"):
+        messages.error(request, "Primary QMS Authority confirmation required.")
+        return redirect("qms_confirm_primary")
+
+    return render(request, "qms/responsibility_register.html")

@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 import random
 from django.db import IntegrityError
+from django.conf import settings
+from django.core.exceptions import ValidationError
 
 
 
@@ -268,3 +270,53 @@ class InvestigationLog(models.Model):
 
     def __str__(self):
         return f"{self.get_event_type_display()} – {self.created_at:%d %b %Y %H:%M}"
+
+
+
+class QMSAuthority(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="qms_authority"
+    )
+
+    is_primary = models.BooleanField(default=False)
+
+    appointed_at = models.DateTimeField(auto_now_add=True)
+    appointed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="appointed_qms_authorities"
+    )
+
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoked_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="revoked_qms_authorities"
+    )
+
+    reason = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "QMS Authority"
+        verbose_name_plural = "QMS Authorities"
+
+    def clean(self):
+        if self.is_primary:
+            qs = QMSAuthority.objects.filter(is_primary=True, revoked_at__isnull=True)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.count() >= 2:
+                raise ValidationError("Only two Primary QMS Authorities may exist.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user} – {'Primary' if self.is_primary else 'Standard'}"

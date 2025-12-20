@@ -209,11 +209,7 @@ header.cozy-header-blur,
 .card-hover {
     transition: all 0.25s ease;
     cursor: pointer;
-}
-.card-hover:hover {
-    background-color: rgba(128, 0, 32, 0.7);
-    transform: translateY(-5px);
-    box-shadow: 0 0 15px rgba(128,0,32,0.6);
+    color: black;
 }
 
 
@@ -627,4 +623,30 @@ header.cozy-header-blur,
   background: rgba(255, 255, 255, 0.25);
   border-color: #ffc107;
   box-shadow: 0 0 0 0.2rem rgba(255,193,7,0.3);
+}
+
+
+/* ===============================
+   QMS / Cozy dark card button fix
+   =============================== */
+
+.cozy-dark-glass .btn-outline-light,
+.cozy-dark-glass .btn-outline-light i {
+    color: #f8f9fa;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Override Bootstrap hover */
+.cozy-dark-glass .btn-outline-light:hover,
+.cozy-dark-glass .btn-outline-light:focus,
+.cozy-dark-glass .btn-outline-light:active {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+    color: #ffc107 !important;
+    border-color: #ffc107 !important;
+}
+
+/* Ensure icons never go white-on-white */
+.cozy-dark-glass .btn-outline-light:hover i,
+.cozy-dark-glass .btn-outline-light:focus i {
+    color: #ffc107 !important;
 }

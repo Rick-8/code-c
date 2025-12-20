@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Confirm Primary QMS Authority{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+          <h4 class="mb-3">
+            Primary QMS Authority Required
+          </h4>
+
+          <p class="text-muted">
+            This area contains governance-level controls.
+            Please confirm your identity to proceed.
+          </p>
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label">Your password</label>
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                required
+              >
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                Cancel
+              </a>
+              <button type="submit" class="btn btn-danger">
+                Confirm Authority
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+
+      <p class="text-muted small mt-3">
+        Access is temporary and expires when you log out or close your browser.
+      </p>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}QMS Dashboard{% endblock %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-4 py-md-5">
+
+    <div class="container">
+
+      <!-- Header -->
+      <div class="row justify-content-center mb-4">
+        <div class="col-12 col-xl-11">
+          <div class="cozy-dark-glass p-4 p-md-5 text-light">
+
+            <span class="cozy-text-subtitle">
+              Quality Management System
+            </span>
+
+            <h2 class="mt-2 mb-1">
+              <i class="fa-solid fa-shield-halved me-2 text-warning"></i>
+              QMS Dashboard
+            </h2>
+
+            <p class="qms-muted mb-0">
+              Centralised ISO 9001 governance, controls, and assurance.
+            </p>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiles -->
+      <div class="row justify-content-center">
+        <div class="col-12 col-xl-11">
+
+          <div class="row g-4">
+
+            <!-- OPERATIONAL -->
+            <div class="col-md-6 col-lg-4">
+              <div class="cozy-dark-glass p-4 h-100 text-light card-hover">
+
+                <h5>
+                  <i class="fa-solid fa-clipboard-check me-2 text-warning"></i>
+                  Operational Controls
+                </h5>
+
+                <p class="qms-muted small mb-3">
+                  Day-to-day quality records and staff inputs.
+                </p>
+
+                <div class="d-grid gap-2">
+                  <a href="/qms/new/" class="btn btn-outline-light">
+                    <i class="fa-solid fa-plus me-2"></i>
+                    Log QMS Interaction
+                  </a>
+
+                  <a href="{% url 'qms_manager_list' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-list-check me-2"></i>
+                    Manage Interactions
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- DOCUMENTS -->
+            <div class="col-md-6 col-lg-4">
+              <div class="cozy-dark-glass p-4 h-100 text-light card-hover">
+
+                <h5>
+                  <i class="fa-solid fa-file-shield me-2 text-warning"></i>
+                  Controlled Documents
+                </h5>
+
+                <p class="qms-muted small mb-3">
+                  ISO-controlled policies and procedures.
+                </p>
+
+                <div class="d-grid gap-2">
+                  <a href="{% url 'document_list' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-folder-open me-2"></i>
+                    Document Register
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- INVESTIGATIONS -->
+            <div class="col-md-6 col-lg-4">
+              <div class="cozy-dark-glass p-4 h-100 text-light card-hover">
+
+                <h5>
+                  <i class="fa-solid fa-magnifying-glass-chart me-2 text-warning"></i>
+                  Investigations
+                </h5>
+
+                <p class="qms-muted small mb-3">
+                  Complaints, incidents, and disciplinary records.
+                </p>
+
+                <div class="d-grid gap-2">
+                  <a href="{% url 'investigation_dashboard' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-gauge-high me-2"></i>
+                    Investigation Dashboard
+                  </a>
+
+                  <a href="{% url 'investigation_create' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-plus me-2"></i>
+                    Create Investigation
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- GOVERNANCE -->
+            <div class="col-md-6 col-lg-4">
+              <div class="cozy-dark-glass p-4 h-100 text-light card-hover border border-warning">
+
+                <h5 class="text-warning">
+                  <i class="fa-solid fa-key me-2"></i>
+                  QMS Governance
+                </h5>
+
+                <p class="qms-muted small mb-3">
+                  Restricted governance functions requiring Primary QMS Authority.
+                </p>
+
+                <div class="d-grid gap-2">
+
+                  <!-- Always visible -->
+                  <a href="{% url 'qms_confirm_primary' %}" class="btn btn-warning">
+                    <i class="fa-solid fa-unlock-keyhole me-2"></i>
+                    Confirm Primary Authority
+                  </a>
+
+                  {% if request.session.primary_qms_confirmed %}
+
+                    <a href="{% url 'qms_primary_list' %}" class="btn btn-outline-light">
+                      <i class="fa-solid fa-users-gear me-2"></i>
+                      Primary Authority Register
+                    </a>
+
+                    <a href="{% url 'responsibility_register' %}" class="btn btn-outline-light">
+                      <i class="fa-solid fa-building-user me-2"></i>
+                      Responsibility Register
+                    </a>
+
+                    <a href="{% url 'qms_manager_list' %}" class="btn btn-outline-light">
+                      <i class="fa-solid fa-list-check me-2"></i>
+                      QMS Manager Panel
+                    </a>
+
+                  {% endif %}
+                </div>
+
+                {% if request.session.primary_qms_confirmed %}
+                  <div class="alert alert-success mt-3 mb-0">
+                    <i class="fa-solid fa-check-circle me-2"></i>
+                    Primary QMS Authority is active for this session.
+                  </div>
+                {% else %}
+                  <div class="alert alert-secondary mt-3 mb-0">
+                    <i class="fa-solid fa-lock me-2"></i>
+                    Governance tools will unlock after authority confirmation.
+                  </div>
+                {% endif %}
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

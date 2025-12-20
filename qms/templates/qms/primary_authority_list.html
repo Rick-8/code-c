@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Primary QMS Authority Register{% endblock %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-5">
+
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-xl-11">
+
+          <div class="qms-card p-4 p-md-5">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <span class="cozy-text-subtitle">
+                  QMS Governance
+                </span>
+                <h2 class="mt-2 mb-1">
+                  <i class="fa-solid fa-users-gear me-2 text-warning"></i>
+                  Primary QMS Authority Register
+                </h2>
+                <p class="qms-muted mb-0">
+                  Individuals authorised to make governance-level decisions
+                  within the Quality Management System.
+                </p>
+              </div>
+
+              <span class="badge bg-danger fs-6">
+                <i class="fa-solid fa-lock me-1"></i>
+                Restricted
+              </span>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive mt-4">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Authority</th>
+                    <th>Granted</th>
+                    <th>Granted By</th>
+                    <th>Status</th>
+                    <th class="text-center">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for auth in authorities %}
+                  <tr>
+
+                    <td>
+                      <strong>
+                        {{ auth.user.get_full_name|default:auth.user.username }}
+                      </strong>
+                    </td>
+
+                    <td>{{ auth.user.email }}</td>
+
+                    <td>
+                      {% if auth.is_primary %}
+                        <span class="badge bg-danger">
+                          <i class="fa-solid fa-crown me-1"></i>
+                          Primary
+                        </span>
+                      {% else %}
+                        <span class="badge bg-secondary">
+                          Secondary
+                        </span>
+                      {% endif %}
+                    </td>
+
+                    <td>
+                      {{ auth.appointed_at|date:"d M Y H:i" }}
+                    </td>
+
+                    <td>
+                      {{ auth.appointed_by|default:"—" }}
+                    </td>
+
+                    <td>
+                      {% if auth.revoked_at %}
+                        <span class="text-danger">
+                          <i class="fa-solid fa-circle-xmark me-1"></i>
+                          Revoked
+                        </span>
+                      {% else %}
+                        <span class="text-success">
+                          <i class="fa-solid fa-circle-check me-1"></i>
+                          Active
+                        </span>
+                      {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                      {% if not auth.revoked_at and auth.user != request.user %}
+                        <a
+                          href="{% url 'qms_revoke_primary' auth.id %}"
+                          class="btn btn-sm btn-outline-danger"
+                        >
+                          <i class="fa-solid fa-ban me-1"></i>
+                          Revoke
+                        </a>
+                      {% else %}
+                        —
+                      {% endif %}
+                    </td>
+
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="7" class="text-center qms-muted py-4">
+                      No authority records found.
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer note -->
+            <p class="qms-muted small mt-3">
+              <i class="fa-solid fa-shield-halved me-1"></i>
+              Records are retained permanently. Deletion is not permitted.
+            </p>
+
+            <!-- Back -->
+            <a href="{% url 'qms_dashboard' %}" class="btn btn-outline-light mt-3">
+              <i class="fa-solid fa-arrow-left me-2"></i>
+              Back to QMS Dashboard
+            </a>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
