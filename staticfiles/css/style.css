@@ -390,61 +390,241 @@ header.cozy-header-blur,
 }
 
 
-/* ================================
-   QMS DOCUMENT STYLING
-   ================================ */
+/* =====================================================
+   QMS DOCUMENTS — HARD CONTRAST MODE
+   ===================================================== */
 
 .qms-card {
-    background: rgba(15, 17, 21, 0.85);
+    background: rgba(10, 12, 15, 0.95);
     backdrop-filter: blur(6px);
     border-radius: 14px;
-    color: #f1f1f1;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65);
+    color: #ffffff !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75);
 }
 
+/* Headings — forced */
 .qms-card h1,
 .qms-card h2,
 .qms-card h3,
 .qms-card h4,
 .qms-card h5,
 .qms-card h6 {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
+/* Muted text still readable */
 .qms-muted {
-    color: #9aa0a6;
+    color: #c2c7cc !important;
 }
 
-/* Tables */
+/* =====================================================
+   TABLE — ZERO WHITE SURFACES
+   ===================================================== */
+
 .qms-card .table {
-    color: #f1f1f1;
-    margin-bottom: 0;
+    background: transparent !important;
+    color: #ffffff !important;
 }
 
-.qms-card .table thead {
-    background: rgba(255, 255, 255, 0.05);
+/* Table header: SOLID DARK BAR */
+.qms-card .table thead th {
+    background: #0b0d10 !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    border-bottom: 2px solid #ffc107 !important;
 }
 
+/* Table rows: SOLID DARK */
+.qms-card .table tbody tr {
+    background: #14171c !important;
+}
+
+/* Table cells: FORCED TEXT */
+.qms-card .table tbody tr td {
+    color: #ffffff !important;
+    vertical-align: middle;
+}
+
+/* Hover: burgundy, still readable */
 .qms-card .table-hover tbody tr:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: #3a0f1c !important;
 }
 
-/* Alerts inside QMS */
-.qms-alert {
-    background: rgba(255, 193, 7, 0.15);
-    border: 1px solid rgba(255, 193, 7, 0.4);
-    color: #ffc107;
+/* Reference column pops */
+.qms-card td strong {
+    color: #ffc107 !important;
+    font-weight: 700;
 }
 
-/* Badges */
+/* =====================================================
+   STATUS BADGES — HIGH CONTRAST
+   ===================================================== */
+
 .qms-badge-approved {
-    background-color: #198754;
+    background: #1e7e34 !important;
+    color: #ffffff !important;
 }
 
 .qms-badge-draft {
-    background-color: #6c757d;
+    background: #495057 !important;
+    color: #ffffff !important;
 }
 
 .qms-badge-obsolete {
-    background-color: #dc3545;
+    background: #b02a37 !important;
+    color: #ffffff !important;
+}
+
+/* =====================================================
+   FILTER BAR — NO TRANSPARENCY
+   ===================================================== */
+
+.qms-filters .qms-input {
+    background: #1c1f25 !important;
+    border: 1px solid #6c757d !important;
+    color: #ffffff !important;
+}
+
+.qms-filters .qms-input::placeholder {
+    color: #adb5bd !important;
+}
+
+.qms-filters .qms-input:focus {
+    border-color: #ffc107 !important;
+    box-shadow: 0 0 0 0.15rem rgba(255,193,7,0.35) !important;
+}
+
+/* =====================================================
+   BUTTONS — ALWAYS VISIBLE
+   ===================================================== */
+
+/* Filter button */
+.btn-qms-filter {
+    background: #ffc107 !important;
+    color: #000000 !important;
+    font-weight: 700;
+    border: none !important;
+}
+
+.btn-qms-filter:hover {
+    background: #ffcd39 !important;
+    color: #000000 !important;
+}
+
+/* OPEN / VIEW button — NEVER INVISIBLE */
+.btn-qms-open {
+    background: #0d6efd !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    border: none !important;
+    padding: 6px 14px;
+}
+
+.btn-qms-open:hover {
+    background: #084298 !important;
+    color: #ffffff !important;
+}
+/* =====================================================
+   QMS TABLE BODY – FINAL HARD OVERRIDE
+   ===================================================== */
+
+.qms-card table tbody tr,
+.qms-card table tbody tr td {
+    background-color: #14171c !important;
+    color: #ffffff !important;
+}
+
+
+/* ==========================================================
+   QMS FORM ELEMENTS
+   ========================================================== */
+
+.qms-form .form-label {
+  color: #fff;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.qms-input {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.qms-input:focus {
+  background: rgba(255,255,255,0.15);
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255,193,7,0.3);
+}
+
+.qms-input option {
+  background-color: #14171c;
+  color: #fff;
+}
+
+.qms-form .form-text {
+  font-size: 0.9rem;
+}
+
+/* Buttons inside qms-card */
+.qms-card .btn-outline-light {
+  color: #fff;
+  border-color: rgba(255,255,255,0.4);
+}
+
+.qms-card .btn-outline-light:hover {
+  background-color: #ffc107;
+  color: #000;
+  border-color: #ffc107;
+}
+
+.qms-card .btn-warning {
+  background: #ffc107;
+  color: #000;
+  border: none;
+}
+
+.qms-card .btn-warning:hover {
+  background: #ffcd39;
+}
+
+/* Improve alert readability */
+.qms-alert {
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: #ffc107;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+
+/* ==========================================================
+   FIX: editable fields look active again
+   ========================================================== */
+
+/* Dim only true readonly or disabled fields */
+.qms-input[readonly],
+.qms-input:disabled {
+  opacity: 0.6;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: not-allowed;
+}
+
+/* Make editable fields fully bright and clearly interactive */
+.qms-input:not([readonly]):not(:disabled) {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  cursor: text;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.qms-input:not([readonly]):not(:disabled):focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255,193,7,0.3);
 }
