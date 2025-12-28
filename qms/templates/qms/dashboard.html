@@ -66,6 +66,7 @@
             </div>
 
             <!-- DOCUMENTS -->
+            <!-- DOCUMENTS -->
             <div class="col-md-6 col-lg-4">
               <div class="cozy-dark-glass p-4 h-100 text-light card-hover">
 
@@ -82,6 +83,12 @@
                   <a href="{% url 'document_list' %}" class="btn btn-outline-light">
                     <i class="fa-solid fa-folder-open me-2"></i>
                     Document Register
+                  </a>
+
+                  <!-- NEW: Read-only responsibility list -->
+                  <a href="{% url 'responsibility_register_readonly' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-clipboard-user me-2"></i>
+                    Staff Responsibilities
                   </a>
                 </div>
 
@@ -139,34 +146,34 @@
 
                   {% if request.session.primary_qms_confirmed %}
 
-                    <a href="{% url 'qms_primary_list' %}" class="btn btn-outline-light">
-                      <i class="fa-solid fa-users-gear me-2"></i>
-                      Primary Authority Register
-                    </a>
+                  <a href="{% url 'qms_primary_list' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-users-gear me-2"></i>
+                    Primary Authority Register
+                  </a>
 
-                    <a href="{% url 'responsibility_register' %}" class="btn btn-outline-light">
-                      <i class="fa-solid fa-building-user me-2"></i>
-                      Responsibility Register
-                    </a>
+                  <a href="{% url 'responsibility_register' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-building-user me-2"></i>
+                    Responsibility Register
+                  </a>
 
-                    <a href="{% url 'qms_manager_list' %}" class="btn btn-outline-light">
-                      <i class="fa-solid fa-list-check me-2"></i>
-                      QMS Manager Panel
-                    </a>
+                  <a href="{% url 'qms_manager_list' %}" class="btn btn-outline-light">
+                    <i class="fa-solid fa-list-check me-2"></i>
+                    QMS Manager Panel
+                  </a>
 
                   {% endif %}
                 </div>
 
                 {% if request.session.primary_qms_confirmed %}
-                  <div class="alert alert-success mt-3 mb-0">
-                    <i class="fa-solid fa-check-circle me-2"></i>
-                    Primary QMS Authority is active for this session.
-                  </div>
+                <div class="alert alert-success mt-3 mb-0">
+                  <i class="fa-solid fa-check-circle me-2"></i>
+                  Primary QMS Authority is active for this session.
+                </div>
                 {% else %}
-                  <div class="alert alert-secondary mt-3 mb-0">
-                    <i class="fa-solid fa-lock me-2"></i>
-                    Governance tools will unlock after authority confirmation.
-                  </div>
+                <div class="alert alert-secondary mt-3 mb-0">
+                  <i class="fa-solid fa-lock me-2"></i>
+                  Governance tools will unlock after authority confirmation.
+                </div>
                 {% endif %}
 
               </div>

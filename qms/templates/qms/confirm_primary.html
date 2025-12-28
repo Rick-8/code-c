@@ -4,62 +4,73 @@
 {% block title %}Confirm Primary QMS Authority{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-5">
 
-      <div class="card shadow-sm">
-        <div class="card-body p-4">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-7 col-lg-6">
 
-          <h4 class="mb-3">
-            Primary QMS Authority Required
-          </h4>
+          <div class="qms-card p-4 p-md-5">
 
-          <p class="text-muted">
-            This area contains governance-level controls.
-            Please confirm your identity to proceed.
-          </p>
+            <!-- Header -->
+            <span class="cozy-text-subtitle">
+              QMS Governance
+            </span>
 
-          {% if messages %}
+            <h3 class="mt-3 mb-2">
+              <i class="fa-solid fa-shield-keyhole me-2 text-warning"></i>
+              Primary QMS Authority Required
+            </h3>
+
+            <p class="qms-muted">
+              This section contains governance-level controls.
+              Please confirm your identity to continue.
+            </p>
+
+            {% if messages %}
             {% for message in messages %}
-              <div class="alert alert-danger">
-                {{ message }}
-              </div>
+            <div class="qms-alert mt-3">
+              <i class="fa-solid fa-triangle-exclamation me-2"></i>
+              {{ message }}
+            </div>
             {% endfor %}
-          {% endif %}
+            {% endif %}
 
-          <form method="post">
-            {% csrf_token %}
+            <form method="post" class="qms-form mt-4">
+              {% csrf_token %}
 
-            <div class="mb-3">
-              <label class="form-label">Your password</label>
-              <input
-                type="password"
-                name="password"
-                class="form-control"
-                required
-              >
-            </div>
+              <div class="mb-3">
+                <label class="form-label">
+                  Your password
+                </label>
+                <input type="password" name="password" class="form-control qms-input" required autofocus>
+              </div>
 
-            <div class="d-flex justify-content-between align-items-center">
-              <a href="{% url 'home' %}" class="btn btn-outline-secondary">
-                Cancel
-              </a>
-              <button type="submit" class="btn btn-danger">
-                Confirm Authority
-              </button>
-            </div>
+              <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="{% url 'home' %}" class="btn btn-outline-light">
+                  <i class="fa-solid fa-arrow-left me-2"></i>
+                  Cancel
+                </a>
 
-          </form>
+                <button type="submit" class="btn btn-warning">
+                  <i class="fa-solid fa-lock-open me-2"></i>
+                  Confirm Authority
+                </button>
+              </div>
+            </form>
+            <p class="qms-muted small mt-3 text-center">
+              <i class="fa-solid fa-clock me-1"></i>
+              Access expires when you log out.
+            </p>
+          </div>
+
+
 
         </div>
       </div>
-
-      <p class="text-muted small mt-3">
-        Access is temporary and expires when you log out or close your browser.
-      </p>
-
     </div>
+
   </div>
 </div>
 {% endblock %}

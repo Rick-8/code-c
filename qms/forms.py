@@ -1,5 +1,18 @@
 from django import forms
 from .models import Interaction
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class AppointPrimaryAuthorityForm(forms.Form):
+    user = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_active=True).order_by(
+            "last_name", "first_name"
+        ),
+        label="Select user",
+        help_text="Choose an existing active user to appoint as Primary QMS Authority."
+    )
 
 
 class InteractionForm(forms.ModelForm):

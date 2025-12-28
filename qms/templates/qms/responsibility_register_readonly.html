@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Responsibility Register{% endblock %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-4 py-md-5">
+    <div class="container">
+      <div class="cozy-dark-glass p-4 p-md-5 text-light">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <span class="cozy-text-subtitle">Quality Management System</span>
+            <h2 class="mt-2 mb-0">
+              <i class="fa-solid fa-clipboard-user me-2 text-warning"></i>
+              Staff Responsibility Register
+            </h2>
+          </div>
+
+          <span class="badge bg-secondary">
+            Read-only
+          </span>
+        </div>
+
+        <p class="qms-muted mb-4">
+          This register shows assigned responsibilities for transparency.
+          Editing is restricted to QMS Governance.
+        </p>
+
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Staff Member</th>
+                <th>Responsibility</th>
+                <th>Appointed</th>
+                <th>Appointed By</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              {% for item in responsibilities %}
+              <tr>
+                <td class="fw-semibold">
+                  {{ item.user.get_full_name|default:item.user.username }}
+                </td>
+
+                <td>
+                  {{ item.role|default:item.reason }}
+                </td>
+
+                <td>
+                  {{ item.appointed_at|date:"d M Y" }}
+                </td>
+
+                <td>
+                  {{ item.appointed_by|default:"—" }}
+                </td>
+
+                <td>
+                  {% if item.revoked_at %}
+                    <span class="badge bg-danger">Revoked</span>
+                  {% else %}
+                    <span class="badge bg-success">Active</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-light opacity-75 py-4">
+                  No responsibilities recorded
+                </td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

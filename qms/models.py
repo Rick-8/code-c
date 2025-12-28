@@ -6,8 +6,6 @@ from django.db import IntegrityError
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
-
-
 User = get_user_model()
 
 
@@ -272,7 +270,6 @@ class InvestigationLog(models.Model):
         return f"{self.get_event_type_display()} – {self.created_at:%d %b %Y %H:%M}"
 
 
-
 class QMSAuthority(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -308,15 +305,73 @@ class QMSAuthority(models.Model):
 
     def clean(self):
         if self.is_primary:
-            qs = QMSAuthority.objects.filter(is_primary=True, revoked_at__isnull=True)
+            qs = QMSAuthority.objects.filter(
+                is_primary=True,
+                revoked_at__isnull=True
+            )
             if self.pk:
                 qs = qs.exclude(pk=self.pk)
             if qs.count() >= 2:
-                raise ValidationError("Only two Primary QMS Authorities may exist.")
+                raise ValidationError(
+                    "Only two Primary QMS Authorities may exist."
+                )
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    def revoke(self, by_user, reason=""):
+        """
+        Safely revoke this authority (audit-safe, non-destructive).
+        """
+        if self.revoked_at:
+            return  # already revoked, do nothing
+
+        self.revoked_at = timezone.now()
+        self.revoked_by = by_user
+        self.reason = reason
+        self.is_primary = False
+        self.save(update_fields=[
+            "revoked_at",
+            "revoked_by",
+            "reason",
+            "is_primary",
+        ])
+
     def __str__(self):
         return f"{self.user} – {'Primary' if self.is_primary else 'Standard'}"
+
+
+class QMSChangeLog(models.Model):
+    PAGE_CHOICES = [
+        ("PRIMARY_AUTHORITY", "Primary QMS Authority Register"),
+        ("DEPOT_RESPONSIBILITY", "Depot Responsibility Register"),
+        ("STAFF_RESPONSIBILITY", "Staff Responsibility Register"),
+    ]
+
+    page = models.CharField(max_length=50, choices=PAGE_CHOICES)
+
+    # Human-friendly reference to what changed (username, depot name, record ID, etc.)
+    object_ref = models.CharField(max_length=255)
+
+    # Short label for the event: "Authority revoked", "Responsibility assigned", etc.
+    action = models.CharField(max_length=120)
+
+    # Optional details (reason/notes)
+    description = models.TextField(blank=True)
+
+    performed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="qms_change_logs",
+    )
+
+    performed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-performed_at"]
+
+    def __str__(self):
+        return f"{self.page} | {self.action} | {self.object_ref}"

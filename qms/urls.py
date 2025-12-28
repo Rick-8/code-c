@@ -113,4 +113,26 @@ urlpatterns = [
         views.responsibility_register,
         name="responsibility_register",
     ),
+    path(
+        "responsibilities/read-only/",
+        views.responsibility_register_readonly,
+        name="responsibility_register_readonly",
+    ),
+    path(
+        "primary/appoint/",
+        views.appoint_primary_authority,
+        name="appoint_primary_authority",
+    ),
+    path(
+        "primary/revoke/<int:authority_id>/",
+        views.revoke_primary_authority,
+        name="qms_revoke_primary",
+    ),
+    path(
+        "responsibilities/add/",
+        views.responsibility_create,
+        name="responsibility_create",
+    ),
+
+
 ]

@@ -11,8 +11,12 @@ from django.db.models import Count
 from .models import Investigation, InvestigationLog
 from django.http import HttpResponseForbidden
 from django.contrib.auth import authenticate
+from .forms import AppointPrimaryAuthorityForm
+from .models import QMSAuthority, QMSChangeLog
+from .models import Responsibility
 
-from .models import QMSAuthority
+
+from django.db.models import Q
 
 from .permissions import is_primary_qms_authority
 
@@ -24,10 +28,6 @@ from django.core.mail import EmailMultiAlternatives
 
 
 User = get_user_model()
-
-
-def is_manager(user):
-    return user.is_authenticated and user.is_superuser
 
 
 # ─────────────────────────────────────────────────────
@@ -106,9 +106,6 @@ def qms_interaction_panel(request, pk):
 # ─────────────────────────────────────────────────────
 # UPDATE INTERACTION (ASSIGN / REASSIGN / LOG / CLOSE)
 # ─────────────────────────────────────────────────────
-def staff_member_required(view_func):
-    return user_passes_test(lambda u: u.is_staff)(view_func)
-
 
 @staff_member_required
 def update_interaction(request, pk):
@@ -537,26 +534,51 @@ def primary_authority_list(request):
 
 @login_required
 def revoke_primary_authority(request, authority_id):
-    if not request.session.get("qms_primary_confirmed"):
-        return redirect("qms_confirm_primary")
+    """
+    Revoke a Primary QMS Authority.
+    Non-destructive, fully logged, reversible.
+    """
 
-    authority = get_object_or_404(QMSAuthority, pk=authority_id)
-
-    if authority.user == request.user:
-        messages.error(request, "You cannot revoke your own authority.")
-        return redirect("qms_primary_list")
+    authority = get_object_or_404(
+        QMSAuthority,
+        pk=authority_id,
+        revoked_at__isnull=True,
+    )
 
     if request.method == "POST":
-        reason = request.POST.get("reason")
-        authority.revoke(reason=reason, revoked_by=request.user)
-        messages.success(request, "Authority revoked.")
+        reason = request.POST.get("reason", "").strip()
+
+        # Revoke using model method (single source of truth)
+        authority.revoke(
+            by_user=request.user,
+            reason=reason,
+        )
+
+        # Permanent audit log
+        QMSChangeLog.objects.create(
+            page="PRIMARY_AUTHORITY",
+            object_ref=authority.user.get_username(),
+            action="Primary authority revoked",
+            description=reason,
+            performed_by=request.user,
+        )
+
+        messages.success(
+            request,
+            f"{authority.user.get_full_name() or authority.user.username} "
+            "has been revoked as a Primary QMS Authority."
+        )
+
         return redirect("qms_primary_list")
 
     return render(
         request,
         "qms/revoke_primary_confirm.html",
-        {"authority": authority}
+        {
+            "authority": authority,
+        },
     )
+
 
 
 @login_required
@@ -587,12 +609,130 @@ def qms_primary_list(request):
 
 
 @login_required
+def responsibility_register_readonly(request):
+    """
+    Read-only Depot / Responsibility Register.
+    Used for document tiles, audits, and general visibility.
+    No editing permitted.
+    """
+
+    responsibilities = Responsibility.objects.select_related(
+        "responsible_person",
+        "assigned_by",
+    ).order_by("-effective_from")
+
+    return render(
+        request,
+        "qms/responsibility_register_readonly.html",
+        {
+            "responsibilities": responsibilities,
+        },
+    )
+
+
+@login_required
 def responsibility_register(request):
     """
-    Placeholder for responsibility / depot ownership register.
+    Depot / Responsibility Register
+    Primary QMS Authority protected
     """
+
     if not request.session.get("primary_qms_confirmed"):
         messages.error(request, "Primary QMS Authority confirmation required.")
         return redirect("qms_confirm_primary")
 
-    return render(request, "qms/responsibility_register.html")
+    responsibilities = Responsibility.objects.select_related(
+        "responsible_person",
+        "assigned_by",
+    ).order_by("-effective_from")
+
+    # ✅ STAFF + SUPERUSER (this fixes your empty list)
+    staff_users = User.objects.filter(
+        Q(is_staff=True) | Q(is_superuser=True),
+        is_active=True,
+    ).order_by("first_name", "last_name")
+
+    if request.method == "POST":
+        Responsibility.objects.create(
+            depot=request.POST.get("depot"),
+            area=request.POST.get("area", ""),
+            role=request.POST.get("role"),
+            responsible_person_id=request.POST.get("responsible_person"),
+            assigned_by=request.user,
+            effective_from=request.POST.get("effective_from"),
+            is_active=True,
+        )
+
+        messages.success(
+            request,
+            "Responsibility added and recorded in the governance register."
+        )
+
+        # ISO-safe redirect (prevents double submit)
+        return redirect("responsibility_register")
+
+    return render(
+        request,
+        "qms/responsibility_register.html",
+        {
+            "responsibilities": responsibilities,
+            "staff_users": staff_users,
+        },
+    )
+
+
+
+@login_required
+def appoint_primary_authority(request):
+    if not request.session.get("primary_qms_confirmed"):
+        messages.error(request, "Primary QMS Authority confirmation required.")
+        return redirect("qms_confirm_primary")
+
+    form = AppointPrimaryAuthorityForm()
+
+    if request.method == "POST":
+        form = AppointPrimaryAuthorityForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data["user"]
+
+           # Either revive existing authority OR create new
+            authority, created = QMSAuthority.objects.get_or_create(
+                user=user,
+                defaults={
+                    "is_primary": True,
+                    "appointed_by": request.user,
+                },
+            )
+
+            if not created:
+                # Revived authority (audit-safe)
+                authority.is_primary = True
+                authority.revoked_at = None
+                authority.revoked_by = None
+                authority.reason = ""
+                authority.appointed_by = request.user
+                authority.appointed_at = timezone.now()
+                authority.save()
+
+
+            # Log action
+            QMSChangeLog.objects.create(
+                page="PRIMARY_AUTHORITY",
+                object_ref=user.get_username(),
+                action="Primary QMS authority appointed",
+                description="Appointed via QMS Authority Register",
+                performed_by=request.user,
+            )
+
+            messages.success(
+                request,
+                f"{user.get_full_name() or user.username} appointed as Primary QMS Authority."
+            )
+
+            return redirect("qms_primary_list")
+
+    return render(
+        request,
+        "qms/appoint_primary_authority.html",
+        {"form": form}
+    )
