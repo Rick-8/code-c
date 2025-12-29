@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Live Ops Manager | Cozy Coaches{% endblock %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+    <div class="cozy-main-blur py-5">
+        <div class="container ops-wrap">
+
+            <div class="qms-card p-4 p-md-5">
+
+                <!-- Header -->
+                <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+                    <div>
+                        <span class="cozy-text-subtitle">Live Operations</span>
+                        <h2 class="mt-2 mb-1 text-light">
+                            <i class="fa-solid fa-gear me-2 text-warning"></i>
+                            Manager Panel
+                        </h2>
+                        <p class="qms-muted mb-0">
+                            Today: <strong class="text-light">{{ today|date:"d M Y" }}</strong>
+                            · Status resets automatically at midnight.
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+
+                        <a href="{% url 'ops_public_lookup' %}" class="btn btn-outline-light">
+                            <i class="fa-solid fa-eye me-1"></i>
+                            Public board
+                        </a>
+
+                        {% if can_manage %}
+                        <a href="{% url 'ops_history' %}" class="btn btn-outline-warning">
+                            <i class="fa-solid fa-clock-rotate-left me-1"></i>
+                            History
+                        </a>
+                        {% endif %}
+
+                        <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas"
+                            data-bs-target="#opsRightPanel" aria-controls="opsRightPanel" data-mode="create-route">
+                            <i class="fa-solid fa-plus me-1"></i>
+                            Add route
+                        </button>
+
+                    </div>
+
+                </div>
+
+                {% if messages %}
+                <div class="mb-3">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} mb-2">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if journeys %}
+                <div class="accordion accordion-flush" id="opsAccordion">
+
+                    {% for j in journeys %}
+
+                    <div class="accordion-item bg-transparent border-0 mb-2">
+                        <h2 class="accordion-header" id="heading-{{ j.pk }}">
+                            <button class="accordion-button collapsed rounded-3 text-light" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapse-{{ j.pk }}" aria-expanded="false"
+                                aria-controls="collapse-{{ j.pk }}" style="background: rgba(0,0,0,.55);">
+                                {# status icon #}
+                                {% if j.status == "on_time" %}
+                                <i class="fa-solid fa-circle-check me-2 text-success"></i>
+                                <span class="badge bg-success me-2">On time</span>
+                                {% elif j.status == "delayed" %}
+                                <i class="fa-solid fa-clock me-2 text-warning"></i>
+                                <span class="badge bg-warning text-dark me-2">Delayed</span>
+                                {% else %}
+                                <i class="fa-solid fa-circle-xmark me-2 text-danger"></i>
+                                <span class="badge bg-danger me-2">Cancelled</span>
+                                {% endif %}
+
+                                <span class="fw-semibold">
+                                    {{ j.route.code }} · {{ j.route.name }}
+                                </span>
+
+                                <span class="ms-2 text-primary">
+                                    ({{ j.route.origin }} → {{ j.route.destination }})
+                                </span>
+                            </button>
+                        </h2>
+
+                        <div id="collapse-{{ j.pk }}" class="accordion-collapse collapse"
+                            aria-labelledby="heading-{{ j.pk }}" data-bs-parent="#opsAccordion">
+                            <div class="accordion-body text-light rounded-3 mt-2"
+                                style="background: rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.08);">
+
+                                <div class="d-flex flex-wrap gap-3 justify-content-between align-items-start">
+
+                                    <div>
+                                        <div class="small text-primary mb-2">Current status</div>
+
+                                        {% if j.status == "delayed" and j.delay_minutes %}
+                                        <div class="fw-semibold">Delay: {{ j.delay_minutes }} min</div>
+                                        {% endif %}
+
+                                        {% if j.reason %}
+                                        <div class="mt-1">
+                                            <span class="small text-primary">Reason:</span>
+                                            <span class="fw-semibold">{{ j.reason }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-2">
+
+                                        <button class="btn btn-success btn-sm" type="button" data-bs-toggle="offcanvas"
+                                            data-bs-target="#opsRightPanel" aria-controls="opsRightPanel"
+                                            data-mode="update" data-journey-id="{{ j.pk }}"
+                                            data-route-code="{{ j.route.code }}" data-route-name="{{ j.route.name }}"
+                                            data-origin="{{ j.route.origin }}"
+                                            data-destination="{{ j.route.destination }}" data-status="{{ j.status }}"
+                                            data-delay="{{ j.delay_minutes|default_if_none:'' }}"
+                                            data-reason="{{ j.reason|default_if_none:'' }}">
+                                            <i class="fa-solid fa-pen-to-square me-1"></i>
+                                            Update status
+                                        </button>
+
+                                        <button class="btn btn-outline-warning btn-sm" type="button"
+                                            data-bs-toggle="offcanvas" data-bs-target="#opsRightPanel"
+                                            aria-controls="opsRightPanel" data-mode="discontinue"
+                                            data-route-id="{{ j.route.pk }}" data-route-code="{{ j.route.code }}"
+                                            data-route-name="{{ j.route.name }}" data-origin="{{ j.route.origin }}"
+                                            data-destination="{{ j.route.destination }}">
+                                            <i class="fa-solid fa-ban me-1"></i>
+                                            Discontinue route
+                                        </button>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+
+
+                </div>
+                {% else %}
+                <div class="alert alert-secondary mb-0">
+                    No services found for today.
+                </div>
+                {% endif %}
+
+                <div class="mt-4 qms-muted small">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    When “Delayed” or “Cancelled”, a reason is required.
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- RIGHT-HAND OFFCANVAS PANEL -->
+<div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="opsRightPanel" aria-labelledby="opsRightPanelLabel">
+    <div class="offcanvas-header border-bottom border-secondary">
+        <div>
+            <h5 class="offcanvas-title" id="opsRightPanelLabel">
+                <i class="fa-solid fa-bolt me-2 text-warning"></i>
+                Live Ops
+            </h5>
+            <div class="text-light small" id="opsPanelSub">Ready.</div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+
+        <!-- CREATE ROUTE -->
+        <form id="opsCreateRouteForm" method="post" action="{% url 'ops_route_create' %}" class="d-none">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Route code</label>
+                <input type="text" name="code" class="qms-input form-control" placeholder="e.g. J81, FLIX-123" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Route name</label>
+                <input type="text" name="name" class="qms-input form-control" placeholder="e.g. Bedford → London (via…)"
+                    required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Origin</label>
+                <input type="text" name="origin" class="qms-input form-control" placeholder="e.g. Bedford" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Destination</label>
+                <input type="text" name="destination" class="qms-input form-control" placeholder="e.g. London" required>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa-solid fa-plus me-1"></i>
+                    Create route
+                </button>
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="offcanvas">Close</button>
+            </div>
+        </form>
+
+        <!-- UPDATE JOURNEY -->
+        <form id="opsUpdateForm" method="post" class="d-none">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Service</label>
+                <div class="qms-input form-control" id="opsServiceLabel">—</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" id="opsStatus" class="qms-input form-select">
+                    <option value="on_time">On time</option>
+                    <option value="delayed">Delayed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="mb-3" id="opsDelayWrap">
+                <label class="form-label">Delay minutes (Delayed only)</label>
+                <input type="number" min="0" name="delay_minutes" id="opsDelay" class="qms-input form-control"
+                    placeholder="e.g. 15">
+            </div>
+
+            <div class="mb-4" id="opsReasonWrap">
+                <label class="form-label">Reason (required if Delayed or Cancelled)</label>
+                <input type="text" name="reason" id="opsReason" class="qms-input form-control"
+                    placeholder="Short reason…">
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa-solid fa-floppy-disk me-1"></i>
+                    Save update
+                </button>
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="offcanvas">Close</button>
+            </div>
+        </form>
+
+        <!-- DISCONTINUE ROUTE -->
+        <form id="opsDiscontinueForm" method="post" action="{% url 'ops_route_discontinue' %}" class="d-none mt-3">
+            {% csrf_token %}
+            <input type="hidden" name="route_id" id="opsRouteId" value="">
+
+            <div class="alert alert-warning">
+                <strong>Discontinue route?</strong><br>
+                The route will stop appearing on the live board, but remains in the database.
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Route</label>
+                <div class="qms-input form-control" id="opsRouteLabel">—</div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-warning">
+                    <i class="fa-solid fa-ban me-1"></i>
+                    Discontinue route
+                </button>
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="offcanvas">Cancel</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    (function () {
+        const panel = document.getElementById('opsRightPanel');
+        const sub = document.getElementById('opsPanelSub');
+
+        const createRouteForm = document.getElementById('opsCreateRouteForm');
+        const updateForm = document.getElementById('opsUpdateForm');
+        const discontinueForm = document.getElementById('opsDiscontinueForm');
+
+        const serviceLabel = document.getElementById('opsServiceLabel');
+        const statusField = document.getElementById('opsStatus');
+        const delayField = document.getElementById('opsDelay');
+        const reasonField = document.getElementById('opsReason');
+        const delayWrap = document.getElementById('opsDelayWrap');
+        const reasonWrap = document.getElementById('opsReasonWrap');
+
+        const routeIdField = document.getElementById('opsRouteId');
+        const routeLabel = document.getElementById('opsRouteLabel');
+
+        function hideAll() {
+            createRouteForm.classList.add('d-none');
+            updateForm.classList.add('d-none');
+            discontinueForm.classList.add('d-none');
+        }
+
+        function applyReasonRules() {
+            const v = statusField.value;
+            const needsReason = (v === "delayed" || v === "cancelled");
+            const needsDelay = (v === "delayed");
+
+            reasonWrap.style.display = needsReason ? "" : "none";
+            reasonField.required = needsReason;
+
+            delayWrap.style.display = needsDelay ? "" : "none";
+            delayField.required = needsDelay;
+
+            if (!needsDelay) delayField.value = "";
+            if (!needsReason) reasonField.value = "";
+        }
+
+        if (statusField) statusField.addEventListener('change', applyReasonRules);
+
+        panel.addEventListener('show.bs.offcanvas', function (event) {
+            const btn = event.relatedTarget;
+            hideAll();
+
+            if (!btn) {
+                sub.textContent = "Ready.";
+                return;
+            }
+
+            const mode = btn.getAttribute('data-mode') || "";
+
+            if (mode === "create-route") {
+                sub.textContent = "Create a new route.";
+                createRouteForm.classList.remove('d-none');
+                return;
+            }
+
+            if (mode === "update") {
+                updateForm.classList.remove('d-none');
+
+                const journeyId = btn.getAttribute('data-journey-id');
+                const routeCode = btn.getAttribute('data-route-code');
+                const routeName = btn.getAttribute('data-route-name');
+                const origin = btn.getAttribute('data-origin');
+                const destination = btn.getAttribute('data-destination');
+
+                const status = btn.getAttribute('data-status') || "on_time";
+                const delay = btn.getAttribute('data-delay') || "";
+                const reason = btn.getAttribute('data-reason') || "";
+
+                serviceLabel.textContent = `${routeCode} · ${routeName} (${origin} → ${destination})`;
+                sub.textContent = `Update status: ${routeCode}`;
+
+                statusField.value = status;
+                delayField.value = delay;
+                reasonField.value = reason;
+
+                applyReasonRules();
+
+                // action URL for quick update
+                updateForm.action = "{% url 'ops_journey_quick_update' 999999 %}".replace("999999", journeyId);
+                return;
+            }
+
+            if (mode === "discontinue") {
+                discontinueForm.classList.remove('d-none');
+
+                const routeId = btn.getAttribute('data-route-id');
+                const routeCode = btn.getAttribute('data-route-code');
+                const routeName = btn.getAttribute('data-route-name');
+                const origin = btn.getAttribute('data-origin');
+                const destination = btn.getAttribute('data-destination');
+
+                routeIdField.value = routeId || "";
+                routeLabel.textContent = `${routeCode} · ${routeName} (${origin} → ${destination})`;
+                sub.textContent = `Discontinue: ${routeCode}`;
+                return;
+            }
+
+            sub.textContent = "Ready.";
+        });
+    })();
+</script>
+{% endblock %}

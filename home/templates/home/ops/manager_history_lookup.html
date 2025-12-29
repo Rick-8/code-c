@@ -1,0 +1,239 @@
+{# home/templates/home/ops/manager_history_lookup.html #}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Live Ops History | Cozy Coaches{% endblock %}
+
+{% block content %}
+<div class="cozy-bg-fixed">
+  <div class="cozy-main-blur py-5">
+    <div class="container ops-wrap">
+
+      <div class="qms-card p-4 p-md-5">
+
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+          <div>
+            <span class="cozy-text-subtitle">Live Operations</span>
+            <h2 class="mt-2 mb-1 text-light">
+              <i class="fa-solid fa-clock-rotate-left me-2 text-warning"></i>
+              History & Audit Log
+            </h2>
+            <p class="qms-muted mb-0">
+              Search changes by <strong class="text-light">service date</strong>, route, or keyword.
+              Includes <strong class="text-light">discontinued</strong> routes.
+            </p>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'ops_manager_lookup' %}" class="btn btn-outline-light">
+              <i class="fa-solid fa-gear me-1"></i>
+              Back to Manager
+            </a>
+            <a href="{% url 'ops_public_lookup' %}" class="btn btn-outline-light">
+              <i class="fa-solid fa-eye me-1"></i>
+              Public board
+            </a>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <form method="get" class="cozy-dark-glass p-3 p-md-4 rounded-3 border border-secondary mb-4"
+              style="background: rgba(0,0,0,.35);">
+          <div class="row g-3 align-items-end">
+
+            <div class="col-12 col-md-3">
+              <label class="form-label text-light small mb-1">
+                From (service date)
+                <button type="button"
+                        class="btn btn-link btn-sm p-0 ms-1 text-light opacity-75 text-decoration-none"
+                        data-bs-toggle="popover"
+                        data-bs-trigger="focus"
+                        data-bs-placement="top"
+                        title="Date range"
+                        data-bs-content="Filters by the service date when available. For route-only actions, it falls back to the log timestamp.">
+                  <i class="fa-solid fa-circle-info"></i>
+                </button>
+              </label>
+              <input type="date" name="date_from" class="form-control qms-input"
+                     value="{{ date_from|date:'Y-m-d' }}">
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label text-light small mb-1">To (service date)</label>
+              <input type="date" name="date_to" class="form-control qms-input"
+                     value="{{ date_to|date:'Y-m-d' }}">
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label text-light small mb-1">Route (includes discontinued)</label>
+              <select name="route" class="form-select qms-input">
+                <option value="">All routes</option>
+                {% for r in routes %}
+                  <option value="{{ r.pk }}" {% if route_id|stringformat:"s" == r.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ r.code }} · {{ r.name }}{% if not r.is_active %} (discontinued){% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label text-light small mb-1">Search</label>
+              <input type="text" name="q" class="form-control qms-input"
+                     placeholder="e.g. J81, delayed, traffic, cancelled…"
+                     value="{{ q }}">
+            </div>
+
+            <div class="col-12 d-flex gap-2 flex-wrap">
+              <button type="submit" class="btn btn-success">
+                <i class="fa-solid fa-magnifying-glass me-1"></i>
+                Apply filters
+              </button>
+
+              <a href="{% url 'ops_history' %}" class="btn btn-outline-light">
+                <i class="fa-solid fa-rotate-left me-1"></i>
+                Reset
+              </a>
+
+              <span class="ms-auto small text-light opacity-75 align-self-center">
+                Showing {{ page_obj.paginator.count }} change{{ page_obj.paginator.count|pluralize }}
+              </span>
+            </div>
+          </div>
+        </form>
+
+        <!-- Results -->
+        {% if page_obj %}
+          {% if page_obj.object_list %}
+            <div class="table-responsive">
+              <table class="table table-dark table-hover align-middle mb-0"
+                     style="border-radius: 12px; overflow:hidden;">
+                <thead>
+                  <tr>
+                    <th style="min-width:170px;">When</th>
+                    <th style="min-width:170px;">Service date</th>
+                    <th style="min-width:220px;">Route</th>
+                    <th style="min-width:180px;">Action</th>
+                    <th>Note</th>
+                    <th style="min-width:170px;">Changed by</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for log in page_obj.object_list %}
+                    <tr>
+                      <td class="text-light opacity-75">
+                        {{ log.created_at|date:"d M Y H:i" }}
+                      </td>
+
+                      <td>
+                        {% if log.journey and log.journey.service_date %}
+                          <span class="badge bg-secondary">
+                            {{ log.journey.service_date|date:"d M Y" }}
+                          </span>
+                        {% else %}
+                          <span class="text-light opacity-50">—</span>
+                        {% endif %}
+                      </td>
+
+                      <td>
+                        {% if log.route %}
+                          <div class="fw-semibold text-light">
+                            {{ log.route.code }} · {{ log.route.name }}
+                          </div>
+                          <div class="small text-light opacity-75">
+                            {{ log.route.origin }} → {{ log.route.destination }}
+                            {% if not log.route.is_active %}
+                              <span class="badge bg-warning text-dark ms-1">discontinued</span>
+                            {% endif %}
+                          </div>
+                        {% else %}
+                          <span class="text-light opacity-50">—</span>
+                        {% endif %}
+                      </td>
+
+                      <td>
+                        {% if "created" in log.action %}
+                          <span class="badge bg-success">Created</span>
+                        {% elif "discontinue" in log.action or "discontinued" in log.action %}
+                          <span class="badge bg-danger">Discontinued</span>
+                        {% elif "update" in log.action %}
+                          <span class="badge bg-warning text-dark">Updated</span>
+                        {% else %}
+                          <span class="badge bg-info text-dark">{{ log.action }}</span>
+                        {% endif %}
+                      </td>
+
+                      <td class="text-light opacity-75">
+                        {{ log.note|default:"—" }}
+                      </td>
+
+                      <td class="text-light">
+                        {{ log.changed_by|default:"—" }}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+              <div class="small text-light opacity-75">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+              </div>
+
+              <nav aria-label="History pagination">
+                <ul class="pagination pagination-sm mb-0">
+                  {% if page_obj.has_previous %}
+                    <li class="page-item">
+                      <a class="page-link"
+                         href="?page={{ page_obj.previous_page_number }}&date_from={{ date_from|date:'Y-m-d' }}&date_to={{ date_to|date:'Y-m-d' }}&route={{ route_id }}&q={{ q|urlencode }}">
+                        Prev
+                      </a>
+                    </li>
+                  {% else %}
+                    <li class="page-item disabled"><span class="page-link">Prev</span></li>
+                  {% endif %}
+
+                  <li class="page-item disabled">
+                    <span class="page-link">Page {{ page_obj.number }}</span>
+                  </li>
+
+                  {% if page_obj.has_next %}
+                    <li class="page-item">
+                      <a class="page-link"
+                         href="?page={{ page_obj.next_page_number }}&date_from={{ date_from|date:'Y-m-d' }}&date_to={{ date_to|date:'Y-m-d' }}&route={{ route_id }}&q={{ q|urlencode }}">
+                        Next
+                      </a>
+                    </li>
+                  {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                  {% endif %}
+                </ul>
+              </nav>
+            </div>
+
+          {% else %}
+            <div class="alert alert-secondary mb-0">
+              No changes found for that search.
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="alert alert-secondary mb-0">
+            No history available yet.
+          </div>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+    new bootstrap.Popover(el);
+  });
+})();
+</script>
+{% endblock %}

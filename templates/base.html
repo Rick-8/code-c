@@ -34,193 +34,209 @@
 
 <body class="cozy-bg-fixed d-flex flex-column min-vh-100">
 
-<header class="cozy-header-blur">
-    <nav class="navbar navbar-expand-lg navbar-cozy navbar-dark shadow-sm">
-        <div class="container">
+    <header class="cozy-header-blur">
+        <nav class="navbar navbar-expand-lg navbar-cozy navbar-dark shadow-sm">
+            <div class="container">
 
-            <!-- Brand -->
-            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
-                <img src="{% static 'media/LOGO-Cozys.webp' %}" alt="Cozy Coaches" class="cozy-logo">
-            </a>
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                    <img src="{% static 'media/LOGO-Cozys.webp' %}" alt="Cozy Coaches" class="cozy-logo">
+                </a>
 
-            <!-- Toggler -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#mainNav" aria-controls="mainNav"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <!-- Toggler -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-            <!-- Nav -->
-            <div class="collapse navbar-collapse mt-2 mt-lg-0" id="mainNav">
+                <!-- Nav -->
+                <div class="collapse navbar-collapse mt-2 mt-lg-0" id="mainNav">
 
-                <!-- Left nav -->
-                <ul class="navbar-nav me-auto align-items-lg-center">
-                    <li class="nav-item">
-                        <a class="nav-link {% block nav_home_active %}{% endblock %}"
-                           href="{% url 'home' %}">
-                            <i class="fa-solid fa-house me-1 text-warning"></i>
-                            Home
-                        </a>
-                    </li>
+                    <!-- Left nav -->
+                    <ul class="navbar-nav me-auto align-items-lg-center">
+                        <li class="nav-item">
+                            <a class="nav-link {% block nav_home_active %}{% endblock %}" href="{% url 'home' %}">
+                                <i class="fa-solid fa-house me-1 text-warning"></i>
+                                Home
+                            </a>
+                        </li>
 
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link {% block nav_academy_active %}{% endblock %}"
-                           href="{% url 'academy_dashboard' %}">
-                            <i class="fa-solid fa-graduation-cap me-1 text-warning"></i>
-                            Academy
-                        </a>
-                    </li>
-                    {% endif %}
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link {% block nav_academy_active %}{% endblock %}"
+                                href="{% url 'academy_dashboard' %}">
+                                <i class="fa-solid fa-graduation-cap me-1 text-warning"></i>
+                                Academy
+                            </a>
+                        </li>
+                        {% endif %}
 
-                    <li class="nav-item">
-                        <a class="nav-link {% block nav_shop_active %}{% endblock %}"
-                           href="{% url 'shop_home' %}">
-                            <i class="fa-solid fa-cart-shopping me-1 text-warning"></i>
-                            Shop
-                        </a>
-                    </li>
-                </ul>
+                        <li class="nav-item">
+                            <a class="nav-link {% block nav_shop_active %}{% endblock %}" href="{% url 'shop_home' %}">
+                                <i class="fa-solid fa-cart-shopping me-1 text-warning"></i>
+                                Shop
+                            </a>
+                        </li>
 
-                <!-- Right nav -->
-                <ul class="navbar-nav ms-auto align-items-lg-center mt-2 mt-lg-0">
+                        <!-- Live Ops (Public) -->
+                        <li class="nav-item">
+                            <a class="nav-link {% block nav_ops_active %}{% endblock %}"
+                                href="{% url 'ops_public_lookup' %}">
+                                <i class="fa-solid fa-tower-broadcast me-1 text-warning"></i>
+                                Live Ops
+                            </a>
+                        </li>
+                    </ul>
 
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
+                    <!-- Right nav -->
+                    <ul class="navbar-nav ms-auto align-items-lg-center mt-2 mt-lg-0">
 
-                        <a class="nav-link dropdown-toggle d-flex align-items-center"
-                           href="#" id="userDropdown"
-                           role="button" data-bs-toggle="dropdown"
-                           aria-expanded="false"
-                           style="z-index:2000; position:relative;">
-                            <i class="fa-solid fa-user-circle me-2"></i>
-                            <span class="d-none d-sm-inline">Hi, {{ user.username }}</span>
-                            <span class="d-inline d-sm-none">{{ user.username }}</span>
-                        </a>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
 
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 glass-menu"
-                            aria-labelledby="userDropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                style="z-index:2000; position:relative;">
+                                <i class="fa-solid fa-user-circle me-2"></i>
+                                <span class="d-none d-sm-inline">Hi, {{ user.username }}</span>
+                                <span class="d-inline d-sm-none">{{ user.username }}</span>
+                            </a>
 
-                            <li class="dropdown-header small text-light">
-                                Signed in as<br>
-                                <strong>{{ user.username }}</strong>
-                            </li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 glass-menu"
+                                aria-labelledby="userDropdown">
 
-                            <li><hr class="dropdown-divider border-secondary"></li>
+                                <li class="dropdown-header small text-light">
+                                    Signed in as<br>
+                                    <strong>{{ user.username }}</strong>
+                                </li>
 
-                            <!-- Academy -->
-                            <li>
-                                <a class="dropdown-item text-light"
-                                   href="{% url 'academy_dashboard' %}">
-                                    <i class="fa-solid fa-graduation-cap me-2 text-warning"></i>
-                                    Academy
-                                </a>
-                            </li>
+                                <li>
+                                    <hr class="dropdown-divider border-secondary">
+                                </li>
 
-                            {% if user.is_superuser %}
-                            <li>
-                                <a class="dropdown-item text-light"
-                                   href="{% url 'academy_manager_dashboard' %}">
-                                    <i class="fa-solid fa-gauge-high me-2 text-warning"></i>
-                                    Academy Management
-                                </a>
-                            </li>
-                            {% endif %}
+                                <!-- Academy -->
+                                <li>
+                                    <a class="dropdown-item text-light" href="{% url 'academy_dashboard' %}">
+                                        <i class="fa-solid fa-graduation-cap me-2 text-warning"></i>
+                                        Academy
+                                    </a>
+                                </li>
 
-                            <li><hr class="dropdown-divider border-secondary"></li>
+                                {% if user.is_superuser %}
+                                <li>
+                                    <a class="dropdown-item text-light" href="{% url 'academy_manager_dashboard' %}">
+                                        <i class="fa-solid fa-gauge-high me-2 text-warning"></i>
+                                        Academy Management
+                                    </a>
+                                </li>
+                                {% endif %}
 
-                            <!-- QMS -->
-                            <li>
-                                <a class="dropdown-item text-warning"
-                                   href="{% url 'qms_dashboard' %}">
-                                    <i class="fa-solid fa-shield-halved me-2"></i>
-                                    Quality Management System
-                                </a>
-                            </li>
+                                <li>
+                                    <hr class="dropdown-divider border-secondary">
+                                </li>
 
-                            <!-- Staff input -->
-                            <li>
-                                <a class="dropdown-item text-light"
-                                   href="{% url 'qms_interaction_create' %}">
-                                    <i class="fa-solid fa-clipboard-check me-2 text-warning"></i>
-                                    Log Issue / Feedback
-                                </a>
-                            </li>
+                                <!-- QMS -->
+                                <li>
+                                    <a class="dropdown-item text-warning" href="{% url 'qms_dashboard' %}">
+                                        <i class="fa-solid fa-shield-halved me-2"></i>
+                                        Quality Management System
+                                    </a>
+                                </li>
 
-                            <li><hr class="dropdown-divider border-secondary"></li>
+                                <!-- Staff input -->
+                                <li>
+                                    <a class="dropdown-item text-light" href="{% url 'qms_interaction_create' %}">
+                                        <i class="fa-solid fa-clipboard-check me-2 text-warning"></i>
+                                        Log Issue / Feedback
+                                    </a>
+                                </li>
 
-                            <!-- Logout -->
-                            <li>
-                                <a class="dropdown-item text-light"
-                                   href="{% url 'account_logout' %}?next={{ request.path }}">
-                                    <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i>
-                                    Logout
-                                </a>
-                            </li>
+                                <!-- Live Ops Management (Restricted) -->
+                                {% if user.is_staff %}
+                                <li>
+                                    <hr class="dropdown-divider border-secondary">
+                                </li>
 
-                        </ul>
-                    </li>
+                                <li>
+                                    <a class="dropdown-item text-light" href="{% url 'ops_manager_lookup' %}">
+                                        <i class="fa-solid fa-tower-broadcast me-2 text-warning"></i>
+                                        Live Ops Management
+                                    </a>
+                                </li>
+                                {% endif %}
 
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="btn btn-outline-light ms-lg-2"
-                           href="{% url 'account_login' %}?next={{ request.path }}">
-                            Login
-                        </a>
-                    </li>
-                    {% endif %}
 
-                </ul>
+                                <!-- Logout -->
+                                <li>
+                                    <a class="dropdown-item text-light"
+                                        href="{% url 'account_logout' %}?next={{ request.path }}">
+                                        <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i>
+                                        Logout
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light ms-lg-2"
+                                href="{% url 'account_login' %}?next={{ request.path }}">
+                                Login
+                            </a>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    {% block sub_navbar %}{% endblock %}
-</header>
+        {% block sub_navbar %}{% endblock %}
+    </header>
 
-<main id="main-content" class="flex-grow-1 cozy-main-blur py-4 py-md-5">
+    <main id="main-content" class="flex-grow-1 cozy-main-blur py-4 py-md-5">
 
-    <!-- Toasts -->
-    {% if messages %}
-    <div class="toast-container position-fixed top-0 end-0 p-3 cozy-toast-container">
-        {% for message in messages %}
-        <div class="toast align-items-center
+        <!-- Toasts -->
+        {% if messages %}
+        <div class="toast-container position-fixed top-0 end-0 p-3 cozy-toast-container">
+            {% for message in messages %}
+            <div class="toast align-items-center
             {% if 'error' in message.tags %}text-bg-danger
             {% elif 'warning' in message.tags %}text-bg-warning
             {% elif 'success' in message.tags %}text-bg-success
             {% else %}text-bg-info{% endif %}
-            border-0 shadow"
-            role="alert" aria-live="assertive" aria-atomic="true">
+            border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
 
-            <div class="d-flex">
-                <div class="toast-body">{{ message }}</div>
-                <button type="button"
-                        class="btn-close btn-close-white me-2 m-auto"
+                <div class="d-flex">
+                    <div class="toast-body">{{ message }}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
                         data-bs-dismiss="toast"></button>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+        {% endif %}
 
-    <div class="container">
-        {% block content %}{% endblock %}
-    </div>
-</main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
 
-<footer class="cozy-footer text-center small text-white-50 py-3">
-    &copy; {% now "Y" %} Cozy Coaches. All rights reserved.
-</footer>
+    <footer class="cozy-footer text-center small text-white-50 py-3">
+        &copy; {% now "Y" %} Cozy Coaches. All rights reserved.
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.toast').forEach(function (toastEl) {
-            new bootstrap.Toast(toastEl, { delay: 2000 }).show();
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.toast').forEach(function (toastEl) {
+                new bootstrap.Toast(toastEl, { delay: 2000 }).show();
+            });
         });
-    });
-</script>
+    </script>
 
-{% block extra_js %}{% endblock %}
+    {% block extra_js %}{% endblock %}
 </body>
+
 </html>

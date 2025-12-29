@@ -1,0 +1,104 @@
+<div class="accordion-item bg-transparent border-0 mb-2">
+  <h2 class="accordion-header" id="heading-{{ j.pk }}">
+    <button class="accordion-button collapsed bg-dark text-light rounded-3"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapse-{{ j.pk }}"
+            aria-expanded="false"
+            aria-controls="collapse-{{ j.pk }}">
+
+      <div class="w-100 d-flex flex-wrap align-items-center justify-content-between gap-2 pe-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="badge bg-{{ badge }}">
+            <i class="fa-solid {{ icon }} me-1"></i>
+            {{ j.get_status_display }}
+          </span>
+
+          <div>
+            <strong>{{ j.route.code }}</strong>
+            <span class="text-muted">· {{ j.route.name }}</span>
+          </div>
+
+          <span class="text-muted small">
+            {{ j.route.origin }} → {{ j.route.destination }}
+          </span>
+
+          {% if j.status != "on_time" and j.reason %}
+            <span class="badge bg-secondary">
+              <i class="fa-solid fa-comment-dots me-1"></i>
+              {{ j.reason|truncatechars:50 }}
+            </span>
+          {% endif %}
+        </div>
+
+        <div class="text-muted small text-nowrap">
+          <i class="fa-regular fa-clock me-1"></i>
+          {{ j.updated_at|date:"H:i" }}
+        </div>
+      </div>
+    </button>
+  </h2>
+
+  <div id="collapse-{{ j.pk }}" class="accordion-collapse collapse"
+       aria-labelledby="heading-{{ j.pk }}"
+       data-bs-parent="#opsAccordion">
+    <div class="accordion-body bg-black bg-opacity-25 rounded-bottom-3">
+
+      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start">
+        <div class="text-muted small">
+          <div><strong>Service:</strong> {{ j.route.code }} · {{ j.route.name }}</div>
+          <div><strong>Route:</strong> {{ j.route.origin }} → {{ j.route.destination }}</div>
+          <div><strong>Status:</strong> {{ j.get_status_display }}</div>
+          {% if j.status == "delayed" and j.delay_minutes %}
+            <div><strong>Delay:</strong> +{{ j.delay_minutes }} mins</div>
+          {% endif %}
+          {% if j.status != "on_time" %}
+            <div><strong>Reason:</strong> {{ j.reason|default:"—" }}</div>
+          {% endif %}
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+
+          <button
+            class="btn btn-sm btn-outline-light"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#opsRightPanel"
+            aria-controls="opsRightPanel"
+            data-mode="update"
+            data-journey-id="{{ j.pk }}"
+            data-route-code="{{ j.route.code }}"
+            data-route-name="{{ j.route.name }}"
+            data-origin="{{ j.route.origin }}"
+            data-destination="{{ j.route.destination }}"
+            data-status="{{ j.status }}"
+            data-delay="{{ j.delay_minutes|default_if_none:'' }}"
+            data-reason="{{ j.reason|default_if_none:'' }}"
+          >
+            <i class="fa-solid fa-sliders me-1"></i>
+            Update
+          </button>
+
+          <button
+            class="btn btn-sm btn-outline-warning"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#opsRightPanel"
+            aria-controls="opsRightPanel"
+            data-mode="discontinue"
+            data-route-id="{{ j.route.pk }}"
+            data-route-code="{{ j.route.code }}"
+            data-route-name="{{ j.route.name }}"
+            data-origin="{{ j.route.origin }}"
+            data-destination="{{ j.route.destination }}"
+          >
+            <i class="fa-solid fa-ban me-1"></i>
+            Discontinue
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
