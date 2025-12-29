@@ -128,11 +128,6 @@ urlpatterns = [
         views.revoke_primary_authority,
         name="qms_revoke_primary",
     ),
-    path(
-        "responsibilities/add/",
-        views.responsibility_create,
-        name="responsibility_create",
-    ),
 
 
 ]

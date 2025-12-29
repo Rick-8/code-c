@@ -688,7 +688,7 @@ def generate_certificate_pdf(request, certificate_id):
     p.rect(margin / 2, margin / 2, page_width - margin, page_height - margin, stroke=1, fill=0)
 
     # Logo (top-left)
-    logo_path = os.path.join(settings.BASE_DIR, "static", "css", "media", "LOGO-Cozys.webp")
+    logo_path = os.path.join(settings.BASE_DIR, "static", "media", "LOGO-Cozys.webp")
     logo = ImageReader(logo_path)
     p.drawImage(
         logo,
@@ -742,9 +742,9 @@ def generate_certificate_pdf(request, certificate_id):
     # Footer
     p.setFont("Helvetica", 10)
     p.setFillColor(burgundy)
-    p.drawCentredString(page_width / 2, margin + 35, "Cozy Coaches – Driver Academy")
+    p.drawCentredString(page_width / 2, margin + 35, "Cozy Travel – Driver Academy")
     p.setFillColor(gray)
-    p.drawCentredString(page_width / 2, margin + 20, "© Cozy Coaches Ltd. All rights reserved")
+    p.drawCentredString(page_width / 2, margin + 20, "© Cozy Travel Ltd. All rights reserved")
 
     # Save and return
     p.showPage()
@@ -1154,7 +1154,7 @@ def add_lesson(request, module_id):
         title = request.POST.get("title")
         order = request.POST.get("order") or suggested_order
         video_url = request.POST.get("video_url") or ""
-        image_url = request.POST.get("image_url") or ""   # NEW FIELD
+        image_url = request.POST.get("image_url") or ""
 
         if not title:
             messages.error(request, "Lesson title is required.")
@@ -1164,9 +1164,9 @@ def add_lesson(request, module_id):
             module=module,
             title=title,
             order=order,
-            content="",      # content edited later via the content editor
+            content="",
             video_url=video_url,
-            image_url=image_url,   # NEW FIELD SAVED
+            image_url=image_url,
         )
 
         messages.success(request, f"Lesson '{title}' created successfully.")

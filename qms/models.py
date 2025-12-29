@@ -375,3 +375,42 @@ class QMSChangeLog(models.Model):
 
     def __str__(self):
         return f"{self.page} | {self.action} | {self.object_ref}"
+
+
+class Responsibility(models.Model):
+    DEPOT_CHOICES = [
+        ("SANDY", "Sandy"),
+        ("BIGGLESWADE", "Biggleswade"),
+        ("OTHER", "Other"),
+    ]
+
+    depot = models.CharField(max_length=30, choices=DEPOT_CHOICES, default="SANDY")
+    area = models.CharField(max_length=120, blank=True)
+    role = models.CharField(max_length=120)
+
+    responsible_person = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="responsibilities_owned",
+    )
+
+    assigned_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="responsibilities_assigned",
+    )
+
+    effective_from = models.DateField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-effective_from", "-created_at"]
+
+    def __str__(self):
+        who = self.responsible_person.get_username() if self.responsible_person else "Unassigned"
+        return f"{self.depot} | {self.role} | {who}"
