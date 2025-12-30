@@ -11,4 +11,12 @@ class OpsRouteForm(forms.ModelForm):
 class OpsJourneyForm(forms.ModelForm):
     class Meta:
         model = OpsJourney
-        fields = ["route", "service_date", "planned_departure", "status", "delay_minutes", "reason"]
+        fields = [
+            "route",
+            "service_date",
+            "planned_departure",
+            "status",
+            "delay_minutes",
+            "diversion_details",
+            "reason",
+        ]

@@ -56,21 +56,29 @@ class OpsRoute(models.Model):
         return f"{self.code} - {self.name}"
 
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import timezone
+
+
 class OpsJourney(models.Model):
     """
     A dated 'run' of a route that carries the live status.
     """
     STATUS_ON_TIME = "on_time"
     STATUS_DELAYED = "delayed"
+    STATUS_DIVERSION = "diversion"
     STATUS_CANCELLED = "cancelled"
 
     STATUS_CHOICES = [
         (STATUS_ON_TIME, "On time"),
         (STATUS_DELAYED, "Delayed"),
+        (STATUS_DIVERSION, "On diversion"),
         (STATUS_CANCELLED, "Cancelled"),
     ]
 
-    route = models.ForeignKey(OpsRoute, on_delete=models.CASCADE, related_name="journeys")
+    route = models.ForeignKey("OpsRoute", on_delete=models.CASCADE, related_name="journeys")
 
     service_date = models.DateField(default=timezone.localdate)
     planned_departure = models.TimeField(null=True, blank=True)
@@ -80,8 +88,11 @@ class OpsJourney(models.Model):
     # Required when DELAYED
     delay_minutes = models.PositiveIntegerField(null=True, blank=True)
 
-    # Required when DELAYED or CANCELLED
+    # Required when DELAYED / CANCELLED / DIVERSION (see clean)
     reason = models.TextField(blank=True)
+
+    # Required when DIVERSION
+    diversion_details = models.TextField(blank=True)
 
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(
@@ -102,21 +113,35 @@ class OpsJourney(models.Model):
         ]
 
     def clean(self):
+        reason = (self.reason or "").strip()
+        diversion = (self.diversion_details or "").strip()
+
         if self.status == self.STATUS_DELAYED:
             if self.delay_minutes is None:
                 raise ValidationError({"delay_minutes": "Delay minutes are required when status is Delayed."})
-            if not self.reason.strip():
+            if not reason:
                 raise ValidationError({"reason": "A reason is required when status is Delayed."})
+            self.diversion_details = ""
 
-        if self.status == self.STATUS_CANCELLED:
-            if not self.reason.strip():
+        elif self.status == self.STATUS_CANCELLED:
+            if not reason:
                 raise ValidationError({"reason": "A reason is required when status is Cancelled."})
             if self.delay_minutes is not None:
                 raise ValidationError({"delay_minutes": "Delay minutes must be empty when status is Cancelled."})
+            self.diversion_details = ""
 
-        if self.status == self.STATUS_ON_TIME:
+        elif self.status == self.STATUS_DIVERSION:
+            if self.delay_minutes is not None:
+                raise ValidationError({"delay_minutes": "Delay minutes must be empty when status is On diversion."})
+            if not diversion:
+                raise ValidationError({"diversion_details": "Diversion details are required when status is On diversion."})
+            if not reason:
+                raise ValidationError({"reason": "A reason is required when status is On diversion."})
+
+        elif self.status == self.STATUS_ON_TIME:
             self.delay_minutes = None
             self.reason = ""
+            self.diversion_details = ""
 
     @property
     def badge_class(self) -> str:
@@ -124,13 +149,13 @@ class OpsJourney(models.Model):
             return "bg-success"
         if self.status == self.STATUS_DELAYED:
             return "bg-warning text-dark"
+        if self.status == self.STATUS_DIVERSION:
+            return "bg-info text-dark"
         return "bg-danger"
 
     def __str__(self):
         return f"{self.route.code} {self.service_date} ({self.status})"
 
-
-# home/models.py (add this model)
 
 class OpsChangeLog(models.Model):
     ACTION_ROUTE_CREATED = "route_created"

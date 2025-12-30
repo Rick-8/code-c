@@ -257,13 +257,16 @@ def ops_journey_quick_update(request: HttpRequest, pk: int) -> HttpResponse:
     old_status = j.status
     old_delay = j.delay_minutes
     old_reason = j.reason
+    old_diversion = getattr(j, "diversion_details", "")
 
-    status = (request.POST.get("status") or "").strip()
+    status = (request.POST.get("status") or "").strip() or OpsJourney.STATUS_ON_TIME
     delay_raw = (request.POST.get("delay_minutes") or "").strip()
     reason = (request.POST.get("reason") or "").strip()
+    diversion_details = (request.POST.get("diversion_details") or "").strip()
 
-    j.status = status or OpsJourney.STATUS_ON_TIME
+    j.status = status
 
+    # Delay minutes
     if delay_raw == "":
         j.delay_minutes = None
     else:
@@ -273,7 +276,11 @@ def ops_journey_quick_update(request: HttpRequest, pk: int) -> HttpResponse:
             messages.error(request, "Delay minutes must be a number.")
             return redirect("ops_dashboard")
 
+    # New fields
     j.reason = reason
+    if hasattr(j, "diversion_details"):
+        j.diversion_details = diversion_details
+
     j.updated_by = request.user
 
     try:
@@ -284,7 +291,7 @@ def ops_journey_quick_update(request: HttpRequest, pk: int) -> HttpResponse:
 
     j.save()
 
-    OpsChangeLog.objects.create(
+    log_kwargs = dict(
         action=OpsChangeLog.ACTION_JOURNEY_UPDATED,
         route=j.route,
         journey=j,
@@ -297,6 +304,13 @@ def ops_journey_quick_update(request: HttpRequest, pk: int) -> HttpResponse:
         new_delay_minutes=j.delay_minutes,
         new_reason=j.reason,
     )
+
+    # If you added diversion fields to OpsChangeLog
+    if hasattr(OpsChangeLog, "old_diversion_details"):
+        log_kwargs["old_diversion_details"] = old_diversion
+        log_kwargs["new_diversion_details"] = getattr(j, "diversion_details", "")
+
+    OpsChangeLog.objects.create(**log_kwargs)
 
     messages.success(request, f"Updated: {j.route.code} – {j.get_status_display()}")
     return redirect("ops_dashboard")

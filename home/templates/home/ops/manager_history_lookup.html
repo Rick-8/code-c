@@ -37,7 +37,8 @@
         </div>
 
         <!-- Filters -->
-        <form method="get" class="cozy-dark-glass p-3 p-md-4 rounded-3 border border-secondary mb-4"
+        <form method="get"
+              class="cozy-dark-glass p-3 p-md-4 rounded-3 border border-secondary mb-4"
               style="background: rgba(0,0,0,.35);">
           <div class="row g-3 align-items-end">
 
@@ -79,7 +80,7 @@
             <div class="col-12 col-md-3">
               <label class="form-label text-light small mb-1">Search</label>
               <input type="text" name="q" class="form-control qms-input"
-                     placeholder="e.g. J81, delayed, traffic, cancelled…"
+                     placeholder="e.g. J81, delayed, diversion, traffic, cancelled…"
                      value="{{ q }}">
             </div>
 
@@ -105,16 +106,17 @@
         {% if page_obj %}
           {% if page_obj.object_list %}
             <div class="table-responsive">
-              <table class="table table-dark table-hover align-middle mb-0"
-                     style="border-radius: 12px; overflow:hidden;">
+              <table class="table table-dark table-hover align-middle mb-0 ops-history-table">
                 <thead>
                   <tr>
-                    <th style="min-width:170px;">When</th>
-                    <th style="min-width:170px;">Service date</th>
-                    <th style="min-width:220px;">Route</th>
-                    <th style="min-width:180px;">Action</th>
+                    <th>When</th>
+                    <th>Service date</th>
+                    <th>Route</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>Reason</th>
                     <th>Note</th>
-                    <th style="min-width:170px;">Changed by</th>
+                    <th>Changed by</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -155,6 +157,10 @@
                           <span class="badge bg-success">Created</span>
                         {% elif "discontinue" in log.action or "discontinued" in log.action %}
                           <span class="badge bg-danger">Discontinued</span>
+                        {% elif "diversion" in log.action or "divert" in log.action %}
+                          <span class="badge bg-info text-dark">
+                            <i class="fa-solid fa-road me-1"></i> Diversion
+                          </span>
                         {% elif "update" in log.action %}
                           <span class="badge bg-warning text-dark">Updated</span>
                         {% else %}
@@ -162,8 +168,52 @@
                         {% endif %}
                       </td>
 
+                      <td>
+                        {% if log.journey %}
+                          {% if log.journey.status == "on_time" %}
+                            <span class="badge bg-success">On time</span>
+                          {% elif log.journey.status == "delayed" %}
+                            <span class="badge bg-warning text-dark">Delayed</span>
+                          {% elif log.journey.status == "diversion" %}
+                            <span class="badge bg-info text-dark">
+                              <i class="fa-solid fa-road me-1"></i> Diversion
+                            </span>
+                          {% elif log.journey.status == "cancelled" %}
+                            <span class="badge bg-danger">Cancelled</span>
+                          {% else %}
+                            <span class="badge bg-secondary">{{ log.journey.status }}</span>
+                          {% endif %}
+                        {% else %}
+                          <span class="text-light opacity-50">—</span>
+                        {% endif %}
+                      </td>
+
                       <td class="text-light opacity-75">
-                        {{ log.note|default:"—" }}
+                        {% if log.journey and log.journey.reason %}
+                          {{ log.journey.reason }}
+                        {% else %}
+                          <span class="text-light opacity-50">—</span>
+                        {% endif %}
+                      </td>
+
+                      <td class="text-light opacity-75">
+                        {% if log.note %}
+                          <div>{{ log.note }}</div>
+                        {% else %}
+                          <span class="text-light opacity-50">—</span>
+                        {% endif %}
+
+                        {% if log.journey and log.journey.status == "diversion" and log.journey.diversion_details %}
+                          <div class="mt-2 p-2 rounded-3 ops-note-box">
+                            <div class="small text-primary mb-1">
+                              <i class="fa-solid fa-circle-info me-1"></i>
+                              Diversion details
+                            </div>
+                            <div class="small text-light">
+                              {{ log.journey.diversion_details|linebreaksbr }}
+                            </div>
+                          </div>
+                        {% endif %}
                       </td>
 
                       <td class="text-light">
@@ -229,10 +279,72 @@
   </div>
 </div>
 
+<style>
+  /*
+    ✅ Fix overlaps and “wasted space” properly:
+    - Remove fixed column widths
+    - Allow columns to size to content
+    - Keep table readable by preventing header/important fields wrapping oddly
+    - Never overlap: use normal table layout + safe wrapping
+  */
+
+  .ops-history-table{
+    border-radius: 12px;
+    overflow: hidden;
+    table-layout: auto; /* ✅ let content drive widths (prevents “stacking/overlap” look) */
+    width: 100%;
+  }
+
+  /* Keep short columns from becoming silly-wide */
+  .ops-history-table th,
+  .ops-history-table td{
+    vertical-align: top;
+    white-space: normal;          /* ✅ allow wrapping instead of crushing columns */
+    overflow-wrap: anywhere;      /* ✅ never overflow/overlap */
+    word-break: normal;
+  }
+
+  /* Encourage sensible widths: these stay compact */
+  .ops-history-table th:nth-child(1),
+  .ops-history-table td:nth-child(1),
+  .ops-history-table th:nth-child(2),
+  .ops-history-table td:nth-child(2),
+  .ops-history-table th:nth-child(4),
+  .ops-history-table td:nth-child(4),
+  .ops-history-table th:nth-child(5),
+  .ops-history-table td:nth-child(5),
+  .ops-history-table th:nth-child(8),
+  .ops-history-table td:nth-child(8){
+    white-space: nowrap; /* when/service/action/status/changed-by stay neat */
+  }
+
+  /* Give Route/Reason/Note room, but let them wrap */
+  .ops-history-table th:nth-child(3),
+  .ops-history-table td:nth-child(3),
+  .ops-history-table th:nth-child(6),
+  .ops-history-table td:nth-child(6),
+  .ops-history-table th:nth-child(7),
+  .ops-history-table td:nth-child(7){
+    white-space: normal;
+  }
+
+  /* Diversion detail callout */
+  .ops-note-box{
+    background: rgba(0,0,0,.25);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  /* Optional: stop badges forcing huge columns */
+  .ops-history-table .badge{
+    white-space: nowrap;
+  }
+</style>
+
 <script>
 (function () {
+  if (!window.bootstrap) return;
   document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
-    new bootstrap.Popover(el);
+    bootstrap.Popover.getOrCreateInstance(el);
   });
 })();
 </script>
