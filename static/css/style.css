@@ -650,3 +650,168 @@ header.cozy-header-blur,
 .cozy-dark-glass .btn-outline-light:focus i {
     color: #ffc107 !important;
 }
+
+
+/* ============================================================
+   OPS HUB — cohesive cozy styling (uses existing theme language)
+   ============================================================ */
+
+.ops-workspace {
+    display: flex;
+    gap: 0.9rem;
+    align-items: stretch;
+}
+
+.ops-pane {
+    flex: 1 1 0;
+    min-width: 280px;
+}
+
+.ops-card {
+    height: 100%;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(6px);
+}
+
+.ops-input {
+    background: rgba(0,0,0,0.25) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    border-radius: 10px !important;
+    padding: 12px 12px !important;
+}
+
+.ops-input:focus {
+    border-color: #ffc107 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255,193,7,0.25) !important;
+}
+
+/* Divider matches dark glass theme */
+.ops-divider {
+    width: 10px;
+    flex: 0 0 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    cursor: col-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.ops-divider:hover {
+    background: rgba(255,255,255,0.12);
+}
+
+.ops-divider:focus {
+    outline: 2px solid rgba(255,255,255,0.35);
+    outline-offset: 2px;
+}
+
+.ops-divider-grip {
+    width: 4px;
+    height: 44px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.22);
+}
+
+body.ops-resizing,
+body.ops-resizing * {
+    cursor: col-resize !important;
+}
+
+/* Mobile: stack, hide divider */
+@media (max-width: 992px) {
+    .ops-workspace {
+        display: block;
+    }
+    .ops-divider {
+        display: none;
+    }
+    .ops-pane {
+        min-width: auto;
+        margin-bottom: 0.9rem;
+    }
+}
+
+/* Keep the main navbar dropdown above the Ops sub-nav */
+.ops-subnav{
+  position: relative;
+  z-index: 100; /* low */
+}
+
+/* Bootstrap dropdowns usually sit around 1000+, but we hard-boost just in case */
+.navbar .dropdown-menu{
+  z-index: 2000;
+}
+
+/* ============================================================
+   FIX: Base navbar dropdown must always sit above Ops sub-nav
+   ============================================================ */
+
+/* 1) Make the TOP (main) navbar its own stacking context + very high */
+header.cozy-header-blur {
+  position: relative;
+  z-index: 9000;
+  isolation: isolate; /* key: stops weird stacking bleed from blur layers */
+}
+
+.navbar-cozy {
+  position: relative;
+  z-index: 9100 !important;
+}
+
+/* 2) Only boost dropdowns inside the MAIN navbar (not every navbar) */
+.navbar-cozy .dropdown-menu {
+  z-index: 9200 !important;
+}
+
+/* 3) Keep Ops sub-nav below the main navbar no matter what */
+.ops-subnav {
+  position: relative;
+  z-index: 1000 !important;
+}
+
+/* 4) Remove/neutralise the overly-broad rule effect */
+.navbar:not(.navbar-cozy) .dropdown-menu {
+  z-index: 2000 !important; /* ok for sub nav dropdowns if you ever add them */
+}
+
+
+.cozy-popover.popover {
+  --bs-popover-max-width: 360px;
+  --bs-popover-bg: rgba(0, 0, 0, 0.88);
+  --bs-popover-border-color: rgba(255,255,255,.12);
+  --bs-popover-header-bg: rgba(0, 0, 0, 0.88);
+  --bs-popover-header-color: #fff;
+  --bs-popover-body-color: rgba(255,255,255,.9);
+
+  --bs-popover-body-padding-x: 14px;
+  --bs-popover-body-padding-y: 12px;
+  --bs-popover-header-padding-x: 14px;
+  --bs-popover-header-padding-y: 10px;
+
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.cozy-popover .popover-header {
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+
+.cozy-popover .popover-body {
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.cozy-popover .cozy-popover-body p {
+  margin-bottom: 10px;
+}
+
+.cozy-popover .cozy-popover-body p:last-child {
+  margin-bottom: 0;
+}

@@ -1,0 +1,382 @@
+{% extends "home/ops/base_ops.html" %}
+{% load static %}
+
+{% block ops_content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+  <div>
+    <span class="cozy-text-subtitle">Live Operations</span>
+    <h2 class="mt-2 mb-1">
+      <i class="fa-solid fa-clipboard me-2 text-warning"></i>
+      Operations Hub
+    </h2>
+    <p class="text-light mb-0">
+      Daily journal + persistent to-dos.
+    </p>
+  </div>
+
+  <div class="small text-light">
+    <i class="fa-regular fa-clock me-1"></i>
+    Today: {{ today|date:"d M Y" }}
+  </div>
+</div>
+
+<div id="opsWorkspace" class="ops-workspace">
+
+  <!-- Journal -->
+  <section id="opsJournalPane" class="ops-pane">
+    <div class="ops-card p-3 p-md-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">
+          <i class="fa-solid fa-pen-nib me-2"></i>
+          Daily Journal
+        </h5>
+        <span class="badge rounded-pill text-bg-secondary">
+          Autosave
+        </span>
+      </div>
+
+      <textarea
+        id="opsJournalText"
+        class="form-control ops-input"
+        rows="14"
+        placeholder="Write shift notes here... (autosave comes in Step 3)"
+      >{{ journal.content }}</textarea>
+
+      <div class="mt-2 small text-light">
+        Saved entries lock daily and remain available in Journal History.
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div
+    id="opsDivider"
+    class="ops-divider"
+    role="separator"
+    aria-orientation="vertical"
+    aria-label="Resize panes"
+    tabindex="0"
+    title="Drag to resize"
+  >
+    <span class="ops-divider-grip" aria-hidden="true"></span>
+  </div>
+
+  <!-- To-do -->
+  <section id="opsTodoPane" class="ops-pane">
+    <div class="ops-card p-3 p-md-4">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+          <i class="fa-solid fa-list-check me-2"></i>
+          To-do List
+        </h5>
+      </div>
+
+      <form id="opsTodoAddForm" method="post" action="{% url 'ops_todo_add' %}" class="d-flex gap-2 mb-3">
+        {% csrf_token %}
+        <input
+          id="opsTodoTitle"
+          type="text"
+          name="title"
+          class="form-control ops-input ops-todo-title"
+          placeholder="Add a new task…"
+          maxlength="200"
+          required
+          style="text-transform: uppercase;"
+        >
+        <button class="btn btn-sm btn-outline-light" type="submit">
+          <i class="fa-solid fa-plus me-1"></i> Add
+        </button>
+      </form>
+
+      <div class="small text-light mb-2">
+        Items persist until completed. Completed items move to To-do History.
+      </div>
+
+      <ul class="list-group list-group-flush">
+        {% for t in todos %}
+          <li class="list-group-item bg-transparent text-light border-secondary-subtle d-flex align-items-center gap-2">
+
+            <!-- title -->
+            <span class="flex-grow-1 ops-todo-text" style="text-transform: uppercase;">
+              {{ t.title }}
+            </span>
+
+            <!-- done button (popover confirm) -->
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-success ops-todo-done-btn"
+              data-todo-id="{{ t.id }}"
+              aria-label="Mark {{ t.title|upper }} as done"
+              title="Mark as done"
+            >
+              <i class="fa-solid fa-check"></i>
+            </button>
+
+            <!-- hidden popover template -->
+            <div class="d-none" id="ops-popover-{{ t.id }}">
+              <div class="small text-light mb-2">
+                Mark this as <strong>DONE</strong>?
+              </div>
+              <div class="d-flex gap-2">
+                <form method="post" action="{% url 'ops_todo_complete' t.id %}" class="m-0">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-success">
+                    <i class="fa-solid fa-check me-1"></i> YES
+                  </button>
+                </form>
+                <button type="button" class="btn btn-sm btn-outline-light ops-popover-cancel">
+                  CANCEL
+                </button>
+              </div>
+            </div>
+
+          </li>
+        {% empty %}
+          <li class="list-group-item bg-transparent text-light border-secondary-subtle">
+            No tasks yet. Add one above 👆
+          </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </section>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // -------------------------------------------------------
+  // Force uppercase on submit (so DB gets uppercase too)
+  // -------------------------------------------------------
+  const addForm = document.getElementById("opsTodoAddForm");
+  const titleInput = document.getElementById("opsTodoTitle");
+  if (addForm && titleInput) {
+    addForm.addEventListener("submit", () => {
+      titleInput.value = (titleInput.value || "").trim().toUpperCase();
+    });
+  }
+
+  // -------------------------------------------------------
+  // JOURNAL AUTOSAVE (debounced)
+  // -------------------------------------------------------
+  const journalBox = document.getElementById("opsJournalText");
+  const autosaveUrl = "{% url 'ops_journal_autosave' %}";
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+  }
+  const csrftoken = getCookie("csrftoken");
+
+  let autosaveTimer = null;
+  let lastSent = journalBox ? journalBox.value : "";
+
+  async function autosaveNow() {
+    if (!journalBox) return;
+
+    const content = journalBox.value;
+
+    // don't spam server if nothing changed
+    if (content === lastSent) return;
+
+    try {
+      const res = await fetch(autosaveUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "X-CSRFToken": csrftoken,
+        },
+        body: new URLSearchParams({ content }).toString(),
+        credentials: "same-origin",
+      });
+
+      if (!res.ok) {
+        console.warn("Autosave failed:", res.status);
+        return;
+      }
+
+      const data = await res.json().catch(() => null);
+      lastSent = content;
+
+      // Optional: quick visual proof in console
+      console.log("Autosaved OK", data);
+
+    } catch (err) {
+      console.warn("Autosave error:", err);
+    }
+  }
+
+  if (journalBox) {
+    // Save ~1.2s after you stop typing
+    journalBox.addEventListener("input", () => {
+      if (autosaveTimer) clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(autosaveNow, 1200);
+    });
+
+    // Critical: before submitting the todo form, do a final autosave
+    if (addForm) {
+      addForm.addEventListener("submit", async () => {
+        await autosaveNow();
+      });
+    }
+  } else {
+    console.warn("Autosave: #opsJournalText not found.");
+  }
+
+  // -------------------------------------------------------
+  // Split resizer (localStorage)
+  // -------------------------------------------------------
+  const workspace = document.getElementById("opsWorkspace");
+  const journalPane = document.getElementById("opsJournalPane");
+  const divider = document.getElementById("opsDivider");
+
+  if (workspace && journalPane && divider) {
+    const KEY = "ops_split_pct";
+    const MIN_PCT = 25;
+    const MAX_PCT = 75;
+
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+    const applyPct = (pct) => {
+      journalPane.style.flexBasis = pct + "%";
+      journalPane.style.flexGrow = "0";
+      journalPane.style.flexShrink = "0";
+    };
+
+    const saved = parseFloat(localStorage.getItem(KEY));
+    if (!Number.isNaN(saved)) applyPct(clamp(saved, MIN_PCT, MAX_PCT));
+
+    let dragging = false;
+
+    const pctFromClientX = (clientX) => {
+      const rect = workspace.getBoundingClientRect();
+      const x = clamp(clientX - rect.left, 0, rect.width);
+      return clamp((x / rect.width) * 100, MIN_PCT, MAX_PCT);
+    };
+
+    const onMove = (e) => {
+      if (!dragging) return;
+      const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      applyPct(pctFromClientX(clientX));
+    };
+
+    const stop = () => {
+      if (!dragging) return;
+      dragging = false;
+      document.body.classList.remove("ops-resizing");
+      const currentPct = parseFloat(journalPane.style.flexBasis);
+      if (!Number.isNaN(currentPct)) localStorage.setItem(KEY, String(currentPct));
+    };
+
+    const start = (e) => {
+      dragging = true;
+      document.body.classList.add("ops-resizing");
+      e.preventDefault();
+    };
+
+    divider.addEventListener("mousedown", start);
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", stop);
+
+    divider.addEventListener("touchstart", start, { passive: false });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", stop);
+
+    divider.addEventListener("keydown", (e) => {
+      const step = e.shiftKey ? 5 : 2;
+      const current = parseFloat(journalPane.style.flexBasis) || 50;
+
+      if (e.key === "ArrowLeft") {
+        const next = clamp(current - step, MIN_PCT, MAX_PCT);
+        applyPct(next);
+        localStorage.setItem(KEY, String(next));
+        e.preventDefault();
+      } else if (e.key === "ArrowRight") {
+        const next = clamp(current + step, MIN_PCT, MAX_PCT);
+        applyPct(next);
+        localStorage.setItem(KEY, String(next));
+        e.preventDefault();
+      }
+    });
+  }
+
+  // -------------------------------------------------------
+  // Popovers (Confirm Done)
+  // -------------------------------------------------------
+  const buttons = Array.from(document.querySelectorAll(".ops-todo-done-btn"));
+  if (!buttons.length) return;
+
+  const hideAll = () => {
+    buttons.forEach(btn => {
+      const inst = bootstrap.Popover.getInstance(btn);
+      if (inst) inst.hide();
+    });
+  };
+
+  const ensurePopover = (btn) => {
+    const todoId = btn.getAttribute("data-todo-id");
+    const tmpl = document.getElementById(`ops-popover-${todoId}`);
+    if (!tmpl) return null;
+
+    let inst = bootstrap.Popover.getInstance(btn);
+    if (inst) return inst;
+
+    inst = new bootstrap.Popover(btn, {
+      html: true,
+      sanitize: false,
+      placement: "left",
+      trigger: "manual",
+      content: () => tmpl.innerHTML,
+      title: "CONFIRM"
+    });
+
+    return inst;
+  };
+
+  buttons.forEach(btn => {
+    ensurePopover(btn);
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const inst = ensurePopover(btn);
+      if (!inst) return;
+
+      const popEl = document.querySelector(".popover.show");
+      if (popEl) {
+        const currentOpenForThis = btn.getAttribute("aria-describedby");
+        if (currentOpenForThis) {
+          inst.hide();
+          return;
+        }
+      }
+
+      hideAll();
+      inst.show();
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".ops-popover-cancel")) hideAll();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".popover")) return;
+    if (e.target.closest(".ops-todo-done-btn")) return;
+    hideAll();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideAll();
+  });
+
+});
+</script>
+{% endblock %}

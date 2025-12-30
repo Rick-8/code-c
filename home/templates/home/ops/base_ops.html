@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block sub_navbar %}
+  {% include "home/ops/_ops_nav.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="cozy-bg-fixed ">
+  <div class="cozy-main-blur py-5">
+    <div class="container">
+      <div class="cozy-dark-glass p-4 p-md-5 rounded-4 shadow-lg text-light glass-layer">
+        {% block ops_content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

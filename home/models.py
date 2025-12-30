@@ -184,3 +184,68 @@ class OpsChangeLog(models.Model):
 
     def __str__(self):
         return f"{self.get_action_display()} - {self.route.code} @ {self.created_at:%Y-%m-%d %H:%M}"
+
+
+class OpsDailyJournal(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ops_daily_journals",
+    )
+    entry_date = models.DateField(db_index=True)
+    content = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "entry_date")
+        ordering = ["-entry_date", "-updated_at"]
+
+    def __str__(self):
+        return f"{self.user} — {self.entry_date}"
+
+
+class OpsDailyJournalRevision(models.Model):
+    journal = models.ForeignKey(
+        OpsDailyJournal,
+        on_delete=models.CASCADE,
+        related_name="revisions",
+    )
+    saved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ops_journal_revisions",
+    )
+    saved_at = models.DateTimeField(auto_now_add=True)
+    content_snapshot = models.TextField()
+
+    class Meta:
+        ordering = ["-saved_at"]
+
+    def __str__(self):
+        return f"{self.journal.user} — {self.journal.entry_date} @ {self.saved_at:%H:%M}"
+
+
+class OpsTodoItem(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ops_todos",
+    )
+
+    title = models.CharField(max_length=200)
+    is_done = models.BooleanField(default=False)
+    done_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["is_done", "-created_at"]
+
+    def __str__(self):
+        state = "done" if self.is_done else "open"
+        return f"{self.title} ({state})"

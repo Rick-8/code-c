@@ -1,8 +1,7 @@
 # home/views_ops.py
 from __future__ import annotations
-
 from datetime import timedelta
-
+from django.db.models import Count
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -18,10 +17,15 @@ from django.views.decorators.http import require_POST
 from .models import OpsJourney, OpsRoute, OpsChangeLog
 from .permissions import user_can_manage_ops
 
+from django.http import JsonResponse
+from .models import OpsDailyJournal
+from .models import OpsDailyJournal, OpsDailyJournalRevision, OpsTodoItem
+
 
 # =========================================================
 # Helpers
 # =========================================================
+
 
 def _ensure_today_journeys(user) -> timezone.datetime.date:
     """
@@ -383,3 +387,146 @@ def manager_history_lookup(request: HttpRequest) -> HttpResponse:
             "can_manage": True,
         },
     )
+
+
+@login_required
+def ops_hub(request):
+    today = timezone.localdate()
+
+    journal, _ = OpsDailyJournal.objects.get_or_create(
+        user=request.user,
+        entry_date=today,
+        defaults={"content": ""},
+    )
+
+    todos = OpsTodoItem.objects.filter(
+        user=request.user,
+        is_done=False
+    ).order_by("-created_at")
+
+    return render(request, "home/ops/ops_hub.html", {
+        "today": today,
+        "journal": journal,
+        "todos": todos,
+    })
+
+
+@require_POST
+@login_required
+def ops_journal_autosave(request):
+    today = timezone.localdate()
+
+    # Accept either JSON (fetch) or form-encoded POST
+    content = ""
+    if request.content_type and "application/json" in request.content_type:
+        try:
+            payload = json.loads(request.body.decode("utf-8") or "{}")
+        except json.JSONDecodeError:
+            payload = {}
+        content = payload.get("content", "")
+    else:
+        content = request.POST.get("content", "")
+
+    # IMPORTANT: do NOT .strip() here (prevents accidental “empty saves”)
+    with transaction.atomic():
+        journal, _ = OpsDailyJournal.objects.select_for_update().get_or_create(
+            user=request.user,
+            entry_date=today,
+            defaults={"content": ""},
+        )
+
+        # If the browser posts nothing, don't nuke existing content
+        # (extra safety net)
+        if content is None:
+            content = ""
+        journal.content = content
+        journal.save(update_fields=["content", "updated_at"])
+
+        OpsDailyJournalRevision.objects.create(
+            journal=journal,
+            saved_by=request.user,
+            content_snapshot=content,
+        )
+
+    return JsonResponse({
+        "ok": True,
+        "updated_at": journal.updated_at.isoformat(),
+    })
+
+
+@login_required
+def ops_journal_history(request):
+    """
+    Journal history for the logged-in user.
+    Lists daily entries, with optional search, paginated.
+    """
+    q = (request.GET.get("q") or "").strip()
+
+    journals = (
+        OpsDailyJournal.objects
+        .filter(user=request.user)
+        .annotate(rev_count=Count("revisions"))
+        .order_by("-entry_date", "-updated_at")
+    )
+
+    if q:
+        journals = journals.filter(content__icontains=q)
+
+    paginator = Paginator(journals, 20)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    return render(
+        request,
+        "home/ops/ops_journal_history.html",
+        {
+            "page_obj": page_obj,
+            "q": q,
+        },
+    )
+
+
+@login_required
+def ops_todo_history(request):
+    todos = (
+        OpsTodoItem.objects
+        .filter(user=request.user, is_done=True)
+        .order_by("-done_at", "-updated_at")
+    )
+
+    paginator = Paginator(todos, 30)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    return render(request, "home/ops/ops_todo_history.html", {
+        "page_obj": page_obj,
+    })
+
+
+@require_POST
+@login_required
+def ops_todo_add(request):
+    title = (request.POST.get("title") or "").strip()
+
+    if not title:
+        messages.error(request, "Please enter a to-do item.")
+        return redirect("ops_hub")
+
+    # store uppercase so everything stays consistent everywhere
+    OpsTodoItem.objects.create(
+        user=request.user,
+        title=title[:200].upper(),
+    )
+
+    return redirect("ops_hub")
+
+
+@require_POST
+@login_required
+def ops_todo_complete(request, pk: int):
+    todo = get_object_or_404(OpsTodoItem, pk=pk, user=request.user, is_done=False)
+
+    todo.is_done = True
+    todo.done_at = timezone.now()
+    todo.save(update_fields=["is_done", "done_at", "updated_at"])
+
+    messages.success(request, "To-do marked as DONE.")
+    return redirect("ops_hub")

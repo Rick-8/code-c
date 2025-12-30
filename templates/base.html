@@ -143,6 +143,15 @@
                                     </a>
                                 </li>
 
+                                <!-- Operations -->
+                                <li>
+                                    <a class="dropdown-item text-light" href="{% url 'ops_hub' %}">
+                                        <i class="fa-solid fa-clipboard-list me-2 text-warning"></i>
+                                        Operations Workspace
+                                    </a>
+                                </li>
+
+
                                 <!-- Staff input -->
                                 <li>
                                     <a class="dropdown-item text-light" href="{% url 'qms_interaction_create' %}">
@@ -227,7 +236,8 @@
         &copy; {% now "Y" %} Cozy Coaches. All rights reserved.
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.toast').forEach(function (toastEl) {
@@ -236,7 +246,7 @@
         });
     </script>
 
+    {# Page-specific scripts live here #}
     {% block extra_js %}{% endblock %}
 </body>
-
 </html>

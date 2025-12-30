@@ -16,164 +16,153 @@
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <h2 class="mt-2 mb-1 text-light">Today’s Services</h2>
 
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-light rounded-pill"
-                data-bs-toggle="popover"
-                data-bs-trigger="focus"
-                data-bs-placement="right"
-                data-bs-custom-class="cozy-popover"
-                title="How to use this board"
-                data-bs-content="Find your service, then tap it to expand. If it’s delayed or cancelled, you’ll see minutes and a reason inside."
-              >
+              <button type="button" class="btn btn-sm btn-outline-light rounded-pill" data-bs-toggle="popover"
+                data-bs-trigger="focus" data-bs-placement="right" data-bs-container="body"
+                data-bs-custom-class="cozy-popover" data-bs-title="How to use this board" data-bs-html="true"
+                data-bs-offset="0,14" data-bs-content="
+    <div class='cozy-popover-body'>
+      <p><strong>Step 1:</strong> Find your service, then tap it to expand.</p>
+      <p>If it’s <span class='badge bg-warning text-dark'>Delayed</span> or
+         <span class='badge bg-danger'>Cancelled</span>, you’ll see the details.</p>
+      <p class='mb-0'>Please check for <strong>AM</strong> and <strong>PM</strong> Routes.</p>
+    </div>
+  " aria-label="How to use this board">
                 <i class="fa-solid fa-circle-question"></i>
               </button>
+
+
             </div>
 
             <p class="qms-muted mb-0">
               Status is live and updated by operations staff.
               <br>
-              <span class="small">
-                <span class="badge bg-success">On time</span>
-                <span class="badge bg-warning text-dark">Delayed</span>
-                <span class="badge bg-danger">Cancelled</span>
-              </span>
-            </p>
+   
           </div>
 
           <div class="d-flex gap-2 flex-wrap">
             {% if can_manage %}
-              <a href="{% url 'ops_dashboard' %}" class="btn btn-outline-light">
-                <i class="fa-solid fa-gear me-1"></i>
-                Manager panel
-              </a>
+            <a href="{% url 'ops_dashboard' %}" class="btn btn-outline-light">
+              <i class="fa-solid fa-gear me-1"></i>
+              Manager panel
+            </a>
             {% endif %}
           </div>
         </div>
 
         {% if weekend %}
-          <div class="alert alert-secondary mb-0">
-            Live Operations are not displayed on weekends.
-          </div>
+        <div class="alert alert-secondary mb-0">
+          Live Operations are not displayed on weekends.
+        </div>
         {% else %}
 
-          {% if journeys %}
+        {% if journeys %}
 
-            {# ✅ CONTAINED LIST AREA (scrolls, doesn't explode the page) #}
-            <div class="ops-list-shell">
-              <div class="accordion accordion-flush" id="opsPublicAccordion">
+        {# ✅ CONTAINED LIST AREA (scrolls, doesn't explode the page) #}
+        <div class="ops-list-shell">
+          <div class="accordion accordion-flush" id="opsPublicAccordion">
 
-                {% for j in journeys %}
-                  <div class="accordion-item bg-transparent border-0 mb-2">
+            {% for j in journeys %}
+            <div class="accordion-item bg-transparent border-0 mb-2">
 
-                    <h2 class="accordion-header" id="heading-{{ j.pk }}">
-                      <button
-                        class="accordion-button collapsed rounded-3 text-light ops-acc-btn"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapse-{{ j.pk }}"
-                        aria-expanded="false"
-                        aria-controls="collapse-{{ j.pk }}"
-                      >
-                        <div class="w-100 d-flex align-items-center justify-content-between gap-3 flex-wrap">
+              <h2 class="accordion-header" id="heading-{{ j.pk }}">
+                <button class="accordion-button collapsed rounded-3 text-light ops-acc-btn" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-{{ j.pk }}" aria-expanded="false"
+                  aria-controls="collapse-{{ j.pk }}">
+                  <div class="w-100 d-flex align-items-center justify-content-between gap-3 flex-wrap">
 
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            {% if j.status == "on_time" %}
-                              <i class="fa-solid fa-circle-check me-1 text-success"></i>
-                              <span class="badge bg-success me-2">On time</span>
-                            {% elif j.status == "delayed" %}
-                              <i class="fa-solid fa-clock me-1 text-warning"></i>
-                              <span class="badge bg-warning text-dark me-2">Delayed</span>
-                            {% else %}
-                              <i class="fa-solid fa-circle-xmark me-1 text-danger"></i>
-                              <span class="badge bg-danger me-2">Cancelled</span>
-                            {% endif %}
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                      {% if j.status == "on_time" %}
+                      <i class="fa-solid fa-circle-check me-1 text-success"></i>
+                      <span class="badge bg-success me-2">On time</span>
+                      {% elif j.status == "delayed" %}
+                      <i class="fa-solid fa-clock me-1 text-warning"></i>
+                      <span class="badge bg-warning text-dark me-2">Delayed</span>
+                      {% else %}
+                      <i class="fa-solid fa-circle-xmark me-1 text-danger"></i>
+                      <span class="badge bg-danger me-2">Cancelled</span>
+                      {% endif %}
 
-                            <span class="fw-semibold">
-                              {{ j.route.code }} · {{ j.route.name }}
-                            </span>
-                          </div>
+                      <span class="fw-semibold">
+                        {{ j.route.code }} · {{ j.route.name }}
+                      </span>
+                    </div>
 
-                          <div class="d-flex align-items-center gap-2">
-                            <span class="ms-2 text-primary d-none d-md-inline">
-                              ({{ j.route.origin }} → {{ j.route.destination }})
-                            </span>
-                          </div>
-
-                        </div>
-                      </button>
-                    </h2>
-
-                    <div
-                      id="collapse-{{ j.pk }}"
-                      class="accordion-collapse collapse"
-                      aria-labelledby="heading-{{ j.pk }}"
-                      data-bs-parent="#opsPublicAccordion"
-                    >
-                      <div class="accordion-body text-light rounded-3 mt-2 ops-acc-body">
-                        <div class="row g-3">
-
-                          <div class="col-12 col-md-6">
-                            <div class="small text-primary mb-2">Route</div>
-                            <div class="fw-semibold">
-                              {{ j.route.origin }} → {{ j.route.destination }}
-                            </div>
-                          </div>
-
-                          <div class="col-12 col-md-6 text-md-end">
-                            <div class="small text-primary mb-2">Last update</div>
-                            <div class="fw-semibold">
-                              {{ j.updated_at|date:"d M Y H:i"|default:"—" }}
-                            </div>
-                          </div>
-
-                          <div class="col-12">
-                            <div class="small text-primary mb-2">Status details</div>
-
-                            {% if j.status == "on_time" %}
-                              <div class="ops-detail-box">
-                                On time. No delay currently reported.
-                              </div>
-
-                            {% elif j.status == "delayed" %}
-                              <div class="ops-detail-box ops-detail-warning">
-                                <div class="fw-semibold">Delay: {{ j.delay_minutes|default:"—" }} min</div>
-                                <div class="mt-1">
-                                  <span class="small text-primary">Reason:</span>
-                                  <span class="fw-semibold">{{ j.reason|default:"Reason not provided." }}</span>
-                                </div>
-                              </div>
-
-                            {% else %}
-                              <div class="ops-detail-box ops-detail-danger">
-                                <div class="mt-1">
-                                  <span class="small text-primary">Reason:</span>
-                                  <span class="fw-semibold">{{ j.reason|default:"Reason not provided." }}</span>
-                                </div>
-                              </div>
-                            {% endif %}
-                          </div>
-
-                        </div>
-                      </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="ms-2 text-primary d-none d-md-inline">
+                        ({{ j.route.origin }} → {{ j.route.destination }})
+                      </span>
                     </div>
 
                   </div>
-                {% endfor %}
+                </button>
+              </h2>
 
+              <div id="collapse-{{ j.pk }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ j.pk }}"
+                data-bs-parent="#opsPublicAccordion">
+                <div class="accordion-body text-light rounded-3 mt-2 ops-acc-body">
+                  <div class="row g-3">
+
+                    <div class="col-12 col-md-6">
+                      <div class="small text-primary mb-2">Route</div>
+                      <div class="fw-semibold">
+                        {{ j.route.origin }} → {{ j.route.destination }}
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 text-md-end">
+                      <div class="small text-primary mb-2">Last update</div>
+                      <div class="fw-semibold">
+                        {{ j.updated_at|date:"d M Y H:i"|default:"—" }}
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="small text-primary mb-2">Status details</div>
+
+                      {% if j.status == "on_time" %}
+                      <div class="ops-detail-box">
+                        On time. No delay currently reported.
+                      </div>
+
+                      {% elif j.status == "delayed" %}
+                      <div class="ops-detail-box ops-detail-warning">
+                        <div class="fw-semibold">Delay: {{ j.delay_minutes|default:"—" }} min</div>
+                        <div class="mt-1">
+                          <span class="small text-primary">Reason:</span>
+                          <span class="fw-semibold">{{ j.reason|default:"Reason not provided." }}</span>
+                        </div>
+                      </div>
+
+                      {% else %}
+                      <div class="ops-detail-box ops-detail-danger">
+                        <div class="mt-1">
+                          <span class="small text-primary">Reason:</span>
+                          <span class="fw-semibold">{{ j.reason|default:"Reason not provided." }}</span>
+                        </div>
+                      </div>
+                      {% endif %}
+                    </div>
+
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="mt-4 qms-muted small">
-              <i class="fa-solid fa-circle-info me-1"></i>
-              Tip: Tap on each service to view status.
             </div>
+            {% endfor %}
 
-          {% else %}
-            <div class="alert alert-secondary mb-0">
-              No services are currently listed for today.
-            </div>
-          {% endif %}
+          </div>
+        </div>
+
+        <div class="mt-4 qms-muted small">
+          <i class="fa-solid fa-circle-info me-1"></i>
+          Tip: Tap on each service to view status.
+        </div>
+
+        {% else %}
+        <div class="alert alert-secondary mb-0">
+          No services are currently listed for today.
+        </div>
+        {% endif %}
 
         {% endif %}
       </div>
@@ -183,70 +172,85 @@
 
 <style>
   /* Dark popover to match glass theme */
-  .cozy-popover.popover{
-    --bs-popover-bg: rgba(0,0,0,.85);
-    --bs-popover-border-color: rgba(255,255,255,.12);
-    --bs-popover-header-bg: rgba(0,0,0,.85);
+  .cozy-popover.popover {
+    --bs-popover-bg: rgba(0, 0, 0, .85);
+    --bs-popover-border-color: rgba(255, 255, 255, .12);
+    --bs-popover-header-bg: rgba(0, 0, 0, .85);
     --bs-popover-header-color: #fff;
-    --bs-popover-body-color: rgba(255,255,255,.85);
+    --bs-popover-body-color: rgba(255, 255, 255, .85);
   }
 
   /* ✅ The “contained list” panel */
-  .ops-list-shell{
-    background: rgba(0,0,0,.25);
-    border: 1px solid rgba(255,255,255,.10);
+  .ops-list-shell {
+    background: rgba(0, 0, 0, .25);
+    border: 1px solid rgba(255, 255, 255, .10);
     border-radius: 14px;
     padding: 10px;
-    max-height: 70vh;          /* keeps the list inside its own section */
-    overflow-y: auto;          /* scroll, don't expand forever */
+    max-height: 70vh;
+    /* keeps the list inside its own section */
+    overflow-y: auto;
+    /* scroll, don't expand forever */
     overflow-x: hidden;
   }
 
   /* Optional: nicer scrollbars on Chromium */
-  .ops-list-shell::-webkit-scrollbar{ width: 10px; }
-  .ops-list-shell::-webkit-scrollbar-thumb{
-    background: rgba(255,255,255,.18);
+  .ops-list-shell::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .ops-list-shell::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .18);
     border-radius: 999px;
   }
-  .ops-list-shell::-webkit-scrollbar-track{ background: transparent; }
 
-  /* Accordion button + body visuals (consistent + contained) */
-  .ops-acc-btn{
-    background: rgba(0,0,0,.55) !important;
+  .ops-list-shell::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Accordion button + body visuals */
+  .ops-acc-btn {
+    background: rgba(0, 0, 0, .55) !important;
     box-shadow: none !important;
   }
-  .ops-acc-btn:focus{
-    box-shadow: 0 0 0 .15rem rgba(255,255,255,.12) !important;
+
+  .ops-acc-btn:focus {
+    box-shadow: 0 0 0 .15rem rgba(255, 255, 255, .12) !important;
   }
 
-  .ops-acc-body{
-    background: rgba(0,0,0,.35);
-    border: 1px solid rgba(255,255,255,.08);
-  }
-
-  /* ✅ Cap expanded content height so one service can't dominate */
-  .ops-acc-body{
-    max-height: 280px;         /* tweak to taste */
+  .ops-acc-body {
+    background: rgba(0, 0, 0, .35);
+    border: 1px solid rgba(255, 255, 255, .08);
+    max-height: 280px;
+    /* cap expanded content */
     overflow: auto;
   }
 
   /* Detail boxes */
-  .ops-detail-box{
-    background: rgba(0,0,0,.25);
-    border: 1px solid rgba(255,255,255,.08);
+  .ops-detail-box {
+    background: rgba(0, 0, 0, .25);
+    border: 1px solid rgba(255, 255, 255, .08);
     padding: 14px;
     border-radius: 12px;
   }
-  .ops-detail-warning{ border-color: rgba(255,193,7,.35); }
-  .ops-detail-danger{ border-color: rgba(220,53,69,.35); }
-</style>
 
+  .ops-detail-warning {
+    border-color: rgba(255, 193, 7, .35);
+  }
+
+  .ops-detail-danger {
+    border-color: rgba(220, 53, 69, .35);
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
 <script>
-(function () {
-  if (!window.bootstrap) return;
-  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
-    new bootstrap.Popover(el);
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!window.bootstrap) return;
+
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach((el) => {
+      bootstrap.Popover.getOrCreateInstance(el);
+    });
   });
-})();
 </script>
 {% endblock %}

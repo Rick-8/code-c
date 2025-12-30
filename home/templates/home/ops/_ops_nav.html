@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-lg navbar-cozy navbar-dark py-2 cozy-dark-glass shadow-sm ops-subnav" data-bs-theme="dark">
+
+
+  <div class="container-fluid px-0">
+
+    <span class="cozy-text-subtitle me-3">
+      <i class="fa-solid fa-screwdriver-wrench me-1"></i>
+      Ops Hub
+    </span>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#opsSubNav"
+      aria-controls="opsSubNav" aria-expanded="false" aria-label="Toggle ops navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="opsSubNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'ops_hub' %}">
+            <i class="fa-solid fa-table-columns me-1"></i> Hub
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'ops_journal_history' %}">
+            <i class="fa-solid fa-book me-1"></i> Journal History
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'ops_todo_history' %}">
+            <i class="fa-solid fa-list-check me-1"></i> To-do History
+          </a>
+        </li>
+      </ul>
+
+      <div class="d-flex gap-2">
+        <a class="btn btn-sm btn-outline-light" href="{% url 'home' %}">
+          <i class="fa-solid fa-house me-1"></i> Main Site
+        </a>
+      </div>
+    </div>
+
+  </div>
+</nav>
