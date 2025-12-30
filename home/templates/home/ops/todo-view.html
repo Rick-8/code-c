@@ -1,0 +1,112 @@
+{# home/templates/home/ops/todo-view.html #}
+
+<div class="offcanvas-header border-bottom border-secondary-subtle">
+  <div>
+    <div class="cozy-text-subtitle">To-do</div>
+
+    <h5 class="mb-0 mt-2 text-light" style="text-transform: uppercase;">
+      {{ todo.title }}
+    </h5>
+
+    <div class="small text-light mt-1 opacity-75">
+      Created: {{ todo.created_at|date:"d M Y H:i" }}
+      {% if todo.updated_at %} · Updated: {{ todo.updated_at|date:"d M Y H:i" }}{% endif %}
+    </div>
+  </div>
+
+  <button
+    type="button"
+    class="btn-close btn-close-white"
+    data-bs-dismiss="offcanvas"
+    aria-label="Close"
+    title="Close"
+  ></button>
+</div>
+
+<div class="offcanvas-body text-light">
+
+  <!-- Status row -->
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    {% if todo.is_done %}
+      <span class="badge text-bg-success">
+        <i class="fa-solid fa-circle-check me-1"></i> DONE
+      </span>
+      {% if todo.done_at %}
+        <span class="badge text-bg-secondary">
+          Done at: {{ todo.done_at|date:"d M Y H:i" }}
+        </span>
+      {% endif %}
+    {% else %}
+      <span class="badge text-bg-warning">
+        <i class="fa-solid fa-hourglass-half me-1"></i> OPEN
+      </span>
+    {% endif %}
+
+    {# Optional future fields (won't break if absent) #}
+    {% if todo.sent_by %}
+      <span class="badge text-bg-dark">
+        <i class="fa-solid fa-paper-plane me-1"></i>
+        From: {{ todo.sent_by }}
+      </span>
+    {% endif %}
+    {% if todo.assigned_to %}
+      <span class="badge text-bg-dark">
+        <i class="fa-solid fa-user-check me-1"></i>
+        To: {{ todo.assigned_to }}
+      </span>
+    {% endif %}
+  </div>
+
+  <!-- Details -->
+  <div class="p-3 rounded-3" style="background: rgba(20,20,20,0.55); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px);">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="fw-semibold">
+        <i class="fa-solid fa-align-left me-2 text-warning"></i>
+        Details
+      </div>
+    </div>
+
+    {% if todo.description %}
+      <div class="small text-light" style="white-space: pre-wrap;">
+        {{ todo.description }}
+      </div>
+    {% elif todo.notes %}
+      <div class="small text-light" style="white-space: pre-wrap;">
+        {{ todo.notes }}
+      </div>
+    {% else %}
+      <div class="small text-light opacity-75">
+        No extra notes for this to-do yet.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Actions -->
+  <div class="mt-4 d-grid gap-2">
+    {% if not todo.is_done %}
+      <form method="post" action="{% url 'ops_todo_complete' todo.id %}" class="m-0">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">
+          <i class="fa-solid fa-check me-2"></i>
+          Mark as completed
+        </button>
+      </form>
+    {% else %}
+      <button type="button" class="btn btn-outline-success" disabled>
+        <i class="fa-solid fa-check me-2"></i>
+        Completed
+      </button>
+    {% endif %}
+
+    <a href="{% url 'ops_hub' %}" class="btn btn-outline-light">
+      <i class="fa-solid fa-arrow-left me-2"></i>
+      Back to Ops Hub
+    </a>
+
+    <a href="{% url 'ops_todo_history' %}" class="btn btn-outline-light">
+      <i class="fa-solid fa-clock-rotate-left me-2"></i>
+      To-do history
+    </a>
+  </div>
+
+</div>

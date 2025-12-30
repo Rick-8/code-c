@@ -255,13 +255,32 @@ class OpsDailyJournalRevision(models.Model):
 
 
 class OpsTodoItem(models.Model):
+    # creator (who created it)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="ops_todos",
+        related_name="ops_todos_created",
+    )
+
+    # recipient (who it is for) — REQUIRED
+    assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ops_todos_assigned",
+    )
+
+    # sender (optional: usually same as user)
+    sent_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ops_todos_sent",
     )
 
     title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+
     is_done = models.BooleanField(default=False)
     done_at = models.DateTimeField(null=True, blank=True)
 
@@ -270,7 +289,8 @@ class OpsTodoItem(models.Model):
 
     class Meta:
         ordering = ["is_done", "-created_at"]
+        verbose_name = "Ops To-do"
+        verbose_name_plural = "Ops To-dos"
 
-    def __str__(self):
-        state = "done" if self.is_done else "open"
-        return f"{self.title} ({state})"
+    def __str__(self) -> str:
+        return self.title

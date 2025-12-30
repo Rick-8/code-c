@@ -25,4 +25,8 @@ urlpatterns = [
     path("ops/todo/add/", views_ops.ops_todo_add, name="ops_todo_add"),
     path("ops/todo/<int:pk>/complete/", views_ops.ops_todo_complete, name="ops_todo_complete"),
     path("ops/todo/history/", views_ops.ops_todo_history, name="ops_todo_history"),
+    # home/urls.py
+    path("ops/todo/<int:pk>/", views_ops.ops_todo_view, name="ops_todo_view"),
+
+
 ]

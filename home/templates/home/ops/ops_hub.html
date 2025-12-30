@@ -40,7 +40,7 @@
         id="opsJournalText"
         class="form-control ops-input"
         rows="14"
-        placeholder="Write shift notes here... (autosave comes in Step 3)"
+        placeholder="Write shift notes here..."
       >{{ journal.content }}</textarea>
 
       <div class="mt-2 small text-light">
@@ -71,43 +71,87 @@
           <i class="fa-solid fa-list-check me-2"></i>
           To-do List
         </h5>
+
+        <a class="btn btn-sm btn-outline-light" href="{% url 'ops_todo_history' %}">
+          <i class="fa-solid fa-clock-rotate-left me-1"></i> History
+        </a>
       </div>
 
-      <form id="opsTodoAddForm" method="post" action="{% url 'ops_todo_add' %}" class="d-flex gap-2 mb-3">
+      <!-- Add (send + details) -->
+      <form id="opsTodoAddForm" method="post" action="{% url 'ops_todo_add' %}" class="mb-3">
         {% csrf_token %}
-        <input
-          id="opsTodoTitle"
-          type="text"
-          name="title"
-          class="form-control ops-input ops-todo-title"
-          placeholder="Add a new task…"
-          maxlength="200"
-          required
-          style="text-transform: uppercase;"
-        >
-        <button class="btn btn-sm btn-outline-light" type="submit">
-          <i class="fa-solid fa-plus me-1"></i> Add
-        </button>
+
+        <div class="d-flex gap-2 mb-2">
+          <input
+            id="opsTodoTitle"
+            type="text"
+            name="title"
+            class="form-control ops-input ops-todo-title"
+            placeholder="Add a new task…"
+            maxlength="200"
+            required
+            style="text-transform: uppercase;"
+          >
+
+          <select name="assigned_to" class="form-select ops-input" style="max-width: 240px;">
+            <option value="">Send to: ME (default)</option>
+            {% for u in staff_users %}
+              <option value="{{ u.id }}">
+                {{ u.get_full_name|default:u.username }}
+                {% if u.is_superuser %}(SU){% elif u.is_staff %}(Staff){% endif %}
+              </option>
+            {% endfor %}
+          </select>
+
+          <button class="btn btn-sm btn-outline-light" type="submit">
+            <i class="fa-solid fa-plus me-1"></i> Add
+          </button>
+        </div>
+
+        <textarea
+          name="description"
+          class="form-control ops-input"
+          rows="2"
+          placeholder="Optional details (shown in the off-canvas)..."
+        ></textarea>
       </form>
 
       <div class="small text-light mb-2">
-        Items persist until completed. Completed items move to To-do History.
+        Items persist until completed. Click a title to view details.
       </div>
 
+      <!-- List -->
       <ul class="list-group list-group-flush">
         {% for t in todos %}
           <li class="list-group-item bg-transparent text-light border-secondary-subtle d-flex align-items-center gap-2">
 
-            <!-- title -->
-            <span class="flex-grow-1 ops-todo-text" style="text-transform: uppercase;">
+            <!-- title (click opens offcanvas) -->
+            <a
+              href="#"
+              class="flex-grow-1 ops-todo-text text-decoration-none text-light"
+              style="text-transform: uppercase;"
+              data-open-todo="1"
+              data-todo-url="{% url 'ops_todo_view' t.id %}"
+              aria-label="Open to-do {{ t.title|upper }}"
+            >
               {{ t.title }}
-            </span>
+              <span class="ms-2 small opacity-75">
+                {% if t.assigned_to_id == request.user.id and t.user_id != request.user.id %}
+                  (TO ME)
+                {% elif t.user_id == request.user.id and t.assigned_to_id != request.user.id %}
+                  (SENT)
+                {% else %}
+                  (MINE)
+                {% endif %}
+              </span>
+            </a>
 
             <!-- done button (popover confirm) -->
             <button
               type="button"
               class="btn btn-sm btn-outline-success ops-todo-done-btn"
               data-todo-id="{{ t.id }}"
+              data-stop-row-click="1"
               aria-label="Mark {{ t.title|upper }} as done"
               title="Mark as done"
             >
@@ -145,6 +189,27 @@
 
 </div>
 
+<!-- Offcanvas: Todo Detail -->
+<div
+  class="offcanvas offcanvas-end text-bg-dark"
+  tabindex="-1"
+  id="opsTodoCanvas"
+  aria-labelledby="opsTodoCanvasLabel"
+  data-bs-backdrop="false"
+>
+  <div id="opsTodoCanvasContent">
+    <div class="offcanvas-header border-bottom border-secondary-subtle">
+      <h5 class="mb-0" id="opsTodoCanvasLabel">To-do</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="text-light small opacity-75">
+        Select a to-do to view details.
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -163,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------------------------------------------------------
-  // JOURNAL AUTOSAVE (debounced)
+  // JOURNAL AUTOSAVE (debounced) - unchanged
   // -------------------------------------------------------
   const journalBox = document.getElementById("opsJournalText");
   const autosaveUrl = "{% url 'ops_journal_autosave' %}";
@@ -183,8 +248,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!journalBox) return;
 
     const content = journalBox.value;
-
-    // don't spam server if nothing changed
     if (content === lastSent) return;
 
     try {
@@ -205,8 +268,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await res.json().catch(() => null);
       lastSent = content;
-
-      // Optional: quick visual proof in console
       console.log("Autosaved OK", data);
 
     } catch (err) {
@@ -215,20 +276,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (journalBox) {
-    // Save ~1.2s after you stop typing
     journalBox.addEventListener("input", () => {
       if (autosaveTimer) clearTimeout(autosaveTimer);
       autosaveTimer = setTimeout(autosaveNow, 1200);
     });
 
-    // Critical: before submitting the todo form, do a final autosave
     if (addForm) {
       addForm.addEventListener("submit", async () => {
         await autosaveNow();
       });
     }
-  } else {
-    console.warn("Autosave: #opsJournalText not found.");
   }
 
   // -------------------------------------------------------
@@ -311,7 +368,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Popovers (Confirm Done)
   // -------------------------------------------------------
   const buttons = Array.from(document.querySelectorAll(".ops-todo-done-btn"));
-  if (!buttons.length) return;
 
   const hideAll = () => {
     buttons.forEach(btn => {
@@ -340,41 +396,107 @@ document.addEventListener("DOMContentLoaded", () => {
     return inst;
   };
 
-  buttons.forEach(btn => {
-    ensurePopover(btn);
+  if (buttons.length) {
+    buttons.forEach(btn => {
+      ensurePopover(btn);
 
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
 
-      const inst = ensurePopover(btn);
-      if (!inst) return;
+        const inst = ensurePopover(btn);
+        if (!inst) return;
 
-      const popEl = document.querySelector(".popover.show");
-      if (popEl) {
-        const currentOpenForThis = btn.getAttribute("aria-describedby");
-        if (currentOpenForThis) {
-          inst.hide();
-          return;
+        const popEl = document.querySelector(".popover.show");
+        if (popEl) {
+          const currentOpenForThis = btn.getAttribute("aria-describedby");
+          if (currentOpenForThis) {
+            inst.hide();
+            return;
+          }
         }
-      }
 
-      hideAll();
-      inst.show();
+        hideAll();
+        inst.show();
+      });
     });
-  });
 
-  document.addEventListener("click", (e) => {
-    if (e.target.closest(".ops-popover-cancel")) hideAll();
-  });
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".ops-popover-cancel")) hideAll();
+    });
 
-  document.addEventListener("click", (e) => {
-    if (e.target.closest(".popover")) return;
-    if (e.target.closest(".ops-todo-done-btn")) return;
-    hideAll();
-  });
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".popover")) return;
+      if (e.target.closest(".ops-todo-done-btn")) return;
+      hideAll();
+    });
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") hideAll();
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") hideAll();
+    });
+  }
+
+  // -------------------------------------------------------
+  // OFFCANVAS: click title -> fetch URL -> show
+  // -------------------------------------------------------
+  const canvasEl = document.getElementById("opsTodoCanvas");
+  const canvasContent = document.getElementById("opsTodoCanvasContent");
+
+  const openCanvas = () => {
+    if (!canvasEl) return;
+    const inst = bootstrap.Offcanvas.getOrCreateInstance(canvasEl);
+    inst.show();
+  };
+
+  async function loadTodo(url) {
+    if (!canvasContent) return;
+
+    canvasContent.innerHTML = `
+      <div class="offcanvas-header border-bottom border-secondary-subtle">
+        <h5 class="mb-0">To-do</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="text-light small opacity-75">Loading…</div>
+      </div>
+    `;
+
+    try {
+      const res = await fetch(url, { credentials: "same-origin" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      canvasContent.innerHTML = html;
+      openCanvas();
+    } catch (err) {
+      console.warn("Todo load failed:", err);
+      canvasContent.innerHTML = `
+        <div class="offcanvas-header border-bottom border-secondary-subtle">
+          <h5 class="mb-0">To-do</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="alert alert-danger mb-0">
+            Could not load to-do. Please try again.
+          </div>
+        </div>
+      `;
+      openCanvas();
+    }
+  }
+
+  // bind clicks to the title links only
+  document.querySelectorAll('[data-open-todo="1"]').forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const url = a.getAttribute("data-todo-url");
+      if (url) loadTodo(url);
+    });
+
+    a.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      const url = a.getAttribute("data-todo-url");
+      if (url) loadTodo(url);
+    });
   });
 
 });

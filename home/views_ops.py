@@ -13,6 +13,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
+import json
 
 from .models import OpsJourney, OpsRoute, OpsChangeLog
 from .permissions import user_can_manage_ops
@@ -403,6 +405,10 @@ def manager_history_lookup(request: HttpRequest) -> HttpResponse:
     )
 
 
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+User = get_user_model()
+
 @login_required
 def ops_hub(request):
     today = timezone.localdate()
@@ -413,16 +419,29 @@ def ops_hub(request):
         defaults={"content": ""},
     )
 
-    todos = OpsTodoItem.objects.filter(
-        user=request.user,
-        is_done=False
-    ).order_by("-created_at")
+    # SHOW: created by me OR assigned to me
+    todos = (
+        OpsTodoItem.objects
+        .filter(Q(user=request.user) | Q(assigned_to=request.user), is_done=False)
+        .select_related("user", "assigned_to", "sent_by")
+        .order_by("-created_at")
+    )
+
+    # Send-to dropdown options: staff + superusers only
+    staff_users = (
+        User.objects
+        .filter(is_active=True)
+        .filter(Q(is_staff=True) | Q(is_superuser=True))
+        .order_by("first_name", "last_name", "username")
+    )
 
     return render(request, "home/ops/ops_hub.html", {
         "today": today,
         "journal": journal,
         "todos": todos,
+        "staff_users": staff_users,
     })
+
 
 
 @require_POST
@@ -503,40 +522,61 @@ def ops_journal_history(request):
 def ops_todo_history(request):
     todos = (
         OpsTodoItem.objects
-        .filter(user=request.user, is_done=True)
+        .filter(Q(user=request.user) | Q(assigned_to=request.user), is_done=True)
+        .select_related("user", "assigned_to", "sent_by")
         .order_by("-done_at", "-updated_at")
     )
 
     paginator = Paginator(todos, 30)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    return render(request, "home/ops/ops_todo_history.html", {
-        "page_obj": page_obj,
-    })
+    return render(request, "home/ops/ops_todo_history.html", {"page_obj": page_obj})
+
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 @require_POST
 @login_required
 def ops_todo_add(request):
     title = (request.POST.get("title") or "").strip()
+    description = (request.POST.get("description") or "").strip()
+    assigned_to_id = (request.POST.get("assigned_to") or "").strip()
 
     if not title:
         messages.error(request, "Please enter a to-do item.")
         return redirect("ops_hub")
 
-    # store uppercase so everything stays consistent everywhere
+    # Default: assign to me (old behaviour preserved)
+    assigned_to = request.user
+
+    if assigned_to_id:
+        assigned_to = get_object_or_404(User, pk=assigned_to_id, is_active=True)
+        if not (assigned_to.is_staff or assigned_to.is_superuser):
+            messages.error(request, "You can only send to staff / superusers.")
+            return redirect("ops_hub")
+
     OpsTodoItem.objects.create(
         user=request.user,
+        sent_by=request.user,
+        assigned_to=assigned_to,
         title=title[:200].upper(),
+        description=description,
     )
 
+    messages.success(request, "To-do created.")
     return redirect("ops_hub")
 
 
 @require_POST
 @login_required
 def ops_todo_complete(request, pk: int):
-    todo = get_object_or_404(OpsTodoItem, pk=pk, user=request.user, is_done=False)
+    todo = get_object_or_404(OpsTodoItem, pk=pk, is_done=False)
+
+    if todo.user_id != request.user.id and todo.assigned_to_id != request.user.id:
+        messages.error(request, "You do not have permission to complete this to-do.")
+        return redirect("ops_hub")
 
     todo.is_done = True
     todo.done_at = timezone.now()
@@ -544,3 +584,18 @@ def ops_todo_complete(request, pk: int):
 
     messages.success(request, "To-do marked as DONE.")
     return redirect("ops_hub")
+
+
+@login_required
+def ops_todo_view(request: HttpRequest, pk: int) -> HttpResponse:
+    todo = get_object_or_404(OpsTodoItem, pk=pk, is_done=False)
+
+    if todo.user_id != request.user.id and todo.assigned_to_id != request.user.id:
+        return HttpResponse("Forbidden", status=403)
+
+    html = render_to_string(
+        "home/ops/todo-view.html",
+        {"todo": todo},
+        request=request,
+    )
+    return HttpResponse(html)

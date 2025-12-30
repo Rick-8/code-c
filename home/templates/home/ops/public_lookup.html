@@ -141,18 +141,30 @@
                     <div class="w-100 d-flex align-items-center justify-content-between gap-3 flex-wrap">
 
                       <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                        {# ✅ STATUS BADGE (fixed: only cancelled shows cancelled) #}
                         {% if j.status == "on_time" %}
-                        <i class="fa-solid fa-circle-check me-1 text-success"></i>
-                        <span class="badge bg-success me-2">On time</span>
+                          <i class="fa-solid fa-circle-check me-1 text-success"></i>
+                          <span class="badge bg-success me-2">On time</span>
+
                         {% elif j.status == "delayed" %}
-                        <i class="fa-solid fa-clock me-1 text-warning"></i>
-                        <span class="badge bg-warning text-dark me-2">Delayed</span>
+                          <i class="fa-solid fa-clock me-1 text-warning"></i>
+                          <span class="badge bg-warning text-dark me-2">Delayed</span>
+
+                        {% elif j.status == "cancelled" %}
+                          <i class="fa-solid fa-circle-xmark me-1 text-danger"></i>
+                          <span class="badge bg-danger me-2">Cancelled</span>
+
+                        {% elif j.status == "diversion" or j.status == "on_diversion" %}
+                          <i class="fa-solid fa-road me-1 text-info"></i>
+                          <span class="badge bg-info text-dark me-2">Diversion</span>
+
                         {% else %}
-                        <i class="fa-solid fa-circle-xmark me-1 text-danger"></i>
-                        <span class="badge bg-danger me-2">Cancelled</span>
+                          <i class="fa-solid fa-circle-question me-1 text-secondary"></i>
+                          <span class="badge bg-secondary me-2">Update</span>
                         {% endif %}
 
-                        {# ✅ Per-service diversion flag #}
+                        {# ✅ Per-service diversion flag (kept, shows alongside on_time/delayed/etc) #}
                         {% if j.is_diverted or j.diversion_title or j.diversion_details %}
                         <span class="badge bg-info text-dark me-2">
                           <i class="fa-solid fa-road me-1"></i> Diversion
@@ -232,11 +244,19 @@
                           </div>
                         </div>
 
-                        {% else %}
+                        {% elif j.status == "cancelled" %}
                         <div class="ops-detail-box ops-detail-danger">
                           <div class="mt-1">
                             <span class="small text-primary">Reason:</span>
                             <span class="fw-semibold">{{ j.reason|default:"Reason not provided." }}</span>
+                          </div>
+                        </div>
+
+                        {% else %}
+                        <div class="ops-detail-box">
+                          <div class="mt-1">
+                            <span class="small text-primary">Notes:</span>
+                            <span class="fw-semibold">{{ j.reason|default:"No additional details provided." }}</span>
                           </div>
                         </div>
                         {% endif %}
